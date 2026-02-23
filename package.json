@@ -1,7 +1,7 @@
 {
   "name": "@stacksjs/httx",
   "type": "module",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": " A modern command-line & library HTTP client, for the API era. Like httpie, written in & for TypeScript.",
   "author": "Chris Breuer <chris@stacksjs.org>",
   "license": "MIT",
@@ -12,6 +12,9 @@
   },
   "bugs": {
     "url": "https://github.com/stacksjs/httx/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "api",
@@ -26,6 +29,7 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/src/index.js"
     }
   },

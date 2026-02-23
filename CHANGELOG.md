@@ -1,3 +1,13 @@
+[Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.6...v0.1.7)
+
+### 🧹 Chores
+
+- release v0.1.7 ([5748352](https://github.com/stacksjs/ts-http/commit/5748352)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+
+### Contributors
+
+- _glennmichael123 <gtorregosa@gmail.com>_
+
 [Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.5...v0.1.6)
 
 ### 🧹 Chores
