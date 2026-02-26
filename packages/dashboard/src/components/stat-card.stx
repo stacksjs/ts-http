@@ -1,0 +1,11 @@
+<script>
+const label = ''
+const value = 0
+const unit = ''
+const variant = ''
+</script>
+
+<div class="stat-card">
+  <div class="stat-label">{{ label }}</div>
+  <div class="stat-value {{ variant === 'failed' ? 'error' : variant === 'accent' ? 'accent' : '' }}">{{ value }}{{ unit ? ' ' : '' }}<span class="stat-unit">{{ unit }}</span></div>
+</div>

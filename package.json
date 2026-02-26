@@ -2,6 +2,7 @@
   "name": "@stacksjs/httx",
   "type": "module",
   "version": "0.1.7",
+  "private": true,
   "description": " A modern command-line & library HTTP client, for the API era. Like httpie, written in & for TypeScript.",
   "author": "Chris Breuer <chris@stacksjs.org>",
   "license": "MIT",
@@ -12,9 +13,6 @@
   },
   "bugs": {
     "url": "https://github.com/stacksjs/httx/issues"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "keywords": [
     "api",
@@ -27,32 +25,18 @@
     "typescript",
     "javascript"
   ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/src/index.js"
-    }
-  },
-  "module": "./dist/src/index.js",
-  "types": "./dist/index.d.ts",
-  "bin": {
-    "httx": "./dist/bin/cli.js",
-    "http": "./dist/bin/cli.js",
-    "https": "./dist/bin/cli.js"
-  },
-  "files": [
-    "README.md",
-    "dist"
+  "workspaces": [
+    "packages/*"
   ],
   "scripts": {
-    "build": "bun build.ts && bun run compile",
-    "compile": "bun build ./bin/cli.ts --compile --minify --outfile bin/httx",
+    "build": "bun --bun packages/httx/build.ts",
+    "compile": "bun build ./packages/httx/bin/cli.ts --compile --minify --outfile bin/httx",
     "compile:all": "bun run compile:linux-x64 && bun run compile:linux-arm64 && bun run compile:windows-x64 && bun run compile:darwin-x64 && bun run compile:darwin-arm64",
-    "compile:linux-x64": "bun build ./bin/cli.ts --compile --minify --target=bun-linux-x64 --outfile bin/httx-linux-x64",
-    "compile:linux-arm64": "bun build ./bin/cli.ts --compile --minify --target=bun-linux-arm64 --outfile bin/httx-linux-arm64",
-    "compile:windows-x64": "bun build ./bin/cli.ts --compile --minify --target=bun-windows-x64 --outfile bin/httx-windows-x64.exe",
-    "compile:darwin-x64": "bun build ./bin/cli.ts --compile --minify --target=bun-darwin-x64 --outfile bin/httx-darwin-x64",
-    "compile:darwin-arm64": "bun build ./bin/cli.ts --compile --minify --target=bun-darwin-arm64 --outfile bin/httx-darwin-arm64",
+    "compile:linux-x64": "bun build ./packages/httx/bin/cli.ts --compile --minify --target=bun-linux-x64 --outfile bin/httx-linux-x64",
+    "compile:linux-arm64": "bun build ./packages/httx/bin/cli.ts --compile --minify --target=bun-linux-arm64 --outfile bin/httx-linux-arm64",
+    "compile:windows-x64": "bun build ./packages/httx/bin/cli.ts --compile --minify --target=bun-windows-x64 --outfile bin/httx-windows-x64.exe",
+    "compile:darwin-x64": "bun build ./packages/httx/bin/cli.ts --compile --minify --target=bun-darwin-x64 --outfile bin/httx-darwin-x64",
+    "compile:darwin-arm64": "bun build ./packages/httx/bin/cli.ts --compile --minify --target=bun-darwin-arm64 --outfile bin/httx-darwin-arm64",
     "fresh": "bunx rimraf node_modules/ bun.lock && bun i",
     "prepublishOnly": "bun --bun run build && bun run compile:all && bun run zip",
     "test": "bun test",
@@ -65,6 +49,7 @@
     "release": "bun --bun run changelog:generate && bunx --bun bumpx prompt --recursive",
     "typecheck": "bunx tsc --noEmit",
     "dev:docs": "bun --bun vitepress dev docs",
+    "dev:dashboard": "cd packages/dashboard && bunx bun-plugin-stx serve src/pages/ --port 4401",
     "build:docs": "bun --bun vitepress build docs",
     "preview:docs": "bun --bun vitepress preview docs",
     "zip": "bun run zip:all",

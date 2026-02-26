@@ -1,0 +1,38 @@
+<script>
+const requests = []
+</script>
+
+<div>
+  @if(requests.length === 0)
+    <div class="empty-state">No requests to display.</div>
+  @else
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>URL</th>
+          <th>Status</th>
+          <th class="text-right">Duration</th>
+          <th class="text-right">Size</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach(requests as req)
+          <tr>
+            <td>
+              <span class="method-badge {{ req.method === 'GET' ? 'method-get' : req.method === 'POST' ? 'method-post' : req.method === 'PUT' || req.method === 'PATCH' ? 'method-put' : req.method === 'DELETE' ? 'method-delete' : '' }}">{{ req.method }}</span>
+            </td>
+            <td class="mono truncate" style="font-size: 0.75rem;">{{ req.url }}</td>
+            <td>
+              <span class="badge {{ req.status < 300 ? 'badge-success' : req.status < 400 ? 'badge-info' : req.status < 500 ? 'badge-warning' : 'badge-error' }}">{{ req.status }}</span>
+            </td>
+            <td class="text-right mono tabular-nums" style="font-size: 0.75rem;">{{ req.duration }}ms</td>
+            <td class="text-right tabular-nums" style="font-size: 0.75rem;">{{ req.responseSize }}B</td>
+            <td style="font-size: 0.75rem;">{{ req.timestamp }}</td>
+          </tr>
+        @endforeach
+      </tbody>
+    </table>
+  @endif
+</div>

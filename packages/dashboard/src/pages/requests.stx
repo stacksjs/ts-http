@@ -1,0 +1,200 @@
+<script>
+const title = 'Request History'
+const requests = []
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} — httx</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #141419;
+      --bg3: #1e1e26;
+      --text: #f5f5f7;
+      --text2: #a1a1aa;
+      --muted: #71717a;
+      --border: #27272a;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-left { display: flex; align-items: center; gap: 1.5rem; }
+    .header-title { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .header-nav { display: flex; gap: 0.25rem; }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text2);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    .nav-btn:hover { background: var(--bg3); color: var(--text); }
+    .nav-btn.active { background: var(--accent); color: white; }
+
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .page-title { font-size: 1.125rem; font-weight: 600; color: var(--text); }
+    .page-subtitle { font-size: 0.8125rem; color: var(--muted); margin-top: 0.25rem; }
+
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    th {
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.625rem 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:hover td { background: var(--bg3); }
+    tr:last-child td { border-bottom: none; }
+
+    .text-right { text-align: right; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .mono { font-family: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, monospace; }
+    .text-sm { font-size: 0.75rem; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.6875rem;
+      font-weight: 500;
+    }
+
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .badge-error { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+    .badge-info { background: rgba(99, 102, 241, 0.15); color: var(--accent); }
+
+    .method-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.125rem 0.4375rem;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .method-get { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .method-post { background: rgba(99, 102, 241, 0.15); color: var(--accent); }
+    .method-put { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .method-delete { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+
+    .empty-state { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.8125rem; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <span class="header-title">httx</span>
+      <nav class="header-nav">
+        <a href="/" class="nav-btn">Overview</a>
+        <a href="/requests" class="nav-btn active">Requests</a>
+        <a href="/metrics" class="nav-btn">Metrics</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="page-subtitle">Browse HTTP request history</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      @if(requests.length === 0)
+        <div class="empty-state">No requests recorded yet. Start making HTTP requests with httx to see them here.</div>
+      @else
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>URL</th>
+              <th>Status</th>
+              <th class="text-right">Duration</th>
+              <th class="text-right">Size</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach(requests as req)
+              <tr>
+                <td>
+                  <span class="method-badge {{ req.method === 'GET' ? 'method-get' : req.method === 'POST' ? 'method-post' : req.method === 'PUT' || req.method === 'PATCH' ? 'method-put' : req.method === 'DELETE' ? 'method-delete' : '' }}">{{ req.method }}</span>
+                </td>
+                <td class="mono truncate text-sm">{{ req.url }}</td>
+                <td>
+                  <span class="badge {{ req.status < 300 ? 'badge-success' : req.status < 400 ? 'badge-info' : req.status < 500 ? 'badge-warning' : 'badge-error' }}">{{ req.status }}</span>
+                </td>
+                <td class="text-right mono tabular-nums text-sm">{{ req.duration }}ms</td>
+                <td class="text-right tabular-nums text-sm">{{ req.responseSize }}B</td>
+                <td class="text-sm">{{ req.timestamp }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      @endif
+    </div>
+  </div>
+</body>
+</html>
