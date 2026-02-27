@@ -61,11 +61,11 @@
     "zip:darwin-arm64": "zip -j bin/httx-darwin-arm64.zip bin/httx-darwin-arm64"
   },
   "dependencies": {
-    "ts-error-handling": "^0.1.0"
+    "ts-error-handling": "^0.1.1"
   },
   "devDependencies": {
     "@stacksjs/docs": "^0.70.23",
-    "better-dx": "^0.2.5"
+    "better-dx": "^0.2.6"
   },
   "overrides": {
     "unconfig": "0.3.10"
