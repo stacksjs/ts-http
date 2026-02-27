@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'bun:test'
 import { execSync } from 'node:child_process'
+import { resolve } from 'node:path'
 
 describe('httx CLI', () => {
-  const cli = 'bun ./bin/cli.ts'
+  const cliPath = resolve(import.meta.dir, '../bin/cli.ts')
+  const cli = `bun ${cliPath}`
 
   describe('GET requests', () => {
     it('should fetch todos', async () => {
