@@ -1,6 +1,8 @@
-<script lang="ts">
-const requests = []
-const clickable = false
+<script>
+import type { RequestRecord } from '../types'
+
+const requests: RequestRecord[] = []
+const clickable: boolean = false
 </script>
 
 <div>

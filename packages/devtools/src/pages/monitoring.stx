@@ -1,16 +1,17 @@
-<script lang="ts">
-const activePage = 'monitoring'
-const { data: alerts, loading: alertsLoading } = useQuery('/api/alerts', { initialData: [] })
-const { data: events, loading: eventsLoading } = useQuery('/api/events', { initialData: [] })
+<script>
+import type { MonitoringAlert, EventLogEntry } from '../types'
 
-const activeAlerts = computed(() => (alerts.value || []).filter(a => !a.resolved))
-const healthScore = computed(() => Math.max(0, 100 - activeAlerts.value.length * 15))
-const reversedEvents = computed(() => [...(events.value || [])].reverse())
+const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/api/alerts', { initialData: [] })
+const { data: events, loading: eventsLoading } = useQuery<EventLogEntry[]>('/api/events', { initialData: [] })
 
-const typeColors = { request: 'text-indigo-400', error: 'text-red-500', alert: 'text-amber-500', system: 'text-zinc-400', config: 'text-emerald-500' }
+const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filter((a: MonitoringAlert) => !a.resolved))
+const healthScore = computed<number>(() => Math.max(0, 100 - activeAlerts.value.length * 15))
+const reversedEvents = computed<EventLogEntry[]>(() => [...(events.value || [])].reverse())
+
+const typeColors: Record<string, string> = { request: 'text-indigo-400', error: 'text-red-500', alert: 'text-amber-500', system: 'text-zinc-400', config: 'text-emerald-500' }
 </script>
 
-@extends('components/layout')
+@extends('layouts/app')
 
 @section('content')
 <div class="animate-fade-in">

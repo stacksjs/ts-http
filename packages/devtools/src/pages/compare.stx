@@ -1,14 +1,17 @@
-<script lang="ts">
-const activePage = 'compare'
-const { data: endpoints, loading } = useQuery('/api/endpoints', { initialData: [] })
-const selectedA = ref('')
-const selectedB = ref('')
-const epA = ref(null)
-const epB = ref(null)
-const chartRef = useRef('compareChart')
-let chart = null
+<script>
+import type { EndpointStats, EndpointDetail, StatusDistribution } from '../types'
 
-watch(endpoints, (eps) => {
+declare const Chart: any
+
+const { data: endpoints, loading } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
+const selectedA = ref<string>('')
+const selectedB = ref<string>('')
+const epA = ref<EndpointDetail | null>(null)
+const epB = ref<EndpointDetail | null>(null)
+const chartRef = useRef<HTMLCanvasElement>('compareChart')
+let chart: any = null
+
+watch(endpoints, (eps: EndpointStats[]) => {
   if (eps.length >= 2 && !selectedA.value) {
     selectedA.value = eps[0].method + ' ' + eps[0].url
     selectedB.value = eps[1].method + ' ' + eps[1].url
@@ -16,19 +19,19 @@ watch(endpoints, (eps) => {
   }
 })
 
-async function doCompare() {
+async function doCompare(): Promise<void> {
   if (!selectedA.value || !selectedB.value) return
-  const [resA, resB] = await Promise.all([
+  const [resA, resB]: [Response, Response] = await Promise.all([
     fetch(`/api/endpoints/${encodeURIComponent(selectedA.value)}`),
     fetch(`/api/endpoints/${encodeURIComponent(selectedB.value)}`),
   ])
-  epA.value = await resA.json()
-  epB.value = await resB.json()
+  epA.value = await resA.json() as EndpointDetail
+  epB.value = await resB.json() as EndpointDetail
 
   if (typeof Chart !== 'undefined' && chartRef.current && epA.value && epB.value) {
     if (chart) chart.destroy()
-    const sdA = epA.value.statusDistribution
-    const sdB = epB.value.statusDistribution
+    const sdA: StatusDistribution = epA.value.statusDistribution
+    const sdB: StatusDistribution = epB.value.statusDistribution
     chart = new Chart(chartRef.current, {
       type: 'bar',
       data: {
@@ -43,11 +46,11 @@ async function doCompare() {
   }
 }
 
-function onSelectA(e) { selectedA.value = e.target.value; doCompare() }
-function onSelectB(e) { selectedB.value = e.target.value; doCompare() }
+function onSelectA(e: Event): void { selectedA.value = (e.target as HTMLSelectElement).value; doCompare() }
+function onSelectB(e: Event): void { selectedB.value = (e.target as HTMLSelectElement).value; doCompare() }
 </script>
 
-@extends('components/layout')
+@extends('layouts/app')
 
 @section('content')
 <div class="animate-fade-in">

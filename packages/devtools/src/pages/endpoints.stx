@@ -1,19 +1,20 @@
-<script lang="ts">
-const activePage = 'endpoints'
-const { data: endpoints, loading } = useQuery('/api/endpoints', { initialData: [] })
-const searchTerm = ref('')
+<script>
+import type { EndpointStats } from '../types'
 
-const filteredEndpoints = computed(() => {
-  let filtered = endpoints.value || []
+const { data: endpoints, loading } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
+const searchTerm = ref<string>('')
+
+const filteredEndpoints = computed<EndpointStats[]>(() => {
+  let filtered: EndpointStats[] = endpoints.value || []
   if (searchTerm.value) {
-    const q = searchTerm.value.toLowerCase()
-    filtered = filtered.filter(e => e.url.toLowerCase().includes(q) || e.method.toLowerCase().includes(q))
+    const q: string = searchTerm.value.toLowerCase()
+    filtered = filtered.filter((e: EndpointStats) => e.url.toLowerCase().includes(q) || e.method.toLowerCase().includes(q))
   }
   return filtered
 })
 </script>
 
-@extends('components/layout')
+@extends('layouts/app')
 
 @section('content')
 <div class="animate-fade-in">

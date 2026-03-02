@@ -1,33 +1,36 @@
-<script lang="ts">
-const activePage = 'dashboard'
-const { data: stats, loading: statsLoading } = useQuery('/api/stats', { initialData: { totalRequests: 0, avgResponseTime: 0, errorRate: 0, requestsPerMinute: 0, statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, throughputHistory: [], responseTimeHistory: [], recentEvents: [], activeAlerts: [] } })
-const { data: requests, loading: reqsLoading } = useQuery('/api/requests', { initialData: [] })
-const { data: alerts, loading: alertsLoading } = useQuery('/api/alerts', { initialData: [] })
+<script>
+import type { DashboardStats, RequestRecord, MonitoringAlert, ThroughputPoint, StatusDistribution } from '../types'
 
-const recentRequests = computed(() => (requests.value || []).slice(-10).reverse())
-const activeAlerts = computed(() => (alerts.value || []).filter(a => !a.resolved))
+declare const Chart: any
 
-const throughputChartRef = useRef('throughputChart')
-const statusChartRef = useRef('statusChart')
+const { data: stats, loading: statsLoading } = useQuery<DashboardStats>('/api/stats', { initialData: { totalRequests: 0, avgResponseTime: 0, errorRate: 0, requestsPerMinute: 0, statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, throughputHistory: [], responseTimeHistory: [], recentEvents: [], activeAlerts: [] } })
+const { data: requests, loading: reqsLoading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
+const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/api/alerts', { initialData: [] })
+
+const recentRequests = computed<RequestRecord[]>(() => (requests.value || []).slice(-10).reverse())
+const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filter((a: MonitoringAlert) => !a.resolved))
+
+const throughputChartRef = useRef<HTMLCanvasElement>('throughputChart')
+const statusChartRef = useRef<HTMLCanvasElement>('statusChart')
 
 onMount(() => {
-  const waitForCharts = setInterval(() => {
+  const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {
     if (typeof Chart === 'undefined' || !stats.value.throughputHistory.length) return
     clearInterval(waitForCharts)
 
     new Chart(throughputChartRef.current, {
       type: 'line',
       data: {
-        labels: stats.value.throughputHistory.map((_, i) => `${30 - i}m`),
+        labels: stats.value.throughputHistory.map((_: ThroughputPoint, i: number) => `${30 - i}m`),
         datasets: [
-          { label: 'Success', data: stats.value.throughputHistory.map(p => p.successCount), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3, pointRadius: 0 },
-          { label: 'Errors', data: stats.value.throughputHistory.map(p => p.errorCount), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true, tension: 0.3, pointRadius: 0 },
+          { label: 'Success', data: stats.value.throughputHistory.map((p: ThroughputPoint) => p.successCount), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3, pointRadius: 0 },
+          { label: 'Errors', data: stats.value.throughputHistory.map((p: ThroughputPoint) => p.errorCount), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true, tension: 0.3, pointRadius: 0 },
         ],
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a1a1aa', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } } } },
     })
 
-    const sd = stats.value.statusDistribution
+    const sd: StatusDistribution = stats.value.statusDistribution
     new Chart(statusChartRef.current, {
       type: 'doughnut',
       data: { labels: ['2xx', '3xx', '4xx', '5xx'], datasets: [{ data: [sd['2xx'], sd['3xx'], sd['4xx'], sd['5xx']], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
@@ -39,7 +42,7 @@ onMount(() => {
 })
 </script>
 
-@extends('components/layout')
+@extends('layouts/app')
 
 @section('content')
 <div class="animate-fade-in">

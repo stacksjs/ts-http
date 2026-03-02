@@ -1,0 +1,116 @@
+<script>
+const sidebarCollapsed = useLocalStorage<boolean>('httx-sidebar-collapsed', false)
+const sidebar = useRef<HTMLElement>('sidebar')
+const mainWrapper = useRef<HTMLElement>('mainWrapper')
+const currentPath: string = useRoute()
+
+function toggleSidebar(): void {
+  sidebarCollapsed.value = !sidebarCollapsed.value
+}
+
+function isActive(path: string): boolean {
+  if (path === '/') return currentPath === '/'
+  return currentPath.startsWith(path)
+}
+
+function breadcrumb(): string {
+  if (currentPath === '/') return 'Dashboard'
+  if (currentPath.startsWith('/requests/')) return 'Request Details'
+  if (currentPath.startsWith('/endpoints/')) return 'Endpoint Details'
+  const segment: string = currentPath.slice(1)
+  return segment.charAt(0).toUpperCase() + segment.slice(1)
+}
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@yield('title', 'httx Dashboard')</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7" defer></script>
+  @stack('head')
+  <style>
+    :root {
+      --bg: #0a0a0f; --bg2: #141419; --bg3: #1e1e26;
+      --text: #f5f5f7; --text2: #a1a1aa; --muted: #71717a; --border: #27272a;
+      --accent: #6366f1; --accent2: #818cf8;
+      --success: #10b981; --warning: #f59e0b; --error: #ef4444;
+      --sidebar-w: 240px; --sidebar-collapsed: 56px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.5;
+      min-height: 100vh; -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sidebar */
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w); background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: width 0.2s ease; z-index: 50; overflow: hidden; }
+    .sidebar.collapsed { width: var(--sidebar-collapsed); }
+    .sidebar.collapsed .nav-label, .sidebar.collapsed .nav-group-title, .sidebar.collapsed .sidebar-brand span, .sidebar.collapsed .sidebar-footer span { display: none; }
+    .sidebar.collapsed .sidebar-brand { justify-content: center; padding: 0.75rem 0; }
+    .sidebar.collapsed .nav-item { justify-content: center; padding: 0.5rem 0; }
+    .sidebar.collapsed .nav-item svg { margin-right: 0; }
+
+    .main-wrapper { margin-left: var(--sidebar-w); transition: margin-left 0.2s ease; min-height: 100vh; }
+    .main-wrapper.collapsed { margin-left: var(--sidebar-collapsed); }
+
+    /* Chart containers */
+    .chart-container { position: relative; height: 280px; width: 100%; }
+    .chart-container-sm { position: relative; height: 200px; width: 100%; }
+
+    /* Status card accent bars */
+    .status-card-accent::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+    .accent-success::before { background: var(--success); }
+    .accent-info::before { background: var(--accent); }
+    .accent-warning::before { background: var(--warning); }
+    .accent-error::before { background: var(--error); }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .animate-fade-in { animation: fadeIn 0.3s ease forwards; }
+    .animate-pulse { animation: pulse 2s ease-in-out infinite; }
+
+    /* D3 */
+    .d3-container { width: 100%; min-height: 400px; overflow: hidden; }
+    .d3-container svg { width: 100%; height: 100%; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+  @stack('styles')
+</head>
+<body>
+  @include('partials/sidebar')
+
+  <!-- Main wrapper -->
+  <div ref="mainWrapper" class="main-wrapper {{ sidebarCollapsed.value ? 'collapsed' : '' }}">
+    <header class="flex items-center justify-between px-6 py-3 bg-[#141419] border-b border-zinc-800">
+      <div class="flex items-center gap-2 text-sm text-zinc-400">
+        <a href="/" @click.prevent="navigate('/')" class="hover:text-zinc-50 transition-colors">httx</a>
+        <span class="text-zinc-600">/</span>
+        <span class="text-zinc-50">{{ breadcrumb() }}</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <label class="flex items-center gap-2 text-xs text-zinc-500 cursor-pointer">
+          <input type="checkbox" class="accent-indigo-500" checked>
+          <span>Auto-refresh</span>
+        </label>
+      </div>
+    </header>
+
+    <main class="p-6 max-w-[1400px] mx-auto">
+      @yield('content')
+    </main>
+  </div>
+
+  @stack('scripts')
+</body>
+</html>

@@ -1,15 +1,16 @@
-<script lang="ts">
-const activePage = 'requests'
-const { data: allRequests, loading } = useQuery('/api/requests', { initialData: [] })
-const activeMethod = ref('ALL')
-const activeStatus = ref('ALL')
-const searchTerm = ref('')
+<script>
+import type { RequestRecord } from '../types'
 
-const filteredRequests = computed(() => {
-  let filtered = allRequests.value || []
-  if (activeMethod.value !== 'ALL') filtered = filtered.filter(r => r.method === activeMethod.value)
+const { data: allRequests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
+const activeMethod = ref<string>('ALL')
+const activeStatus = ref<string>('ALL')
+const searchTerm = ref<string>('')
+
+const filteredRequests = computed<RequestRecord[]>(() => {
+  let filtered: RequestRecord[] = allRequests.value || []
+  if (activeMethod.value !== 'ALL') filtered = filtered.filter((r: RequestRecord) => r.method === activeMethod.value)
   if (activeStatus.value !== 'ALL') {
-    filtered = filtered.filter(r => {
+    filtered = filtered.filter((r: RequestRecord) => {
       if (activeStatus.value === '2xx') return r.status >= 200 && r.status < 300
       if (activeStatus.value === '3xx') return r.status >= 300 && r.status < 400
       if (activeStatus.value === '4xx') return r.status >= 400 && r.status < 500
@@ -18,20 +19,20 @@ const filteredRequests = computed(() => {
     })
   }
   if (searchTerm.value) {
-    const q = searchTerm.value.toLowerCase()
-    filtered = filtered.filter(r => r.url.toLowerCase().includes(q) || r.host.toLowerCase().includes(q) || String(r.status).includes(q))
+    const q: string = searchTerm.value.toLowerCase()
+    filtered = filtered.filter((r: RequestRecord) => r.url.toLowerCase().includes(q) || r.host.toLowerCase().includes(q) || String(r.status).includes(q))
   }
   return filtered
 })
 
-const methods = ['ALL', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+const methods: string[] = ['ALL', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 
-function setMethod(m) {
+function setMethod(m: string): void {
   activeMethod.value = m
 }
 </script>
 
-@extends('components/layout')
+@extends('layouts/app')
 
 @section('content')
 <div class="animate-fade-in">

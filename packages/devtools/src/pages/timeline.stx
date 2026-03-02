@@ -1,23 +1,26 @@
-<script lang="ts">
-const activePage = 'timeline'
-const { data: requests, loading } = useQuery('/api/requests', { initialData: [] })
-const vizRef = useRef('timelineViz')
+<script>
+import type { RequestRecord } from '../types'
+
+declare const d3: any
+
+const { data: requests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
+const vizRef = useRef<HTMLElement>('timelineViz')
 
 onMount(() => {
-  const waitForD3 = setInterval(() => {
+  const waitForD3: ReturnType<typeof setInterval> = setInterval(() => {
     if (typeof d3 === 'undefined' || !requests.value.length || !vizRef.current) return
     clearInterval(waitForD3)
 
-    const container = vizRef.current
-    const width = container.clientWidth
-    const rowH = 28
-    const margin = { top: 30, right: 20, bottom: 30, left: 200 }
+    const container: HTMLElement = vizRef.current
+    const width: number = container.clientWidth
+    const rowH: number = 28
+    const margin: { top: number, right: number, bottom: number, left: number } = { top: 30, right: 20, bottom: 30, left: 200 }
 
-    const urls = [...new Set(requests.value.map(r => r.method + ' ' + r.path))].slice(0, 20)
-    const height = urls.length * rowH + margin.top + margin.bottom
+    const urls: string[] = [...new Set(requests.value.map((r: RequestRecord) => r.method + ' ' + r.path))].slice(0, 20)
+    const height: number = urls.length * rowH + margin.top + margin.bottom
 
     const svg = d3.select(container).append('svg').attr('width', width).attr('height', height)
-    const times = requests.value.map(r => new Date(r.timestamp))
+    const times: Date[] = requests.value.map((r: RequestRecord) => new Date(r.timestamp))
     const xScale = d3.scaleTime().domain([d3.min(times), d3.max(times)]).range([margin.left, width - margin.right])
     const yScale = d3.scaleBand().domain(urls).range([margin.top, height - margin.bottom]).padding(0.3)
 
@@ -25,29 +28,29 @@ onMount(() => {
     svg.append('g').attr('transform', `translate(${margin.left}, 0)`).call(d3.axisLeft(yScale)).selectAll('text').style('fill', '#a1a1aa').style('font-size', '10px').style('font-family', 'monospace')
     svg.selectAll('.domain, .tick line').style('stroke', '#27272a')
 
-    function statusColor(s) { return s < 300 ? '#10b981' : s < 400 ? '#6366f1' : s < 500 ? '#f59e0b' : '#ef4444' }
+    function statusColor(s: number): string { return s < 300 ? '#10b981' : s < 400 ? '#6366f1' : s < 500 ? '#f59e0b' : '#ef4444' }
 
     const tooltip = d3.select('body').append('div').style('position', 'absolute').style('display', 'none').style('background', '#1e1e26').style('border', '1px solid #27272a').style('border-radius', '6px').style('padding', '8px 12px').style('font-size', '11px').style('color', '#f5f5f7').style('pointer-events', 'none').style('z-index', '100')
 
     svg.selectAll('rect.bar')
-      .data(requests.value.filter(r => urls.includes(r.method + ' ' + r.path)))
+      .data(requests.value.filter((r: RequestRecord) => urls.includes(r.method + ' ' + r.path)))
       .enter().append('rect')
-      .attr('x', d => xScale(new Date(d.timestamp)))
-      .attr('y', d => yScale(d.method + ' ' + d.path))
-      .attr('width', d => Math.max(4, d.duration / 50))
+      .attr('x', (d: RequestRecord) => xScale(new Date(d.timestamp)))
+      .attr('y', (d: RequestRecord) => yScale(d.method + ' ' + d.path))
+      .attr('width', (d: RequestRecord) => Math.max(4, d.duration / 50))
       .attr('height', yScale.bandwidth())
       .attr('rx', 2)
-      .attr('fill', d => statusColor(d.status))
+      .attr('fill', (d: RequestRecord) => statusColor(d.status))
       .attr('opacity', 0.8)
-      .on('mouseover', (event, d) => { tooltip.style('display', 'block').html(`<strong>${d.method} ${d.path}</strong><br/>Status: ${d.status} · ${d.duration}ms`) })
-      .on('mousemove', (event) => { tooltip.style('left', (event.pageX + 10) + 'px').style('top', (event.pageY - 10) + 'px') })
+      .on('mouseover', (event: MouseEvent, d: RequestRecord) => { tooltip.style('display', 'block').html(`<strong>${d.method} ${d.path}</strong><br/>Status: ${d.status} · ${d.duration}ms`) })
+      .on('mousemove', (event: MouseEvent) => { tooltip.style('left', (event.pageX + 10) + 'px').style('top', (event.pageY - 10) + 'px') })
       .on('mouseout', () => tooltip.style('display', 'none'))
   }, 100)
   return () => clearInterval(waitForD3)
 })
 </script>
 
-@extends('components/layout')
+@extends('layouts/app')
 
 @section('content')
 <div class="animate-fade-in">

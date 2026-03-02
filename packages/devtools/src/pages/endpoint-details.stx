@@ -1,23 +1,26 @@
-<script lang="ts">
-const activePage = 'endpoints'
-const param = decodeURIComponent(useRoute().split('/endpoints/')[1] || '')
-const { data: ep, loading, error } = useQuery(`/api/endpoints/${encodeURIComponent(param)}`, { initialData: null })
+<script>
+import type { EndpointDetail, TimeSeriesPoint, StatusDistribution } from '../types'
 
-const trendChartRef = useRef('epTrendChart')
-const statusChartRef = useRef('epStatusChart')
+declare const Chart: any
+
+const param: string = decodeURIComponent(useRoute().split('/endpoints/')[1] || '')
+const { data: ep, loading, error } = useQuery<EndpointDetail | null>(`/api/endpoints/${encodeURIComponent(param)}`, { initialData: null })
+
+const trendChartRef = useRef<HTMLCanvasElement>('epTrendChart')
+const statusChartRef = useRef<HTMLCanvasElement>('epStatusChart')
 
 onMount(() => {
-  const waitForCharts = setInterval(() => {
+  const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {
     if (typeof Chart === 'undefined' || !ep.value || !ep.value.responseTrend) return
     clearInterval(waitForCharts)
 
     new Chart(trendChartRef.current, {
       type: 'line',
-      data: { labels: ep.value.responseTrend.map((_, i) => `#${i + 1}`), datasets: [{ label: 'Duration', data: ep.value.responseTrend.map(p => p.value), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: '#6366f1' }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a1a1aa', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#71717a', font: { size: 10 }, callback: v => v + 'ms' }, grid: { color: '#27272a' } } } },
+      data: { labels: ep.value.responseTrend.map((_: TimeSeriesPoint, i: number) => `#${i + 1}`), datasets: [{ label: 'Duration', data: ep.value.responseTrend.map((p: TimeSeriesPoint) => p.value), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: '#6366f1' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a1a1aa', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#71717a', font: { size: 10 }, callback: (v: number) => v + 'ms' }, grid: { color: '#27272a' } } } },
     })
 
-    const sd = ep.value.statusDistribution
+    const sd: StatusDistribution = ep.value.statusDistribution
     new Chart(statusChartRef.current, {
       type: 'doughnut',
       data: { labels: ['2xx', '3xx', '4xx', '5xx'], datasets: [{ data: [sd['2xx'], sd['3xx'], sd['4xx'], sd['5xx']], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
@@ -28,7 +31,7 @@ onMount(() => {
 })
 </script>
 
-@extends('components/layout')
+@extends('layouts/app')
 
 @section('content')
 <div class="animate-fade-in">

@@ -1,11 +1,12 @@
-<script lang="ts">
-const activePage = 'requests'
-const pathParts = useRoute().split('/')
-const requestId = pathParts[pathParts.length - 1]
-const { data: req, loading, error } = useQuery(`/api/requests/${requestId}`, { initialData: null })
+<script>
+import type { RequestRecord } from '../types'
+
+const pathParts: string[] = useRoute().split('/')
+const requestId: string = pathParts[pathParts.length - 1]
+const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/requests/${requestId}`, { initialData: null })
 </script>
 
-@extends('components/layout')
+@extends('layouts/app')
 
 @section('content')
 <div class="animate-fade-in">

@@ -1,8 +1,8 @@
 <script lang="ts">
-const label = ''
-const value = 0
-const unit = ''
-const variant = ''
+const label: string = ''
+const value: number = 0
+const unit: string = ''
+const variant: string = ''
 </script>
 
 <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 transition-colors hover:border-indigo-500">

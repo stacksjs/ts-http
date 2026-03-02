@@ -1,15 +1,16 @@
-<script lang="ts">
-const activePage = 'export'
-const { data: allRequests, loading } = useQuery('/api/requests', { initialData: [] })
-const exportMethod = ref('ALL')
-const exportStatus = ref('ALL')
+<script>
+import type { RequestRecord } from '../types'
+
+const { data: allRequests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
+const exportMethod = ref<string>('ALL')
+const exportStatus = ref<string>('ALL')
 const { copy } = useClipboard()
 
-const filteredData = computed(() => {
-  let data = allRequests.value || []
-  if (exportMethod.value !== 'ALL') data = data.filter(r => r.method === exportMethod.value)
+const filteredData = computed<RequestRecord[]>(() => {
+  let data: RequestRecord[] = allRequests.value || []
+  if (exportMethod.value !== 'ALL') data = data.filter((r: RequestRecord) => r.method === exportMethod.value)
   if (exportStatus.value !== 'ALL') {
-    data = data.filter(r => {
+    data = data.filter((r: RequestRecord) => {
       if (exportStatus.value === '2xx') return r.status >= 200 && r.status < 300
       if (exportStatus.value === '3xx') return r.status >= 300 && r.status < 400
       if (exportStatus.value === '4xx') return r.status >= 400 && r.status < 500
@@ -20,24 +21,24 @@ const filteredData = computed(() => {
   return data
 })
 
-const previewData = computed(() => filteredData.value.slice(0, 20))
+const previewData = computed<RequestRecord[]>(() => filteredData.value.slice(0, 20))
 
-function exportJson() {
+function exportJson(): void {
   const blob = new Blob([JSON.stringify(filteredData.value, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
+  const url: string = URL.createObjectURL(blob)
+  const a: HTMLAnchorElement = document.createElement('a')
   a.href = url
   a.download = 'httx-requests.json'
   a.click()
   URL.revokeObjectURL(url)
 }
 
-function exportCsv() {
-  const headers = ['id', 'method', 'url', 'status', 'statusText', 'duration', 'requestSize', 'responseSize', 'timestamp']
-  const csv = [headers.join(','), ...filteredData.value.map(r => headers.map(h => `"${String(r[h] || '').replace(/"/g, '""')}"`).join(','))].join('\n')
+function exportCsv(): void {
+  const headers: string[] = ['id', 'method', 'url', 'status', 'statusText', 'duration', 'requestSize', 'responseSize', 'timestamp']
+  const csv: string = [headers.join(','), ...filteredData.value.map((r: RequestRecord) => headers.map((h: string) => `"${String((r as Record<string, unknown>)[h] || '').replace(/"/g, '""')}"`).join(','))].join('\n')
   const blob = new Blob([csv], { type: 'text/csv' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
+  const url: string = URL.createObjectURL(blob)
+  const a: HTMLAnchorElement = document.createElement('a')
   a.href = url
   a.download = 'httx-requests.csv'
   a.click()
@@ -45,7 +46,7 @@ function exportCsv() {
 }
 </script>
 
-@extends('components/layout')
+@extends('layouts/app')
 
 @section('content')
 <div class="animate-fade-in">

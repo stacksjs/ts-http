@@ -1,6 +1,6 @@
 <script lang="ts">
-const status = 200
-const text = ''
+const status: number = 200
+const text: string = ''
 </script>
 
 @if(status >= 200 && status < 300)
