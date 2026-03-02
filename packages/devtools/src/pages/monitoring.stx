@@ -1,0 +1,85 @@
+<script lang="ts">
+const activePage = 'monitoring'
+const { data: alerts, loading: alertsLoading } = useQuery('/api/alerts', { initialData: [] })
+const { data: events, loading: eventsLoading } = useQuery('/api/events', { initialData: [] })
+
+const activeAlerts = computed(() => (alerts.value || []).filter(a => !a.resolved))
+const healthScore = computed(() => Math.max(0, 100 - activeAlerts.value.length * 15))
+const reversedEvents = computed(() => [...(events.value || [])].reverse())
+
+const typeColors = { request: 'text-indigo-400', error: 'text-red-500', alert: 'text-amber-500', system: 'text-zinc-400', config: 'text-emerald-500' }
+</script>
+
+@extends('components/layout')
+
+@section('content')
+<div class="animate-fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-lg font-semibold text-zinc-50">Monitoring</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">Health, alerts, and event log</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 mb-6 max-sm:grid-cols-1">
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Health Score</div>
+      <div class="text-4xl font-bold tabular-nums {{ healthScore.value >= 80 ? 'text-emerald-500' : healthScore.value >= 50 ? 'text-amber-500' : 'text-red-500' }}" x-text="healthScore.value"></div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Uptime</div>
+      <div class="text-4xl font-bold text-emerald-500 tabular-nums">99.7%</div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Active Alerts</div>
+      <div class="text-4xl font-bold text-red-500 tabular-nums" x-text="activeAlerts.value.length"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+      <div class="text-sm font-semibold text-zinc-50 mb-4">Alerts</div>
+      @if(alertsLoading.value)
+        <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+      @else
+        @foreach(alerts.value as a)
+          <div class="flex items-center justify-between py-3 border-b border-zinc-800/50 last:border-0">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ a.severity === 'critical' ? 'bg-red-500/15 text-red-500' : a.severity === 'warning' ? 'bg-amber-500/15 text-amber-500' : 'bg-indigo-500/15 text-indigo-400' }}">{{ a.severity }}</span>
+              <div>
+                <div class="text-sm text-zinc-300">{{ a.name }}</div>
+                <div class="text-xs text-zinc-500">{{ a.condition }} {{ a.operator }} {{ a.threshold }}</div>
+              </div>
+            </div>
+            @if(a.resolved)
+              <span class="text-xs text-emerald-500">Resolved</span>
+            @else
+              <span class="text-xs text-red-500">Active</span>
+            @endif
+          </div>
+        @endforeach
+      @endif
+    </div>
+
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-semibold text-zinc-50">Event Log</span>
+        <span class="text-xs text-zinc-500 animate-pulse">Live</span>
+      </div>
+      <div class="max-h-[400px] overflow-y-auto">
+        @if(eventsLoading.value)
+          <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+        @else
+          @foreach(reversedEvents.value as e)
+            <div class="flex items-start gap-3 py-2 border-b border-zinc-800/30 last:border-0">
+              <span class="text-[0.6875rem] font-medium uppercase shrink-0 w-14 {{ typeColors[e.type] || 'text-zinc-400' }}">{{ e.type }}</span>
+              <span class="text-xs text-zinc-400 flex-1">{{ e.message }}</span>
+              <span class="text-[0.6875rem] text-zinc-600 shrink-0 tabular-nums">{{ e.timestamp }}</span>
+            </div>
+          @endforeach
+        @endif
+      </div>
+    </div>
+  </div>
+</div>
+@endsection

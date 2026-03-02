@@ -2,7 +2,7 @@ export default {
   content: [
     './src/**/*.stx',
   ],
-  output: '',
+  output: './dist/styles.css',
   minify: false,
   preflight: true,
   cssVariables: true,

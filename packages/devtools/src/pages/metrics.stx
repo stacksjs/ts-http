@@ -1,0 +1,120 @@
+<script lang="ts">
+const activePage = 'metrics'
+const { data: stats, loading: statsLoading } = useQuery('/api/stats', { initialData: { statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, responseTimeHistory: [], topEndpoints: [] } })
+const { data: requests } = useQuery('/api/requests', { initialData: [] })
+const { data: endpoints } = useQuery('/api/endpoints', { initialData: [] })
+
+const durations = computed(() => (requests.value || []).map(r => r.duration).sort((a, b) => a - b))
+const avgResponseTime = computed(() => {
+  const d = durations.value
+  return d.length ? Math.round(d.reduce((a, b) => a + b, 0) / d.length) : 0
+})
+const p50 = computed(() => { const d = durations.value; return d.length ? d[Math.ceil(0.50 * d.length) - 1] : 0 })
+const p95 = computed(() => { const d = durations.value; return d.length ? d[Math.ceil(0.95 * d.length) - 1] : 0 })
+const p99 = computed(() => { const d = durations.value; return d.length ? d[Math.ceil(0.99 * d.length) - 1] : 0 })
+
+const rtChartRef = useRef('rtChart')
+const sdChartRef = useRef('sdChart')
+const epBarRef = useRef('epBar')
+
+onMount(() => {
+  const waitForCharts = setInterval(() => {
+    if (typeof Chart === 'undefined' || !stats.value.responseTimeHistory.length) return
+    clearInterval(waitForCharts)
+
+    new Chart(rtChartRef.current, {
+      type: 'line',
+      data: { labels: stats.value.responseTimeHistory.map((_, i) => `${30 - i}m`), datasets: [{ label: 'Avg Response Time', data: stats.value.responseTimeHistory.map(p => p.value), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: '#6366f1' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a1a1aa', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#71717a', font: { size: 10 }, callback: v => v + 'ms' }, grid: { color: '#27272a' } } } },
+    })
+
+    const sd = stats.value.statusDistribution
+    new Chart(sdChartRef.current, {
+      type: 'doughnut',
+      data: { labels: ['2xx', '3xx', '4xx', '5xx'], datasets: [{ data: [sd['2xx'], sd['3xx'], sd['4xx'], sd['5xx']], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', font: { size: 11 }, padding: 16 } } } },
+    })
+
+    const top = (endpoints.value || []).slice(0, 8)
+    new Chart(epBarRef.current, {
+      type: 'bar',
+      data: { labels: top.map(e => `${e.method} ${e.url}`), datasets: [{ label: 'Requests', data: top.map(e => e.count), backgroundColor: '#6366f1', borderRadius: 4 }] },
+      options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#a1a1aa', font: { size: 10, family: 'monospace' } }, grid: { display: false } } } },
+    })
+  }, 100)
+  return () => clearInterval(waitForCharts)
+})
+</script>
+
+@extends('components/layout')
+
+@section('content')
+<div class="animate-fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-lg font-semibold text-zinc-50">Performance Metrics</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">Response times and status distribution</p>
+    </div>
+  </div>
+
+  <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mb-3">Response Times</div>
+  <div class="grid grid-cols-4 gap-4 mb-6 max-sm:grid-cols-2">
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Average</div>
+      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums" x-text="avgResponseTime.value"></div>
+      <div class="text-xs text-zinc-500">ms</div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">P50</div>
+      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums" x-text="p50.value"></div>
+      <div class="text-xs text-zinc-500">ms</div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">P95</div>
+      <div class="text-[1.75rem] font-bold text-amber-500 mt-1 tabular-nums" x-text="p95.value"></div>
+      <div class="text-xs text-zinc-500">ms</div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">P99</div>
+      <div class="text-[1.75rem] font-bold text-red-500 mt-1 tabular-nums" x-text="p99.value"></div>
+      <div class="text-xs text-zinc-500">ms</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 mb-6 max-lg:grid-cols-1">
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+      <div class="text-sm font-semibold text-zinc-50 mb-4">Response Time Trend</div>
+      <div class="chart-container"><canvas ref="rtChart"></canvas></div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+      <div class="text-sm font-semibold text-zinc-50 mb-4">Status Distribution</div>
+      <div class="chart-container"><canvas ref="sdChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mb-3">Status Codes</div>
+  <div class="grid grid-cols-4 gap-4 mb-6 max-sm:grid-cols-2">
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 relative overflow-hidden status-card-accent accent-success">
+      <div class="text-sm font-semibold text-zinc-500">2xx</div>
+      <div class="text-[1.75rem] font-bold text-emerald-500 mt-1 tabular-nums" x-text="stats.value.statusDistribution['2xx']"></div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 relative overflow-hidden status-card-accent accent-info">
+      <div class="text-sm font-semibold text-zinc-500">3xx</div>
+      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums" x-text="stats.value.statusDistribution['3xx']"></div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 relative overflow-hidden status-card-accent accent-warning">
+      <div class="text-sm font-semibold text-zinc-500">4xx</div>
+      <div class="text-[1.75rem] font-bold text-amber-500 mt-1 tabular-nums" x-text="stats.value.statusDistribution['4xx']"></div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 relative overflow-hidden status-card-accent accent-error">
+      <div class="text-sm font-semibold text-zinc-500">5xx</div>
+      <div class="text-[1.75rem] font-bold text-red-500 mt-1 tabular-nums" x-text="stats.value.statusDistribution['5xx']"></div>
+    </div>
+  </div>
+
+  <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+    <div class="text-sm font-semibold text-zinc-50 mb-4">Top Endpoints by Request Count</div>
+    <div class="chart-container"><canvas ref="epBar"></canvas></div>
+  </div>
+</div>
+@endsection

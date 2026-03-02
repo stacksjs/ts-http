@@ -1,0 +1,78 @@
+<script lang="ts">
+const activePage = 'settings'
+</script>
+
+@extends('components/layout')
+
+@section('content')
+<div class="animate-fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-lg font-semibold text-zinc-50">Settings</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">Dashboard configuration</p>
+    </div>
+  </div>
+
+  <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 mb-6">
+    <div class="text-sm font-semibold text-zinc-50 mb-4">Server Configuration</div>
+    <div class="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
+      <div class="bg-[#0a0a0f] rounded-md p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Port</div>
+        <div class="text-lg font-semibold text-zinc-300 tabular-nums">4401</div>
+      </div>
+      <div class="bg-[#0a0a0f] rounded-md p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Host</div>
+        <div class="text-lg font-semibold text-zinc-300">localhost</div>
+      </div>
+      <div class="bg-[#0a0a0f] rounded-md p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Refresh Interval</div>
+        <div class="text-lg font-semibold text-zinc-300 tabular-nums">5000 <span class="text-xs text-zinc-500 font-normal">ms</span></div>
+      </div>
+      <div class="bg-[#0a0a0f] rounded-md p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Max History</div>
+        <div class="text-lg font-semibold text-zinc-300 tabular-nums">1000</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <div class="text-sm font-semibold text-zinc-50">Authentication</div>
+      <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium bg-zinc-500/15 text-zinc-400">Read-only</span>
+    </div>
+    <div class="flex items-center gap-3 py-3">
+      <label class="flex items-center gap-3 cursor-pointer">
+        <div class="relative">
+          <input type="checkbox" class="sr-only peer" disabled>
+          <div class="w-9 h-5 rounded-full bg-zinc-700 peer-checked:bg-indigo-500 transition-colors"></div>
+          <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-zinc-400 peer-checked:translate-x-4 peer-checked:bg-white transition-transform"></div>
+        </div>
+        <span class="text-sm text-zinc-400">Enable authentication</span>
+      </label>
+    </div>
+    <p class="text-xs text-zinc-600 mt-1">Authentication settings are read-only in the dashboard. Configure in your application code.</p>
+  </div>
+
+  <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+    <div class="text-sm font-semibold text-zinc-50 mb-4">About</div>
+    <div class="space-y-2">
+      <div class="flex items-center justify-between py-2 border-b border-zinc-800/50">
+        <span class="text-sm text-zinc-400">Package</span>
+        <span class="text-sm text-zinc-300 font-mono">@stacksjs/httx-dashboard</span>
+      </div>
+      <div class="flex items-center justify-between py-2 border-b border-zinc-800/50">
+        <span class="text-sm text-zinc-400">Version</span>
+        <span class="text-sm text-zinc-300 font-mono">0.1.0</span>
+      </div>
+      <div class="flex items-center justify-between py-2 border-b border-zinc-800/50">
+        <span class="text-sm text-zinc-400">Runtime</span>
+        <span class="text-sm text-zinc-300 font-mono">Bun</span>
+      </div>
+      <div class="flex items-center justify-between py-2">
+        <span class="text-sm text-zinc-400">Template Engine</span>
+        <span class="text-sm text-zinc-300 font-mono">stx</span>
+      </div>
+    </div>
+  </div>
+</div>
+@endsection

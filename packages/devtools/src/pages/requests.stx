@@ -1,0 +1,104 @@
+<script lang="ts">
+const activePage = 'requests'
+const { data: allRequests, loading } = useQuery('/api/requests', { initialData: [] })
+const activeMethod = ref('ALL')
+const activeStatus = ref('ALL')
+const searchTerm = ref('')
+
+const filteredRequests = computed(() => {
+  let filtered = allRequests.value || []
+  if (activeMethod.value !== 'ALL') filtered = filtered.filter(r => r.method === activeMethod.value)
+  if (activeStatus.value !== 'ALL') {
+    filtered = filtered.filter(r => {
+      if (activeStatus.value === '2xx') return r.status >= 200 && r.status < 300
+      if (activeStatus.value === '3xx') return r.status >= 300 && r.status < 400
+      if (activeStatus.value === '4xx') return r.status >= 400 && r.status < 500
+      if (activeStatus.value === '5xx') return r.status >= 500
+      return true
+    })
+  }
+  if (searchTerm.value) {
+    const q = searchTerm.value.toLowerCase()
+    filtered = filtered.filter(r => r.url.toLowerCase().includes(q) || r.host.toLowerCase().includes(q) || String(r.status).includes(q))
+  }
+  return filtered
+})
+
+const methods = ['ALL', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+
+function setMethod(m) {
+  activeMethod.value = m
+}
+</script>
+
+@extends('components/layout')
+
+@section('content')
+<div class="animate-fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-lg font-semibold text-zinc-50">Request History</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">Browse HTTP request history</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-3 mb-4 flex-wrap">
+    <input type="text" x-model="searchTerm" placeholder="Search by URL, host, or status..." class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 transition-colors w-72">
+
+    <div class="flex gap-1">
+      @foreach(methods as m)
+        <button @click="setMethod('{{ m }}')" class="px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors {{ activeMethod.value === m ? 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30' : 'bg-[#1e1e26] text-zinc-400 border border-zinc-800 hover:border-zinc-600' }}">{{ m }}</button>
+      @endforeach
+    </div>
+
+    <select x-model="activeStatus" class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-indigo-500 cursor-pointer">
+      <option value="ALL">All Status</option>
+      <option value="2xx">2xx Success</option>
+      <option value="3xx">3xx Redirect</option>
+      <option value="4xx">4xx Client Error</option>
+      <option value="5xx">5xx Server Error</option>
+    </select>
+  </div>
+
+  <!-- Results -->
+  <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+    @if(loading.value)
+      <div class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
+    @else
+      @if(filteredRequests.value.length === 0)
+        <div class="text-center py-8 text-zinc-500 text-sm">No matching requests found.</div>
+      @else
+        <table class="w-full border-collapse">
+          <thead>
+            <tr>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Method</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">URL</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Status</th>
+              <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Duration</th>
+              <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Size</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach(filteredRequests.value as r)
+              <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate(`/requests/${r.id}`)">
+                <td class="px-3 py-2.5 border-b border-zinc-800/50">
+                  <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase {{ r.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : r.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : r.method === 'PUT' || r.method === 'PATCH' ? 'bg-amber-500/15 text-amber-500' : r.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-zinc-500/15 text-zinc-400' }}">{{ r.method }}</span>
+                </td>
+                <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap">{{ r.url }}</td>
+                <td class="px-3 py-2.5 border-b border-zinc-800/50">
+                  <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ r.status < 300 ? 'bg-emerald-500/15 text-emerald-500' : r.status < 400 ? 'bg-indigo-500/15 text-indigo-400' : r.status < 500 ? 'bg-amber-500/15 text-amber-500' : 'bg-red-500/15 text-red-500' }}">{{ r.status }}</span>
+                </td>
+                <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
+                <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs text-zinc-400 tabular-nums">{{ r.responseSize }}B</td>
+                <td class="px-3 py-2.5 border-b border-zinc-800/50 text-xs text-zinc-500">{{ r.timestamp }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      @endif
+    @endif
+  </div>
+</div>
+@endsection

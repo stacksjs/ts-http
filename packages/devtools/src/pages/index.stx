@@ -1,0 +1,162 @@
+<script lang="ts">
+const activePage = 'dashboard'
+const { data: stats, loading: statsLoading } = useQuery('/api/stats', { initialData: { totalRequests: 0, avgResponseTime: 0, errorRate: 0, requestsPerMinute: 0, statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, throughputHistory: [], responseTimeHistory: [], recentEvents: [], activeAlerts: [] } })
+const { data: requests, loading: reqsLoading } = useQuery('/api/requests', { initialData: [] })
+const { data: alerts, loading: alertsLoading } = useQuery('/api/alerts', { initialData: [] })
+
+const recentRequests = computed(() => (requests.value || []).slice(-10).reverse())
+const activeAlerts = computed(() => (alerts.value || []).filter(a => !a.resolved))
+
+const throughputChartRef = useRef('throughputChart')
+const statusChartRef = useRef('statusChart')
+
+onMount(() => {
+  const waitForCharts = setInterval(() => {
+    if (typeof Chart === 'undefined' || !stats.value.throughputHistory.length) return
+    clearInterval(waitForCharts)
+
+    new Chart(throughputChartRef.current, {
+      type: 'line',
+      data: {
+        labels: stats.value.throughputHistory.map((_, i) => `${30 - i}m`),
+        datasets: [
+          { label: 'Success', data: stats.value.throughputHistory.map(p => p.successCount), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3, pointRadius: 0 },
+          { label: 'Errors', data: stats.value.throughputHistory.map(p => p.errorCount), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true, tension: 0.3, pointRadius: 0 },
+        ],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a1a1aa', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } } } },
+    })
+
+    const sd = stats.value.statusDistribution
+    new Chart(statusChartRef.current, {
+      type: 'doughnut',
+      data: { labels: ['2xx', '3xx', '4xx', '5xx'], datasets: [{ data: [sd['2xx'], sd['3xx'], sd['4xx'], sd['5xx']], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', font: { size: 11 }, padding: 16 } } } },
+    })
+  }, 100)
+
+  return () => clearInterval(waitForCharts)
+})
+</script>
+
+@extends('components/layout')
+
+@section('content')
+<div class="animate-fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-lg font-semibold text-zinc-50">Overview</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">HTTP client monitoring & analytics</p>
+    </div>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="grid grid-cols-4 gap-4 mb-6 max-sm:grid-cols-2">
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 hover:border-indigo-500 transition-colors">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Requests</div>
+      <div class="text-[1.75rem] font-bold text-zinc-50 mt-1 tabular-nums" x-text="stats.value.totalRequests"></div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 hover:border-indigo-500 transition-colors">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Avg Response Time</div>
+      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums"><span x-text="stats.value.avgResponseTime"></span> <span class="text-xs text-zinc-500 font-normal">ms</span></div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 hover:border-indigo-500 transition-colors">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Error Rate</div>
+      <div class="text-[1.75rem] font-bold text-red-500 mt-1 tabular-nums"><span x-text="stats.value.errorRate"></span> <span class="text-xs text-zinc-500 font-normal">%</span></div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 hover:border-indigo-500 transition-colors">
+      <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Requests/min</div>
+      <div class="text-[1.75rem] font-bold text-zinc-50 mt-1 tabular-nums" x-text="stats.value.requestsPerMinute"></div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="grid grid-cols-2 gap-6 mb-6 max-lg:grid-cols-1">
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-semibold text-zinc-50">Throughput</span>
+        <span class="text-xs text-zinc-500">Last 30 min</span>
+      </div>
+      <div class="chart-container">
+        <canvas ref="throughputChart"></canvas>
+      </div>
+    </div>
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-semibold text-zinc-50">Status Distribution</span>
+        <a href="/metrics" @click.prevent="navigate('/metrics')" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">Details</a>
+      </div>
+      <div class="chart-container">
+        <canvas ref="statusChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom row -->
+  <div class="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
+    <!-- Recent requests -->
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-semibold text-zinc-50">Recent Requests</span>
+        <a href="/requests" @click.prevent="navigate('/requests')" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">View All</a>
+      </div>
+      @if(reqsLoading.value)
+        <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+      @else
+        @if(recentRequests.value.length === 0)
+          <div class="text-center py-6 text-zinc-500 text-sm">No requests yet.</div>
+        @else
+          <table class="w-full border-collapse">
+            <thead>
+              <tr>
+                @foreach(['Method', 'URL', 'Status', 'Duration'] as header)
+                  <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">{{ header }}</th>
+                @endforeach
+              </tr>
+            </thead>
+            <tbody>
+              @foreach(recentRequests.value as r)
+                <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate(`/requests/${r.id}`)">
+                  <td class="px-3 py-2 border-b border-zinc-800/50">
+                    <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase {{ r.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : r.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : r.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-amber-500/15 text-amber-500' }}">{{ r.method }}</span>
+                  </td>
+                  <td class="px-3 py-2 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{{ r.url }}</td>
+                  <td class="px-3 py-2 border-b border-zinc-800/50">
+                    <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ r.status < 300 ? 'bg-emerald-500/15 text-emerald-500' : r.status < 400 ? 'bg-indigo-500/15 text-indigo-400' : r.status < 500 ? 'bg-amber-500/15 text-amber-500' : 'bg-red-500/15 text-red-500' }}">{{ r.status }}</span>
+                  </td>
+                  <td class="px-3 py-2 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+        @endif
+      @endif
+    </div>
+
+    <!-- Active alerts -->
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-semibold text-zinc-50">Active Alerts</span>
+        <a href="/monitoring" @click.prevent="navigate('/monitoring')" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">View All</a>
+      </div>
+      @if(alertsLoading.value)
+        <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+      @else
+        @if(activeAlerts.value.length === 0)
+          <div class="text-center py-6 text-emerald-500 text-sm">All systems operational</div>
+        @else
+          @foreach(activeAlerts.value as a)
+            <div class="flex items-center justify-between py-2.5 border-b border-zinc-800/50 last:border-0">
+              <div class="flex items-center gap-3">
+                <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ a.severity === 'critical' ? 'bg-red-500/15 text-red-500' : a.severity === 'warning' ? 'bg-amber-500/15 text-amber-500' : 'bg-indigo-500/15 text-indigo-400' }}">{{ a.severity }}</span>
+                <span class="text-sm text-zinc-300">{{ a.name }}</span>
+              </div>
+              <span class="text-xs text-zinc-500">{{ a.condition }} {{ a.operator }} {{ a.threshold }}</span>
+            </div>
+          @endforeach
+        @endif
+      @endif
+    </div>
+  </div>
+</div>
+@endsection

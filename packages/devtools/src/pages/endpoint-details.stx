@@ -1,0 +1,113 @@
+<script lang="ts">
+const activePage = 'endpoints'
+const param = decodeURIComponent(useRoute().split('/endpoints/')[1] || '')
+const { data: ep, loading, error } = useQuery(`/api/endpoints/${encodeURIComponent(param)}`, { initialData: null })
+
+const trendChartRef = useRef('epTrendChart')
+const statusChartRef = useRef('epStatusChart')
+
+onMount(() => {
+  const waitForCharts = setInterval(() => {
+    if (typeof Chart === 'undefined' || !ep.value || !ep.value.responseTrend) return
+    clearInterval(waitForCharts)
+
+    new Chart(trendChartRef.current, {
+      type: 'line',
+      data: { labels: ep.value.responseTrend.map((_, i) => `#${i + 1}`), datasets: [{ label: 'Duration', data: ep.value.responseTrend.map(p => p.value), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: '#6366f1' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a1a1aa', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#71717a', font: { size: 10 }, callback: v => v + 'ms' }, grid: { color: '#27272a' } } } },
+    })
+
+    const sd = ep.value.statusDistribution
+    new Chart(statusChartRef.current, {
+      type: 'doughnut',
+      data: { labels: ['2xx', '3xx', '4xx', '5xx'], datasets: [{ data: [sd['2xx'], sd['3xx'], sd['4xx'], sd['5xx']], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', font: { size: 11 }, padding: 16 } } } },
+    })
+  }, 100)
+  return () => clearInterval(waitForCharts)
+})
+</script>
+
+@extends('components/layout')
+
+@section('content')
+<div class="animate-fade-in">
+  <div class="flex items-center gap-2 text-sm text-zinc-500 mb-4">
+    <a href="/endpoints" @click.prevent="navigate('/endpoints')" class="hover:text-zinc-300 transition-colors">Endpoints</a>
+    <span class="text-zinc-600">/</span>
+    <span class="text-zinc-400">{{ param }}</span>
+  </div>
+
+  @if(loading.value)
+    <div class="text-sm text-zinc-500">Loading endpoint details...</div>
+  @elseif(error.value || !ep.value)
+    <div class="text-sm text-red-500">Endpoint not found.</div>
+  @else
+    <div class="flex items-center gap-3 mb-2">
+      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase {{ ep.value.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : ep.value.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : ep.value.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-amber-500/15 text-amber-500' }}">{{ ep.value.method }}</span>
+      <span class="font-mono text-base text-zinc-300">{{ ep.value.url }}</span>
+    </div>
+    <p class="text-xs text-zinc-500 mb-6">{{ ep.value.count }} requests · Last seen {{ ep.value.lastSeen }}</p>
+
+    <div class="grid grid-cols-4 gap-4 mb-6 max-sm:grid-cols-2">
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Avg</div>
+        <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums">{{ ep.value.avgDuration }} <span class="text-xs text-zinc-500 font-normal">ms</span></div>
+      </div>
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">P50</div>
+        <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums">{{ ep.value.p50Duration }} <span class="text-xs text-zinc-500 font-normal">ms</span></div>
+      </div>
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">P95</div>
+        <div class="text-[1.75rem] font-bold text-amber-500 mt-1 tabular-nums">{{ ep.value.p95Duration }} <span class="text-xs text-zinc-500 font-normal">ms</span></div>
+      </div>
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Error Rate</div>
+        <div class="text-[1.75rem] font-bold {{ ep.value.errorRate > 10 ? 'text-red-500' : 'text-emerald-500' }} mt-1 tabular-nums">{{ ep.value.errorRate }} <span class="text-xs text-zinc-500 font-normal">%</span></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 mb-6 max-lg:grid-cols-1">
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+        <div class="text-sm font-semibold text-zinc-50 mb-4">Response Time Trend</div>
+        <div class="chart-container"><canvas ref="epTrendChart"></canvas></div>
+      </div>
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+        <div class="text-sm font-semibold text-zinc-50 mb-4">Status Distribution</div>
+        <div class="chart-container"><canvas ref="epStatusChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+      <div class="text-sm font-semibold text-zinc-50 mb-4">Recent Requests</div>
+      @if(ep.value.recentRequests && ep.value.recentRequests.length > 0)
+        <table class="w-full border-collapse">
+          <thead>
+            <tr>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Status</th>
+              <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Duration</th>
+              <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Size</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach(ep.value.recentRequests as r)
+              <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate(`/requests/${r.id}`)">
+                <td class="px-3 py-2 border-b border-zinc-800/50">
+                  <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ r.status < 300 ? 'bg-emerald-500/15 text-emerald-500' : r.status < 400 ? 'bg-indigo-500/15 text-indigo-400' : r.status < 500 ? 'bg-amber-500/15 text-amber-500' : 'bg-red-500/15 text-red-500' }}">{{ r.status }}</span>
+                </td>
+                <td class="px-3 py-2 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
+                <td class="px-3 py-2 border-b border-zinc-800/50 text-right text-xs text-zinc-400 tabular-nums">{{ r.responseSize }}B</td>
+                <td class="px-3 py-2 border-b border-zinc-800/50 text-xs text-zinc-500">{{ r.timestamp }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      @else
+        <div class="text-center py-6 text-zinc-500 text-sm">No recent requests.</div>
+      @endif
+    </div>
+  @endif
+</div>
+@endsection

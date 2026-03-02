@@ -1,0 +1,11 @@
+<script lang="ts">
+const label = ''
+const value = 0
+const unit = ''
+const variant = ''
+</script>
+
+<div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 transition-colors hover:border-indigo-500">
+  <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">{{ label }}</div>
+  <div class="text-[1.75rem] font-bold mt-1 tabular-nums {{ variant === 'error' ? 'text-red-500' : variant === 'warning' ? 'text-amber-500' : variant === 'accent' ? 'text-indigo-400' : variant === 'success' ? 'text-emerald-500' : 'text-zinc-50' }}">{{ value }}{{ unit ? ' ' : '' }}<span class="text-xs text-zinc-500 font-normal">{{ unit }}</span></div>
+</div>

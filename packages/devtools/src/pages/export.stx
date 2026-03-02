@@ -1,0 +1,129 @@
+<script lang="ts">
+const activePage = 'export'
+const { data: allRequests, loading } = useQuery('/api/requests', { initialData: [] })
+const exportMethod = ref('ALL')
+const exportStatus = ref('ALL')
+const { copy } = useClipboard()
+
+const filteredData = computed(() => {
+  let data = allRequests.value || []
+  if (exportMethod.value !== 'ALL') data = data.filter(r => r.method === exportMethod.value)
+  if (exportStatus.value !== 'ALL') {
+    data = data.filter(r => {
+      if (exportStatus.value === '2xx') return r.status >= 200 && r.status < 300
+      if (exportStatus.value === '3xx') return r.status >= 300 && r.status < 400
+      if (exportStatus.value === '4xx') return r.status >= 400 && r.status < 500
+      if (exportStatus.value === '5xx') return r.status >= 500
+      return true
+    })
+  }
+  return data
+})
+
+const previewData = computed(() => filteredData.value.slice(0, 20))
+
+function exportJson() {
+  const blob = new Blob([JSON.stringify(filteredData.value, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'httx-requests.json'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function exportCsv() {
+  const headers = ['id', 'method', 'url', 'status', 'statusText', 'duration', 'requestSize', 'responseSize', 'timestamp']
+  const csv = [headers.join(','), ...filteredData.value.map(r => headers.map(h => `"${String(r[h] || '').replace(/"/g, '""')}"`).join(','))].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'httx-requests.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+</script>
+
+@extends('components/layout')
+
+@section('content')
+<div class="animate-fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-lg font-semibold text-zinc-50">Export Data</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">Export request history as JSON or CSV</p>
+    </div>
+  </div>
+
+  <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 mb-6">
+    <div class="text-sm font-semibold text-zinc-50 mb-4">Filters</div>
+    <div class="flex items-center gap-4 flex-wrap">
+      <div>
+        <label class="text-xs text-zinc-500 block mb-1">Method</label>
+        <select x-model="exportMethod" class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-indigo-500 cursor-pointer">
+          <option value="ALL">All Methods</option>
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="PATCH">PATCH</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-zinc-500 block mb-1">Status</label>
+        <select x-model="exportStatus" class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-indigo-500 cursor-pointer">
+          <option value="ALL">All Status</option>
+          <option value="2xx">2xx</option>
+          <option value="3xx">3xx</option>
+          <option value="4xx">4xx</option>
+          <option value="5xx">5xx</option>
+        </select>
+      </div>
+      <div class="flex items-end gap-2 ml-auto">
+        <button @click="exportJson()" class="px-4 py-2 rounded-md text-sm font-medium bg-indigo-500 text-white hover:bg-indigo-600 transition-colors cursor-pointer" style="border: none;">Export JSON</button>
+        <button @click="exportCsv()" class="px-4 py-2 rounded-md text-sm font-medium bg-[#1e1e26] text-zinc-300 border border-zinc-800 hover:border-indigo-500 transition-colors cursor-pointer">Export CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+    <div class="flex items-center justify-between mb-4">
+      <span class="text-sm font-semibold text-zinc-50">Preview</span>
+      <span class="text-xs text-zinc-500"><span x-text="filteredData.value.length"></span> records</span>
+    </div>
+    <div class="max-h-[400px] overflow-y-auto">
+      @if(loading.value)
+        <div class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
+      @elseif(filteredData.value.length === 0)
+        <div class="text-center py-8 text-zinc-500 text-sm">No matching records.</div>
+      @else
+        <table class="w-full border-collapse">
+          <thead>
+            <tr>
+              @foreach(['Method', 'URL', 'Status', 'Duration'] as header)
+                <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">{{ header }}</th>
+              @endforeach
+            </tr>
+          </thead>
+          <tbody>
+            @foreach(previewData.value as r)
+              <tr class="hover:bg-[#1e1e26]">
+                <td class="px-3 py-2 border-b border-zinc-800/50">
+                  <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase {{ r.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : r.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : 'bg-zinc-500/15 text-zinc-400' }}">{{ r.method }}</span>
+                </td>
+                <td class="px-3 py-2 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap">{{ r.url }}</td>
+                <td class="px-3 py-2 border-b border-zinc-800/50 text-xs text-zinc-400">{{ r.status }}</td>
+                <td class="px-3 py-2 border-b border-zinc-800/50 text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+        @if(filteredData.value.length > 20)
+          <div class="text-center py-2 text-xs text-zinc-500">... and {{ filteredData.value.length - 20 }} more</div>
+        @endif
+      @endif
+    </div>
+  </div>
+</div>
+@endsection

@@ -24,6 +24,6 @@
     "pickier.config.ts",
     "bunpress.config.ts",
     "docs/bunpress.config.ts",
-    "packages/dashboard"
+    "packages/devtools"
   ]
 }

@@ -1,0 +1,14 @@
+<script lang="ts">
+const status = 200
+const text = ''
+</script>
+
+@if(status >= 200 && status < 300)
+  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.6875rem] font-medium bg-emerald-500/15 text-emerald-500">{{ text || status }}</span>
+@elseif(status >= 300 && status < 400)
+  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.6875rem] font-medium bg-indigo-500/15 text-indigo-400">{{ text || status }}</span>
+@elseif(status >= 400 && status < 500)
+  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.6875rem] font-medium bg-amber-500/15 text-amber-500">{{ text || status }}</span>
+@else
+  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.6875rem] font-medium bg-red-500/15 text-red-500">{{ text || status }}</span>
+@endif

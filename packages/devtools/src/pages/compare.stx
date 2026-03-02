@@ -1,0 +1,106 @@
+<script lang="ts">
+const activePage = 'compare'
+const { data: endpoints, loading } = useQuery('/api/endpoints', { initialData: [] })
+const selectedA = ref('')
+const selectedB = ref('')
+const epA = ref(null)
+const epB = ref(null)
+const chartRef = useRef('compareChart')
+let chart = null
+
+watch(endpoints, (eps) => {
+  if (eps.length >= 2 && !selectedA.value) {
+    selectedA.value = eps[0].method + ' ' + eps[0].url
+    selectedB.value = eps[1].method + ' ' + eps[1].url
+    doCompare()
+  }
+})
+
+async function doCompare() {
+  if (!selectedA.value || !selectedB.value) return
+  const [resA, resB] = await Promise.all([
+    fetch(`/api/endpoints/${encodeURIComponent(selectedA.value)}`),
+    fetch(`/api/endpoints/${encodeURIComponent(selectedB.value)}`),
+  ])
+  epA.value = await resA.json()
+  epB.value = await resB.json()
+
+  if (typeof Chart !== 'undefined' && chartRef.current && epA.value && epB.value) {
+    if (chart) chart.destroy()
+    const sdA = epA.value.statusDistribution
+    const sdB = epB.value.statusDistribution
+    chart = new Chart(chartRef.current, {
+      type: 'bar',
+      data: {
+        labels: ['2xx', '3xx', '4xx', '5xx'],
+        datasets: [
+          { label: 'Endpoint A', data: [sdA['2xx'], sdA['3xx'], sdA['4xx'], sdA['5xx']], backgroundColor: '#6366f1', borderRadius: 4 },
+          { label: 'Endpoint B', data: [sdB['2xx'], sdB['3xx'], sdB['4xx'], sdB['5xx']], backgroundColor: '#818cf8', borderRadius: 4 },
+        ],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a1a1aa', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#71717a' }, grid: { color: '#27272a' } }, y: { ticks: { color: '#71717a' }, grid: { color: '#27272a' } } } },
+    })
+  }
+}
+
+function onSelectA(e) { selectedA.value = e.target.value; doCompare() }
+function onSelectB(e) { selectedB.value = e.target.value; doCompare() }
+</script>
+
+@extends('components/layout')
+
+@section('content')
+<div class="animate-fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-lg font-semibold text-zinc-50">Compare Endpoints</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">Side-by-side endpoint performance comparison</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6 mb-6 max-lg:grid-cols-1">
+    <div>
+      <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Endpoint A</label>
+      <select @change="onSelectA($event)" class="w-full bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-indigo-500 cursor-pointer">
+        @foreach(endpoints.value as e, i)
+          <option value="{{ e.method }} {{ e.url }}" {{ i === 0 ? 'selected' : '' }}>{{ e.method }} {{ e.url }}</option>
+        @endforeach
+      </select>
+    </div>
+    <div>
+      <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Endpoint B</label>
+      <select @change="onSelectB($event)" class="w-full bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-indigo-500 cursor-pointer">
+        @foreach(endpoints.value as e, i)
+          <option value="{{ e.method }} {{ e.url }}" {{ i === 1 ? 'selected' : '' }}>{{ e.method }} {{ e.url }}</option>
+        @endforeach
+      </select>
+    </div>
+  </div>
+
+  @if(epA.value && epB.value)
+    <div class="grid grid-cols-2 gap-4 mb-6 max-sm:grid-cols-1">
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-3">Avg Duration</div>
+        <div class="flex items-end justify-between">
+          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">A</div><div class="text-xl font-bold tabular-nums {{ epA.value.avgDuration <= epB.value.avgDuration ? 'text-emerald-500' : 'text-zinc-400' }}">{{ epA.value.avgDuration }} <span class="text-xs font-normal text-zinc-500">ms</span></div></div>
+          <div class="text-xs text-zinc-600">vs</div>
+          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">B</div><div class="text-xl font-bold tabular-nums {{ epB.value.avgDuration <= epA.value.avgDuration ? 'text-emerald-500' : 'text-zinc-400' }}">{{ epB.value.avgDuration }} <span class="text-xs font-normal text-zinc-500">ms</span></div></div>
+        </div>
+      </div>
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-3">Error Rate</div>
+        <div class="flex items-end justify-between">
+          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">A</div><div class="text-xl font-bold tabular-nums {{ epA.value.errorRate <= epB.value.errorRate ? 'text-emerald-500' : 'text-zinc-400' }}">{{ epA.value.errorRate }} <span class="text-xs font-normal text-zinc-500">%</span></div></div>
+          <div class="text-xs text-zinc-600">vs</div>
+          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">B</div><div class="text-xl font-bold tabular-nums {{ epB.value.errorRate <= epA.value.errorRate ? 'text-emerald-500' : 'text-zinc-400' }}">{{ epB.value.errorRate }} <span class="text-xs font-normal text-zinc-500">%</span></div></div>
+        </div>
+      </div>
+    </div>
+  @endif
+
+  <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+    <div class="text-sm font-semibold text-zinc-50 mb-4">Status Distribution Comparison</div>
+    <div class="chart-container"><canvas ref="compareChart"></canvas></div>
+  </div>
+</div>
+@endsection

@@ -1,0 +1,64 @@
+<script lang="ts">
+const activePage = 'endpoints'
+const { data: endpoints, loading } = useQuery('/api/endpoints', { initialData: [] })
+const searchTerm = ref('')
+
+const filteredEndpoints = computed(() => {
+  let filtered = endpoints.value || []
+  if (searchTerm.value) {
+    const q = searchTerm.value.toLowerCase()
+    filtered = filtered.filter(e => e.url.toLowerCase().includes(q) || e.method.toLowerCase().includes(q))
+  }
+  return filtered
+})
+</script>
+
+@extends('components/layout')
+
+@section('content')
+<div class="animate-fade-in">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-lg font-semibold text-zinc-50">Endpoints</h1>
+      <p class="text-sm text-zinc-500 mt-0.5">Aggregated endpoint performance</p>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <input type="text" x-model="searchTerm" placeholder="Search endpoints..." class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 transition-colors w-72">
+  </div>
+
+  <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
+    @if(loading.value)
+      <div class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
+    @elseif(filteredEndpoints.value.length === 0)
+      <div class="text-center py-8 text-zinc-500 text-sm">No endpoints found.</div>
+    @else
+      <table class="w-full border-collapse">
+        <thead>
+          <tr>
+            <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Method</th>
+            <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Path</th>
+            <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Requests</th>
+            <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Avg Duration</th>
+            <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Error Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach(filteredEndpoints.value as e)
+            <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate(`/endpoints/${encodeURIComponent(e.method + ' ' + e.url)}`)">
+              <td class="px-3 py-2.5 border-b border-zinc-800/50">
+                <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase {{ e.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : e.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : e.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-amber-500/15 text-amber-500' }}">{{ e.method }}</span>
+              </td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs text-zinc-400">{{ e.url }}</td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-sm text-zinc-300 tabular-nums">{{ e.count }}</td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ e.avgDuration }}ms</td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs tabular-nums {{ e.errorRate > 20 ? 'text-red-500' : e.errorRate > 5 ? 'text-amber-500' : 'text-emerald-500' }}">{{ e.errorRate }}%</td>
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+    @endif
+  </div>
+</div>
+@endsection

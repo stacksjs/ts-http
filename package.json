@@ -49,7 +49,7 @@
     "release": "bun --bun run changelog:generate && bunx --bun bumpx prompt --recursive",
     "typecheck": "bunx tsc --noEmit",
     "dev:docs": "bun --bun vitepress dev docs",
-    "dev:dashboard": "cd packages/dashboard && bunx bun-plugin-stx serve src/pages/ --port 4401",
+    "dev:devtools": "cd packages/devtools && bunx bun-plugin-stx serve src/pages/ --port 4401",
     "build:docs": "bun --bun vitepress build docs",
     "preview:docs": "bun --bun vitepress preview docs",
     "zip": "bun run zip:all",

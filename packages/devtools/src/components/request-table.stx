@@ -1,0 +1,39 @@
+<script lang="ts">
+const requests = []
+const clickable = false
+</script>
+
+<div>
+  @if(requests.length === 0)
+    <div class="text-center py-8 text-zinc-500 text-sm">No requests to display.</div>
+  @else
+    <table class="w-full border-collapse">
+      <thead>
+        <tr>
+          <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Method</th>
+          <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">URL</th>
+          <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Status</th>
+          <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Duration</th>
+          <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Size</th>
+          <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach(requests as req)
+          <tr class="hover:bg-[#1e1e26] transition-colors {{ clickable ? 'cursor-pointer' : '' }}" @click="clickable ? navigate(`/requests/${req.id}`) : null">
+            <td class="px-3 py-2.5 border-b border-zinc-800/50">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase tracking-wide {{ req.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : req.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : req.method === 'PUT' || req.method === 'PATCH' ? 'bg-amber-500/15 text-amber-500' : req.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-zinc-500/15 text-zinc-400' }}">{{ req.method }}</span>
+            </td>
+            <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap">{{ req.url }}</td>
+            <td class="px-3 py-2.5 border-b border-zinc-800/50">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ req.status < 300 ? 'bg-emerald-500/15 text-emerald-500' : req.status < 400 ? 'bg-indigo-500/15 text-indigo-400' : req.status < 500 ? 'bg-amber-500/15 text-amber-500' : 'bg-red-500/15 text-red-500' }}">{{ req.status }}</span>
+            </td>
+            <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ req.duration }}ms</td>
+            <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs text-zinc-400 tabular-nums">{{ req.responseSize }}B</td>
+            <td class="px-3 py-2.5 border-b border-zinc-800/50 text-xs text-zinc-500">{{ req.timestamp }}</td>
+          </tr>
+        @endforeach
+      </tbody>
+    </table>
+  @endif
+</div>
