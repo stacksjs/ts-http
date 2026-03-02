@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', async()=>{
 <\/script>`
 }
 
-function genericPageContent(pageName: string, pageTitle: string, apiEndpoint: string): string {
+function genericPageContent(_pageName: string, pageTitle: string, apiEndpoint: string): string {
   return `<div class="animate-fade-in">
   <div style="margin-bottom:24px;"><h1 style="font-size:18px;font-weight:600;">${pageTitle}</h1><p style="font-size:13px;color:var(--muted);margin-top:2px;">Loading data from API...</p></div>
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;">
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   const res=await fetch('/api/endpoints');const eps=await res.json();let q='';
   function mc(m){return m==='GET'?'color:#10b981;background:rgba(16,185,129,0.15);':m==='POST'?'color:#6366f1;background:rgba(99,102,241,0.15);':m==='DELETE'?'color:#ef4444;background:rgba(239,68,68,0.15);':'color:#f59e0b;background:rgba(245,158,11,0.15);';}
   function render(){
-    let f=eps;if(q){const ql=q.toLowerCase();f=f.filter(e=>e.url.toLowerCase().includes(ql)||e.method.toLowerCase().includes(ql));}
+    const f=q?(()=>{const ql=q.toLowerCase();return eps.filter(e=>e.url.toLowerCase().includes(ql)||e.method.toLowerCase().includes(ql));})():eps;
     const el=document.getElementById('ep-table');
     if(!f.length){el.innerHTML='<div style="text-align:center;padding:32px;color:var(--muted);">No endpoints found.</div>';return;}
     el.innerHTML='<table style="width:100%;border-collapse:collapse;"><thead><tr>'+['Method','Path','Requests','Avg Duration','Error Rate'].map(h=>'<th style="padding:8px;text-align:'+(h==='Requests'||h==='Avg Duration'||h==='Error Rate'?'right':'left')+';font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border);">'+h+'</th>').join('')+'</tr></thead><tbody>'+f.map(e=>{

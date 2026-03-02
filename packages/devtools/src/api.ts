@@ -260,7 +260,7 @@ export async function fetchEndpointDetail(method: string, path: string): Promise
     else sd['5xx']++
   }
 
-  const trend: TimeSeriesPoint[] = reqs.map((r, i) => ({
+  const trend: TimeSeriesPoint[] = reqs.map((r, _i) => ({
     timestamp: r.timestamp,
     value: r.duration,
   }))
