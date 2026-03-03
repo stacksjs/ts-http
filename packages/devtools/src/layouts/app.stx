@@ -55,6 +55,11 @@ function breadcrumb(): string {
     .sidebar.collapsed .sidebar-brand { justify-content: center; padding: 0.75rem 0; }
     .sidebar.collapsed .nav-item { justify-content: center; padding: 0.5rem 0; }
     .sidebar.collapsed .nav-item svg { margin-right: 0; }
+    .nav-item.active { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+    .nav-item.active:hover { background: rgba(99, 102, 241, 0.15); }
+
+    /* Filter buttons */
+    .filter-btn.active { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
 
     .main-wrapper { margin-left: var(--sidebar-w); transition: margin-left 0.2s ease; min-height: 100vh; }
     .main-wrapper.collapsed { margin-left: var(--sidebar-collapsed); }
@@ -91,7 +96,7 @@ function breadcrumb(): string {
   @include('partials/sidebar')
 
   <!-- Main wrapper -->
-  <div ref="mainWrapper" class="main-wrapper {{ sidebarCollapsed.value ? 'collapsed' : '' }}">
+  <div ref="mainWrapper" class="main-wrapper" :class="{ collapsed: sidebarCollapsed.value }">
     <header class="flex items-center justify-between px-6 py-3 bg-[#141419] border-b border-zinc-800">
       <div class="flex items-center gap-2 text-sm text-zinc-400">
         <a href="/" @click.prevent="navigate('/')" class="hover:text-zinc-50 transition-colors">httx</a>

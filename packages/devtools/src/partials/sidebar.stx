@@ -1,4 +1,4 @@
-<aside ref="sidebar" class="sidebar {{ sidebarCollapsed.value ? 'collapsed' : '' }}">
+<aside ref="sidebar" class="sidebar" :class="{ collapsed: sidebarCollapsed.value }">
   <div class="flex items-center gap-3 px-4 py-3 border-b border-zinc-800 sidebar-brand">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-500">
       <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
@@ -10,11 +10,11 @@
     <div class="px-3 mb-1">
       <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider px-2 mb-1 nav-group-title">Overview</div>
     </div>
-    <a href="/" @click.prevent="navigate('/')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/" @click.prevent="navigate('/')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       <span class="nav-label">Dashboard</span>
     </a>
-    <a href="/timeline" @click.prevent="navigate('/timeline')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/timeline') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/timeline" @click.prevent="navigate('/timeline')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/timeline') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="3 6 7 6 10 18 14 6 17 18 21 6"/></svg>
       <span class="nav-label">Timeline</span>
     </a>
@@ -22,19 +22,19 @@
     <div class="px-3 mt-4 mb-1">
       <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider px-2 mb-1 nav-group-title">Traffic</div>
     </div>
-    <a href="/requests" @click.prevent="navigate('/requests')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/requests') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/requests" @click.prevent="navigate('/requests')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/requests') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       <span class="nav-label">Requests</span>
     </a>
-    <a href="/endpoints" @click.prevent="navigate('/endpoints')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/endpoints') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/endpoints" @click.prevent="navigate('/endpoints')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/endpoints') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg>
       <span class="nav-label">Endpoints</span>
     </a>
-    <a href="/network" @click.prevent="navigate('/network')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/network') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/network" @click.prevent="navigate('/network')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/network') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><circle cx="5" cy="6" r="3"/><circle cx="19" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><line x1="5" y1="9" x2="12" y2="15"/><line x1="19" y1="9" x2="12" y2="15"/></svg>
       <span class="nav-label">Network</span>
     </a>
-    <a href="/compare" @click.prevent="navigate('/compare')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/compare') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/compare" @click.prevent="navigate('/compare')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/compare') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><rect x="2" y="4" width="8" height="16" rx="1"/><rect x="14" y="4" width="8" height="16" rx="1"/></svg>
       <span class="nav-label">Compare</span>
     </a>
@@ -42,11 +42,11 @@
     <div class="px-3 mt-4 mb-1">
       <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider px-2 mb-1 nav-group-title">Performance</div>
     </div>
-    <a href="/metrics" @click.prevent="navigate('/metrics')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/metrics') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/metrics" @click.prevent="navigate('/metrics')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/metrics') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       <span class="nav-label">Metrics</span>
     </a>
-    <a href="/monitoring" @click.prevent="navigate('/monitoring')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/monitoring') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/monitoring" @click.prevent="navigate('/monitoring')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/monitoring') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       <span class="nav-label">Monitoring</span>
     </a>
@@ -54,11 +54,11 @@
     <div class="px-3 mt-4 mb-1">
       <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider px-2 mb-1 nav-group-title">Tools</div>
     </div>
-    <a href="/export" @click.prevent="navigate('/export')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/export') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/export" @click.prevent="navigate('/export')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/export') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       <span class="nav-label">Export</span>
     </a>
-    <a href="/settings" @click.prevent="navigate('/settings')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors {{ isActive('/settings') ? 'bg-indigo-500/15 text-indigo-400' : 'text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50' }}">
+    <a href="/settings" @click.prevent="navigate('/settings')" class="nav-item flex items-center gap-3 px-4 py-2 mx-2 rounded-md text-[0.8125rem] font-medium transition-colors text-zinc-400 hover:bg-[#1e1e26] hover:text-zinc-50" :class="{ active: isActive('/settings') }">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span class="nav-label">Settings</span>
     </a>

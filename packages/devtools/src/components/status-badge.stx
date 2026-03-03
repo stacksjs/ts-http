@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 const status: number = 200
 const text: string = ''
 </script>

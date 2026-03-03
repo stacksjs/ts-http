@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 const label: string = ''
 const value: number = 0
 const unit: string = ''

@@ -49,7 +49,7 @@ function setMethod(m: string): void {
 
     <div class="flex gap-1">
       @foreach(methods as m)
-        <button @click="setMethod('{{ m }}')" class="px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors {{ activeMethod.value === m ? 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30' : 'bg-[#1e1e26] text-zinc-400 border border-zinc-800 hover:border-zinc-600' }}">{{ m }}</button>
+        <button @click="setMethod('{{ m }}')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors bg-[#1e1e26] text-zinc-400 border border-zinc-800 hover:border-zinc-600" :class="{ active: activeMethod.value === '{{ m }}' }">{{ m }}</button>
       @endforeach
     </div>
 
