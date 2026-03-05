@@ -1,8 +1,4 @@
-<script>
-import type { RequestRecord } from '../types'
-
-declare const d3: any
-
+<script client>
 interface NetworkNode {
   id: string
   group: 'client' | 'server'
@@ -20,14 +16,14 @@ interface NetworkLink {
 }
 
 const { data: requests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
-const vizRef = useRef<HTMLElement>('networkViz')
+const networkViz = ref<HTMLElement | null>(null)
 
 onMount(() => {
   const waitForD3: ReturnType<typeof setInterval> = setInterval(() => {
-    if (typeof d3 === 'undefined' || !requests.value.length || !vizRef.current) return
+    if (typeof d3 === 'undefined' || !requests.value.length || !networkViz.value) return
     clearInterval(waitForD3)
 
-    const container: HTMLElement = vizRef.current
+    const container: HTMLElement = networkViz.value
     const width: number = container.clientWidth
     const height: number = 500
 

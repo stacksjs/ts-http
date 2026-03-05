@@ -1,6 +1,6 @@
 export default {
   content: [
-    './src/**/*.stx',
+    './src/pages/**/*.stx',
   ],
   output: './dist/styles.css',
   minify: false,

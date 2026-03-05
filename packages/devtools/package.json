@@ -39,7 +39,7 @@
   ],
   "scripts": {
     "build": "bun --bun build.ts",
-    "dev": "bunx bun-plugin-stx serve src/pages/ --port 4401",
+    "dev": "bun --watch server.ts",
     "prepublishOnly": "bun run build",
     "test": "bun test",
     "test:watch": "bun test --watch",

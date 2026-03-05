@@ -1,6 +1,4 @@
-<script>
-import type { MonitoringAlert, EventLogEntry } from '../types'
-
+<script client>
 const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/api/alerts', { initialData: [] })
 const { data: events, loading: eventsLoading } = useQuery<EventLogEntry[]>('/api/events', { initialData: [] })
 

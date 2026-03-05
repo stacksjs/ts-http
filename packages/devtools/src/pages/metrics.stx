@@ -1,8 +1,4 @@
-<script>
-import type { DashboardStats, RequestRecord, EndpointStats, TimeSeriesPoint, StatusDistribution } from '../types'
-
-declare const Chart: any
-
+<script client>
 const { data: stats, loading: statsLoading } = useQuery<DashboardStats>('/api/stats', { initialData: { statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, responseTimeHistory: [], topEndpoints: [] } })
 const { data: requests } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
 const { data: endpoints } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
@@ -16,30 +12,30 @@ const p50 = computed<number>(() => { const d: number[] = durations.value; return
 const p95 = computed<number>(() => { const d: number[] = durations.value; return d.length ? d[Math.ceil(0.95 * d.length) - 1] : 0 })
 const p99 = computed<number>(() => { const d: number[] = durations.value; return d.length ? d[Math.ceil(0.99 * d.length) - 1] : 0 })
 
-const rtChartRef = useRef<HTMLCanvasElement>('rtChart')
-const sdChartRef = useRef<HTMLCanvasElement>('sdChart')
-const epBarRef = useRef<HTMLCanvasElement>('epBar')
+const rtChart = ref<HTMLCanvasElement | null>(null)
+const sdChart = ref<HTMLCanvasElement | null>(null)
+const epBar = ref<HTMLCanvasElement | null>(null)
 
 onMount(() => {
   const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {
     if (typeof Chart === 'undefined' || !stats.value.responseTimeHistory.length) return
     clearInterval(waitForCharts)
 
-    new Chart(rtChartRef.current, {
+    new Chart(rtChart.value, {
       type: 'line',
       data: { labels: stats.value.responseTimeHistory.map((_: TimeSeriesPoint, i: number) => `${30 - i}m`), datasets: [{ label: 'Avg Response Time', data: stats.value.responseTimeHistory.map((p: TimeSeriesPoint) => p.value), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: '#6366f1' }] },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#a1a1aa', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#71717a', font: { size: 10 }, callback: (v: number) => v + 'ms' }, grid: { color: '#27272a' } } } },
     })
 
     const sd: StatusDistribution = stats.value.statusDistribution
-    new Chart(sdChartRef.current, {
+    new Chart(sdChart.value, {
       type: 'doughnut',
       data: { labels: ['2xx', '3xx', '4xx', '5xx'], datasets: [{ data: [sd['2xx'], sd['3xx'], sd['4xx'], sd['5xx']], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
       options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', font: { size: 11 }, padding: 16 } } } },
     })
 
     const top: EndpointStats[] = (endpoints.value || []).slice(0, 8)
-    new Chart(epBarRef.current, {
+    new Chart(epBar.value, {
       type: 'bar',
       data: { labels: top.map((e: EndpointStats) => `${e.method} ${e.url}`), datasets: [{ label: 'Requests', data: top.map((e: EndpointStats) => e.count), backgroundColor: '#6366f1', borderRadius: 4 }] },
       options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#a1a1aa', font: { size: 10, family: 'monospace' } }, grid: { display: false } } } },

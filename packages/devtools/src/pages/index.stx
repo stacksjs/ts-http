@@ -1,8 +1,4 @@
-<script>
-import type { DashboardStats, RequestRecord, MonitoringAlert, ThroughputPoint, StatusDistribution } from '../types'
-
-declare const Chart: any
-
+<script client>
 const { data: stats, loading: statsLoading } = useQuery<DashboardStats>('/api/stats', { initialData: { totalRequests: 0, avgResponseTime: 0, errorRate: 0, requestsPerMinute: 0, statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, throughputHistory: [], responseTimeHistory: [], recentEvents: [], activeAlerts: [] } })
 const { data: requests, loading: reqsLoading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
 const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/api/alerts', { initialData: [] })
@@ -10,15 +6,15 @@ const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/a
 const recentRequests = computed<RequestRecord[]>(() => (requests.value || []).slice(-10).reverse())
 const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filter((a: MonitoringAlert) => !a.resolved))
 
-const throughputChartRef = useRef<HTMLCanvasElement>('throughputChart')
-const statusChartRef = useRef<HTMLCanvasElement>('statusChart')
+const throughputChart = ref<HTMLCanvasElement | null>(null)
+const statusChart = ref<HTMLCanvasElement | null>(null)
 
 onMount(() => {
   const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {
     if (typeof Chart === 'undefined' || !stats.value.throughputHistory.length) return
     clearInterval(waitForCharts)
 
-    new Chart(throughputChartRef.current, {
+    new Chart(throughputChart.value, {
       type: 'line',
       data: {
         labels: stats.value.throughputHistory.map((_: ThroughputPoint, i: number) => `${30 - i}m`),
@@ -31,7 +27,7 @@ onMount(() => {
     })
 
     const sd: StatusDistribution = stats.value.statusDistribution
-    new Chart(statusChartRef.current, {
+    new Chart(statusChart.value, {
       type: 'doughnut',
       data: { labels: ['2xx', '3xx', '4xx', '5xx'], datasets: [{ data: [sd['2xx'], sd['3xx'], sd['4xx'], sd['5xx']], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
       options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', font: { size: 11 }, padding: 16 } } } },

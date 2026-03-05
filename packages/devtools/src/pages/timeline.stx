@@ -1,17 +1,13 @@
-<script>
-import type { RequestRecord } from '../types'
-
-declare const d3: any
-
+<script client>
 const { data: requests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
-const vizRef = useRef<HTMLElement>('timelineViz')
+const timelineViz = ref<HTMLElement | null>(null)
 
 onMount(() => {
   const waitForD3: ReturnType<typeof setInterval> = setInterval(() => {
-    if (typeof d3 === 'undefined' || !requests.value.length || !vizRef.current) return
+    if (typeof d3 === 'undefined' || !requests.value.length || !timelineViz.value) return
     clearInterval(waitForD3)
 
-    const container: HTMLElement = vizRef.current
+    const container: HTMLElement = timelineViz.value
     const width: number = container.clientWidth
     const rowH: number = 28
     const margin: { top: number, right: number, bottom: number, left: number } = { top: 30, right: 20, bottom: 30, left: 200 }

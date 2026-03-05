@@ -1,6 +1,4 @@
-<script>
-import type { EndpointStats } from '../types'
-
+<script client>
 const { data: endpoints, loading } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
 const searchTerm = ref<string>('')
 

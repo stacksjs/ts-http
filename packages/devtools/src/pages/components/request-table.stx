@@ -1,5 +1,4 @@
 <script>
-import type { RequestRecord } from '../types'
 
 const requests: RequestRecord[] = []
 const clickable: boolean = false

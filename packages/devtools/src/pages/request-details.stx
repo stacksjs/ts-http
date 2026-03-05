@@ -1,6 +1,4 @@
-<script>
-import type { RequestRecord } from '../types'
-
+<script client>
 const pathParts: string[] = useRoute().split('/')
 const requestId: string = pathParts[pathParts.length - 1]
 const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/requests/${requestId}`, { initialData: null })

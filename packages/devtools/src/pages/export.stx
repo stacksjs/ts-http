@@ -1,10 +1,7 @@
-<script>
-import type { RequestRecord } from '../types'
-
+<script client>
 const { data: allRequests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
 const exportMethod = ref<string>('ALL')
 const exportStatus = ref<string>('ALL')
-const { copy } = useClipboard()
 
 const filteredData = computed<RequestRecord[]>(() => {
   let data: RequestRecord[] = allRequests.value || []

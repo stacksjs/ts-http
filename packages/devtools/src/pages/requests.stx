@@ -1,6 +1,4 @@
-<script>
-import type { RequestRecord } from '../types'
-
+<script client>
 const { data: allRequests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
 const activeMethod = ref<string>('ALL')
 const activeStatus = ref<string>('ALL')

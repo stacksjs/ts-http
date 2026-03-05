@@ -1,11 +1,19 @@
-<script>
-const sidebarCollapsed = useLocalStorage<boolean>('httx-sidebar-collapsed', false)
-const sidebar = useRef<HTMLElement>('sidebar')
-const mainWrapper = useRef<HTMLElement>('mainWrapper')
+<script client>
+const sidebarCollapsed = ref<boolean>(false)
+const sidebar = ref<HTMLElement | null>(null)
+const mainWrapper = ref<HTMLElement | null>(null)
 const currentPath: string = useRoute()
+
+onMount(() => {
+  if (typeof localStorage !== 'undefined') {
+    const stored = localStorage.getItem('httx-sidebar-collapsed')
+    if (stored === 'true') sidebarCollapsed.value = true
+  }
+})
 
 function toggleSidebar(): void {
   sidebarCollapsed.value = !sidebarCollapsed.value
+  if (typeof localStorage !== 'undefined') localStorage.setItem('httx-sidebar-collapsed', String(sidebarCollapsed.value))
 }
 
 function isActive(path: string): boolean {
@@ -93,7 +101,7 @@ function breadcrumb(): string {
   @stack('styles')
 </head>
 <body>
-  @include('partials/sidebar')
+  @include('sidebar')
 
   <!-- Main wrapper -->
   <div ref="mainWrapper" class="main-wrapper" :class="{ collapsed: sidebarCollapsed.value }">

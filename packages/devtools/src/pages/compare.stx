@@ -1,14 +1,10 @@
-<script>
-import type { EndpointStats, EndpointDetail, StatusDistribution } from '../types'
-
-declare const Chart: any
-
+<script client>
 const { data: endpoints, loading } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
 const selectedA = ref<string>('')
 const selectedB = ref<string>('')
 const epA = ref<EndpointDetail | null>(null)
 const epB = ref<EndpointDetail | null>(null)
-const chartRef = useRef<HTMLCanvasElement>('compareChart')
+const compareChart = ref<HTMLCanvasElement | null>(null)
 let chart: any = null
 
 watch(endpoints, (eps: EndpointStats[]) => {
@@ -28,11 +24,11 @@ async function doCompare(): Promise<void> {
   epA.value = await resA.json() as EndpointDetail
   epB.value = await resB.json() as EndpointDetail
 
-  if (typeof Chart !== 'undefined' && chartRef.current && epA.value && epB.value) {
+  if (typeof Chart !== 'undefined' && compareChart.value && epA.value && epB.value) {
     if (chart) chart.destroy()
     const sdA: StatusDistribution = epA.value.statusDistribution
     const sdB: StatusDistribution = epB.value.statusDistribution
-    chart = new Chart(chartRef.current, {
+    chart = new Chart(compareChart.value, {
       type: 'bar',
       data: {
         labels: ['2xx', '3xx', '4xx', '5xx'],
