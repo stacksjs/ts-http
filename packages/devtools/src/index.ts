@@ -1,8 +1,11 @@
 import type { DashboardConfig } from './types'
 import { createApiRoutes, fetchEndpointDetail, fetchRequestById, resolveConfig } from './api'
 
-export type { DashboardConfig, DashboardStats, EndpointDetail, EndpointStats, EventLogEntry, HttpMethod, MonitoringAlert, RequestMetrics, RequestRecord, StatusDistribution, TimeSeriesPoint, ThroughputPoint } from './types'
+export type { DashboardConfig, DashboardStats, EndpointDetail, EndpointStats, EventLogEntry, HttpMethod, MonitoringAlert, RequestMetrics, RequestRecord, StatusDistribution, StorageConfig, TimeSeriesPoint, ThroughputPoint } from './types'
 export { createApiRoutes, fetchAlerts, fetchDashboardStats, fetchEndpointDetail, fetchEndpointList, fetchEventLog, fetchMonitoringState, fetchRequestById, fetchRequestHistory } from './api'
+export { createRecorder } from './recorder'
+export { ensureTable } from './dynamo'
+export type { DynamoStorageConfig } from './dynamo'
 
 // Lightweight parameterized route matcher
 interface RouteMatch {

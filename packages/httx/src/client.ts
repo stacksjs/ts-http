@@ -1,5 +1,5 @@
 import type { Result } from 'ts-error-handling'
-import type { HttxConfig, HttxResponse, RequestOptions, RetryOptions } from './types'
+import type { HttxConfig, HttxResponse, RequestCompleteRecord, RequestOptions, RetryOptions } from './types'
 import { err, ok } from 'ts-error-handling'
 import { HttxNetworkError, HttxResponseError, HttxTimeoutError } from './errors'
 import { debugLog, sleep } from './utils'
@@ -32,7 +32,7 @@ export class HttxClient {
         await sleep(delay)
       }
 
-      const result = await this.executeRequest<T>(url, options)
+      const result = await this.executeRequest<T>(url, options, attempt)
 
       if (result.isOk) {
         return result
@@ -54,6 +54,7 @@ export class HttxClient {
   private async executeRequest<T = unknown>(
     url: string,
     options: RequestOptions,
+    retryCount: number = 0,
   ): Promise<Result<HttxResponse<T>, Error>> {
     const startTime = performance.now()
 
@@ -106,6 +107,7 @@ export class HttxClient {
         }
 
         debugLog('response', () => `${streamResult.status} ${streamResult.statusText} (streaming)`, this.config.verbose)
+        this.fireRequestComplete(options, finalUrl, streamResult, retryCount)
         return ok(streamResult)
       }
 
@@ -127,10 +129,14 @@ export class HttxClient {
       debugLog('response', () => `${result.status} ${result.statusText} (${result.timings.duration.toFixed(2)}ms)`, this.config.verbose)
       debugLog('response', () => `Response data: ${this.serializeData(data)}`, this.config.verbose)
 
+      this.fireRequestComplete(options, finalUrl, result, retryCount)
       return ok(result)
     }
     catch (error) {
+      const duration = performance.now() - startTime
       if (error instanceof Error) {
+        this.fireRequestComplete(options, url, null, retryCount, error, duration)
+
         if (error.name === 'TimeoutError' || error.name === 'AbortError') {
           const timeout = options.timeout || this.config.timeout
           return err(new HttxTimeoutError(options.method, url, timeout) as Error)
@@ -149,6 +155,47 @@ export class HttxClient {
       }
 
       return err(new Error(String(error)))
+    }
+  }
+
+  private fireRequestComplete<T>(
+    options: RequestOptions,
+    url: string,
+    response: HttxResponse<T> | null,
+    retryCount: number,
+    error?: Error,
+    fallbackDuration?: number,
+  ): void {
+    if (!this.config.onRequestComplete) return
+
+    const reqHeaders: Record<string, string> = {}
+    const builtHeaders = this.buildHeaders(options)
+    builtHeaders.forEach((value, key) => { reqHeaders[key] = value })
+
+    const resHeaders: Record<string, string> = {}
+    if (response) {
+      response.headers.forEach((value, key) => { resHeaders[key] = value })
+    }
+
+    const record: RequestCompleteRecord = {
+      method: options.method,
+      url,
+      status: response?.status ?? 0,
+      statusText: response?.statusText ?? (error?.message ?? 'Unknown Error'),
+      duration: response?.timings.duration ?? fallbackDuration ?? 0,
+      requestHeaders: reqHeaders,
+      responseHeaders: resHeaders,
+      requestBody: typeof options.body === 'string' ? options.body : options.body ? JSON.stringify(options.body) : undefined,
+      responseBody: response ? this.serializeData(response.data) : undefined,
+      error: error?.message,
+      retryCount,
+    }
+
+    try {
+      this.config.onRequestComplete(record)
+    }
+    catch {
+      // Don't let hook errors affect the request
     }
   }
 

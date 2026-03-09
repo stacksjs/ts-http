@@ -1,3 +1,6 @@
+@extends('layouts/app')
+
+@section('content')
 <script client>
 const { data: endpoints, loading } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
 const selectedA = ref<string>('')
@@ -45,10 +48,6 @@ async function doCompare(): Promise<void> {
 function onSelectA(e: Event): void { selectedA.value = (e.target as HTMLSelectElement).value; doCompare() }
 function onSelectB(e: Event): void { selectedB.value = (e.target as HTMLSelectElement).value; doCompare() }
 </script>
-
-@extends('layouts/app')
-
-@section('content')
 <div class="animate-fade-in">
   <div class="flex items-center justify-between mb-6">
     <div>

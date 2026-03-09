@@ -1,3 +1,6 @@
+@extends('layouts/app')
+
+@section('content')
 <script client>
 const { data: stats, loading: statsLoading } = useQuery<DashboardStats>('/api/stats', { initialData: { statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, responseTimeHistory: [], topEndpoints: [] } })
 const { data: requests } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
@@ -44,10 +47,6 @@ onMount(() => {
   return () => clearInterval(waitForCharts)
 })
 </script>
-
-@extends('layouts/app')
-
-@section('content')
 <div class="animate-fade-in">
   <div class="flex items-center justify-between mb-6">
     <div>

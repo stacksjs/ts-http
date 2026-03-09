@@ -51,6 +51,9 @@
     "@stacksjs/httx": "^0.1.7"
   },
   "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1004.0",
+    "@aws-sdk/credential-providers": "^3.1004.0",
+    "@aws-sdk/lib-dynamodb": "^3.1004.0",
     "@stacksjs/stx": "^0.2.5",
     "bun-plugin-stx": "^0.2.5"
   }

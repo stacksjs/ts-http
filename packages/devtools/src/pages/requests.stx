@@ -1,3 +1,6 @@
+@extends('layouts/app')
+
+@section('content')
 <script client>
 const { data: allRequests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
 const activeMethod = ref<string>('ALL')
@@ -29,10 +32,6 @@ function setMethod(m: string): void {
   activeMethod.value = m
 }
 </script>
-
-@extends('layouts/app')
-
-@section('content')
 <div class="animate-fade-in">
   <div class="flex items-center justify-between mb-6">
     <div>

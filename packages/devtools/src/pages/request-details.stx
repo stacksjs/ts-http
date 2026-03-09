@@ -1,12 +1,11 @@
+@extends('layouts/app')
+
+@section('content')
 <script client>
 const pathParts: string[] = useRoute().split('/')
 const requestId: string = pathParts[pathParts.length - 1]
 const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/requests/${requestId}`, { initialData: null })
 </script>
-
-@extends('layouts/app')
-
-@section('content')
 <div class="animate-fade-in">
   <div class="flex items-center gap-2 text-sm text-zinc-500 mb-4">
     <a href="/requests" @click.prevent="navigate('/requests')" class="hover:text-zinc-300 transition-colors">Requests</a>

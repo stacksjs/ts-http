@@ -157,6 +157,18 @@ function generateMockAlerts(): MonitoringAlert[] {
 
 export const mockAlerts: MonitoringAlert[] = generateMockAlerts()
 
+// --- DynamoDB imports (lazy) ---
+import { queryAllRequests, getRequestById as dynamoGetById } from './dynamo'
+import type { DynamoStorageConfig } from './dynamo'
+
+function getDynamoConfig(config: DashboardConfig): DynamoStorageConfig {
+  return config.storage?.dynamodb ?? {}
+}
+
+function isDynamo(config: DashboardConfig): boolean {
+  return config.storage?.driver === 'dynamodb'
+}
+
 // --- Fetch Functions ---
 
 function percentile(sorted: number[], p: number): number {
@@ -164,16 +176,26 @@ function percentile(sorted: number[], p: number): number {
   return sorted[Math.max(0, idx)]
 }
 
-export async function fetchRequestHistory(_config: DashboardConfig): Promise<RequestRecord[]> {
+async function getRequests(config: DashboardConfig): Promise<RequestRecord[]> {
+  if (isDynamo(config)) {
+    return queryAllRequests(getDynamoConfig(config), { limit: config.maxHistory ?? 1000 })
+  }
   return mockRequests
 }
 
-export async function fetchRequestById(id: string): Promise<RequestRecord | undefined> {
+export async function fetchRequestHistory(config: DashboardConfig): Promise<RequestRecord[]> {
+  return getRequests(config)
+}
+
+export async function fetchRequestById(id: string, config?: DashboardConfig): Promise<RequestRecord | undefined> {
+  if (config && isDynamo(config)) {
+    return dynamoGetById(id, getDynamoConfig(config))
+  }
   return mockRequests.find(r => r.id === id)
 }
 
-export async function fetchDashboardStats(_config: DashboardConfig): Promise<DashboardStats> {
-  const reqs = mockRequests
+export async function fetchDashboardStats(config: DashboardConfig): Promise<DashboardStats> {
+  const reqs = await getRequests(config)
   const total = reqs.length
   const durations = reqs.map(r => r.duration).sort((a, b) => a - b)
   const avgDuration = Math.round(durations.reduce((a, b) => a + b, 0) / total)
@@ -240,12 +262,14 @@ function aggregateEndpoints(reqs: RequestRecord[]): EndpointStats[] {
   return endpoints.sort((a, b) => b.count - a.count)
 }
 
-export async function fetchEndpointList(): Promise<EndpointStats[]> {
-  return aggregateEndpoints(mockRequests)
+export async function fetchEndpointList(config?: DashboardConfig): Promise<EndpointStats[]> {
+  const reqs = config ? await getRequests(config) : mockRequests
+  return aggregateEndpoints(reqs)
 }
 
-export async function fetchEndpointDetail(method: string, path: string): Promise<EndpointDetail | undefined> {
-  const reqs = mockRequests.filter(r => r.method === method && r.path === path)
+export async function fetchEndpointDetail(method: string, path: string, config?: DashboardConfig): Promise<EndpointDetail | undefined> {
+  const allReqs = config ? await getRequests(config) : mockRequests
+  const reqs = allReqs.filter(r => r.method === method && r.path === path)
   if (reqs.length === 0) return undefined
 
   const durations = reqs.map(r => r.duration).sort((a, b) => a - b)
@@ -281,15 +305,16 @@ export async function fetchEndpointDetail(method: string, path: string): Promise
   }
 }
 
-export async function fetchEventLog(): Promise<EventLogEntry[]> {
+export async function fetchEventLog(_config?: DashboardConfig): Promise<EventLogEntry[]> {
+  // Events are still mock for now — will be stored in DynamoDB in a future iteration
   return mockEvents
 }
 
-export async function fetchAlerts(): Promise<MonitoringAlert[]> {
+export async function fetchAlerts(_config?: DashboardConfig): Promise<MonitoringAlert[]> {
   return mockAlerts
 }
 
-export async function fetchMonitoringState(): Promise<{ healthScore: number, uptime: string, activeAlerts: MonitoringAlert[], events: EventLogEntry[] }> {
+export async function fetchMonitoringState(_config?: DashboardConfig): Promise<{ healthScore: number, uptime: string, activeAlerts: MonitoringAlert[], events: EventLogEntry[] }> {
   const active = mockAlerts.filter(a => !a.resolved)
   const score = Math.max(0, 100 - active.length * 15)
   return {
@@ -315,16 +340,16 @@ export function createApiRoutes(config: DashboardConfig) {
       return Response.json(requests)
     },
     '/api/requests/:id': async (id: string) => {
-      const record = await fetchRequestById(id)
+      const record = await fetchRequestById(id, resolvedConfig)
       if (!record) return Response.json({ error: 'Not found' }, { status: 404 })
       return Response.json(record)
     },
     '/api/endpoints': async (_req?: Request) => {
-      const endpoints = await fetchEndpointList()
+      const endpoints = await fetchEndpointList(resolvedConfig)
       return Response.json(endpoints)
     },
     '/api/endpoints/:path': async (method: string, path: string) => {
-      const detail = await fetchEndpointDetail(method, path)
+      const detail = await fetchEndpointDetail(method, path, resolvedConfig)
       if (!detail) return Response.json({ error: 'Not found' }, { status: 404 })
       return Response.json(detail)
     },

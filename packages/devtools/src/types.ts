@@ -1,9 +1,20 @@
+export interface StorageConfig {
+  driver?: 'mock' | 'dynamodb'
+  dynamodb?: {
+    tableName?: string
+    region?: string
+    profile?: string
+    ttlDays?: number
+  }
+}
+
 export interface DashboardConfig {
   port?: number
   host?: string
   auth?: AuthConfig
   refreshInterval?: number
   maxHistory?: number
+  storage?: StorageConfig
 }
 
 export interface AuthConfig {

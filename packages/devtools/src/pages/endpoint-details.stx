@@ -1,3 +1,6 @@
+@extends('layouts/app')
+
+@section('content')
 <script client>
 const param: string = decodeURIComponent(useRoute().split('/endpoints/')[1] || '')
 const { data: ep, loading, error } = useQuery<EndpointDetail | null>(`/api/endpoints/${encodeURIComponent(param)}`, { initialData: null })
@@ -26,10 +29,6 @@ onMount(() => {
   return () => clearInterval(waitForCharts)
 })
 </script>
-
-@extends('layouts/app')
-
-@section('content')
 <div class="animate-fade-in">
   <div class="flex items-center gap-2 text-sm text-zinc-500 mb-4">
     <a href="/endpoints" @click.prevent="navigate('/endpoints')" class="hover:text-zinc-300 transition-colors">Endpoints</a>

@@ -39,12 +39,27 @@ export interface RequestOptions extends Omit<BunFetchInit, 'method'> {
   acceptHeader?: string
 }
 
+export interface RequestCompleteRecord {
+  method: string
+  url: string
+  status: number
+  statusText: string
+  duration: number
+  requestHeaders: Record<string, string>
+  responseHeaders: Record<string, string>
+  requestBody?: string
+  responseBody?: string
+  error?: string
+  retryCount: number
+}
+
 export interface HttxConfig {
   verbose?: boolean | string[]
   defaultHeaders?: Record<string, string>
   baseUrl?: string
   timeout?: number
   retry?: RetryOptions
+  onRequestComplete?: (record: RequestCompleteRecord) => void | Promise<void>
 }
 
 export type HttxOptions = Partial<HttxConfig>
