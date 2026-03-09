@@ -23,7 +23,7 @@ const networkViz = ref<HTMLElement | null>(null)
 
 onMount(() => {
   const waitForD3: ReturnType<typeof setInterval> = setInterval(() => {
-    if (typeof d3 === 'undefined' || !requests.value.length || !networkViz.value) return
+    if (typeof d3 === 'undefined' || !requests.value || !requests.value.length || !networkViz.value) return
     clearInterval(waitForD3)
 
     const container: HTMLElement = networkViz.value

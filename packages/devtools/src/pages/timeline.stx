@@ -7,7 +7,7 @@ const timelineViz = ref<HTMLElement | null>(null)
 
 onMount(() => {
   const waitForD3: ReturnType<typeof setInterval> = setInterval(() => {
-    if (typeof d3 === 'undefined' || !requests.value.length || !timelineViz.value) return
+    if (typeof d3 === 'undefined' || !requests.value || !requests.value.length || !timelineViz.value) return
     clearInterval(waitForD3)
 
     const container: HTMLElement = timelineViz.value
