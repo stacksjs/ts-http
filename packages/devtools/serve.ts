@@ -1,14 +1,30 @@
+#!/usr/bin/env bun
+/**
+ * Devtools dev server
+ *
+ * Runs the STX page server with API route handlers for the dashboard.
+ *
+ * Usage:
+ *   bun packages/devtools/serve.ts
+ *   bun packages/devtools/serve.ts --port 4401
+ */
+
 import { serve } from '/Users/glennmichaeltorregosa/Documents/Projects/stx/packages/bun-plugin/src/serve.ts'
 import { createApiRoutes } from './src/api'
 import type { DashboardConfig } from './src/types'
 
+const args = process.argv.slice(2)
+const portIdx = args.indexOf('--port')
+const port = portIdx >= 0 && args[portIdx + 1] ? Number(args[portIdx + 1]) : 4401
+
 const dashboardConfig: DashboardConfig = {
-  port: 4401,
+  port,
   host: 'localhost',
 }
 
 const apiHandlers = createApiRoutes(dashboardConfig)
 
+// Build exact-match routes for STX serve
 const routes: Record<string, (req: Request) => Response | Promise<Response>> = {
   '/api/stats': (req) => apiHandlers['/api/stats'](req),
   '/api/requests': (req) => apiHandlers['/api/requests'](req),
@@ -17,6 +33,7 @@ const routes: Record<string, (req: Request) => Response | Promise<Response>> = {
   '/api/alerts': (req) => apiHandlers['/api/alerts'](req),
 }
 
+// Handle parameterized API routes via onRequest
 function onRequest(req: Request): Response | Promise<Response> | null {
   const url = new URL(req.url)
   const pathname = url.pathname
@@ -43,7 +60,7 @@ function onRequest(req: Request): Response | Promise<Response> | null {
 
 await serve({
   patterns: ['src/pages/'],
-  port: 4401,
+  port,
   routes,
   onRequest,
 })

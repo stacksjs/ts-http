@@ -1,10 +1,7 @@
 export interface StorageConfig {
-  driver?: 'mock' | 'dynamodb'
-  dynamodb?: {
-    tableName?: string
-    region?: string
-    profile?: string
-    ttlDays?: number
+  driver?: 'mock' | 'sqlite'
+  sqlite?: {
+    dbPath?: string
   }
 }
 

@@ -21,7 +21,7 @@ const epBar = ref<HTMLCanvasElement | null>(null)
 
 onMount(() => {
   const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {
-    if (typeof Chart === 'undefined' || !stats.value.responseTimeHistory.length) return
+    if (typeof Chart === 'undefined' || !stats.value || !stats.value.responseTimeHistory || !stats.value.responseTimeHistory.length) return
     clearInterval(waitForCharts)
 
     new Chart(rtChart.value, {

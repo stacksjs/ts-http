@@ -14,7 +14,7 @@ const statusChart = ref<HTMLCanvasElement | null>(null)
 
 onMount(() => {
   const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {
-    if (typeof Chart === 'undefined' || !stats.value.throughputHistory.length) return
+    if (typeof Chart === 'undefined' || !stats.value || !stats.value.throughputHistory || !stats.value.throughputHistory.length) return
     clearInterval(waitForCharts)
 
     new Chart(throughputChart.value, {

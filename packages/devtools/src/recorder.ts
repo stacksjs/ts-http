@@ -1,7 +1,7 @@
 import type { RequestCompleteRecord } from '../../httx/src/types'
 import type { RequestRecord } from './types'
-import type { DynamoStorageConfig } from './dynamo'
-import { putRequest } from './dynamo'
+import type { SqliteStorageConfig } from './storage'
+import { putRequest } from './storage'
 
 let requestCounter = 0
 
@@ -28,18 +28,18 @@ function estimateSize(data?: string): number {
 }
 
 /**
- * Creates an `onRequestComplete` callback that records requests to DynamoDB.
+ * Creates an `onRequestComplete` callback that records requests to SQLite.
  *
  * Usage:
  * ```ts
  * import { createRecorder } from '@httx/devtools'
- * import { createClient } from 'httx'
+ * import { HttxClient } from 'httx'
  *
- * const recorder = createRecorder({ profile: 'stacks' })
- * const client = createClient({ onRequestComplete: recorder })
+ * const recorder = createRecorder({ dbPath: 'httx.sqlite' })
+ * const client = new HttxClient({ onRequestComplete: recorder })
  * ```
  */
-export function createRecorder(config: DynamoStorageConfig = {}): (record: RequestCompleteRecord) => void {
+export function createRecorder(config: SqliteStorageConfig = {}): (record: RequestCompleteRecord) => void {
   return (raw: RequestCompleteRecord) => {
     const { host, path } = extractHostAndPath(raw.url)
     const id = generateId()
@@ -66,10 +66,12 @@ export function createRecorder(config: DynamoStorageConfig = {}): (record: Reque
       error: raw.error,
     }
 
-    // Fire and forget — don't block the request
-    putRequest(record, config).catch((err) => {
+    try {
+      putRequest(record, config)
+    }
+    catch (err: any) {
       console.error('[httx-recorder] Failed to store request:', err.message)
-    })
+    }
   }
 }
 

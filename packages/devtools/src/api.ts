@@ -157,16 +157,16 @@ function generateMockAlerts(): MonitoringAlert[] {
 
 export const mockAlerts: MonitoringAlert[] = generateMockAlerts()
 
-// --- DynamoDB imports (lazy) ---
-import { queryAllRequests, getRequestById as dynamoGetById } from './dynamo'
-import type { DynamoStorageConfig } from './dynamo'
+// --- SQLite imports ---
+import { queryAllRequests as sqliteQueryAll, getRequestById as sqliteGetById } from './storage'
+import type { SqliteStorageConfig } from './storage'
 
-function getDynamoConfig(config: DashboardConfig): DynamoStorageConfig {
-  return config.storage?.dynamodb ?? {}
+function getSqliteConfig(config: DashboardConfig): SqliteStorageConfig {
+  return config.storage?.sqlite ?? {}
 }
 
-function isDynamo(config: DashboardConfig): boolean {
-  return config.storage?.driver === 'dynamodb'
+function isSqlite(config: DashboardConfig): boolean {
+  return config.storage?.driver === 'sqlite'
 }
 
 // --- Fetch Functions ---
@@ -177,8 +177,8 @@ function percentile(sorted: number[], p: number): number {
 }
 
 async function getRequests(config: DashboardConfig): Promise<RequestRecord[]> {
-  if (isDynamo(config)) {
-    return queryAllRequests(getDynamoConfig(config), { limit: config.maxHistory ?? 1000 })
+  if (isSqlite(config)) {
+    return sqliteQueryAll(getSqliteConfig(config), { limit: config.maxHistory ?? 1000 })
   }
   return mockRequests
 }
@@ -188,8 +188,8 @@ export async function fetchRequestHistory(config: DashboardConfig): Promise<Requ
 }
 
 export async function fetchRequestById(id: string, config?: DashboardConfig): Promise<RequestRecord | undefined> {
-  if (config && isDynamo(config)) {
-    return dynamoGetById(id, getDynamoConfig(config))
+  if (config && isSqlite(config)) {
+    return sqliteGetById(id, getSqliteConfig(config))
   }
   return mockRequests.find(r => r.id === id)
 }
