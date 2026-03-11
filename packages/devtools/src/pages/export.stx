@@ -22,6 +22,13 @@ const filteredData = computed<RequestRecord[]>(() => {
 })
 
 const previewData = computed<RequestRecord[]>(() => filteredData.value.slice(0, 20))
+const remainingCount = computed<number>(() => Math.max(0, filteredData.value.length - 20))
+
+function getMethodClass(method: string): string {
+  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
+  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
+  return 'bg-zinc-500/15 text-zinc-400'
+}
 
 function exportJson(): void {
   const blob = new Blob([JSON.stringify(filteredData.value, null, 2)], { type: 'application/json' })
@@ -87,27 +94,30 @@ function exportCsv(): void {
   <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
     <div class="flex items-center justify-between mb-4">
       <span class="text-sm font-semibold text-zinc-50">Preview</span>
-      <span class="text-xs text-zinc-500"><span x-text="filteredData.value.length"></span> records</span>
+      <span class="text-xs text-zinc-500">{{ filteredData.value.length }} records</span>
     </div>
     <div class="max-h-[400px] overflow-y-auto">
       @if(loading.value)
         <div class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
-      @elseif(filteredData.value.length === 0)
+      @endif
+      @if(!loading.value && filteredData.value.length === 0)
         <div class="text-center py-8 text-zinc-500 text-sm">No matching records.</div>
-      @else
+      @endif
+      @if(!loading.value && filteredData.value.length > 0)
         <table class="w-full border-collapse">
           <thead>
             <tr>
-              @foreach(['Method', 'URL', 'Status', 'Duration'] as header)
-                <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">{{ header }}</th>
-              @endforeach
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Method</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">URL</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Status</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Duration</th>
             </tr>
           </thead>
           <tbody>
             @foreach(previewData.value as r)
               <tr class="hover:bg-[#1e1e26]">
                 <td class="px-3 py-2 border-b border-zinc-800/50">
-                  <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase {{ r.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : r.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : 'bg-zinc-500/15 text-zinc-400' }}">{{ r.method }}</span>
+                  <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" @class="getMethodClass(r.method)">{{ r.method }}</span>
                 </td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap">{{ r.url }}</td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-xs text-zinc-400">{{ r.status }}</td>
@@ -116,8 +126,8 @@ function exportCsv(): void {
             @endforeach
           </tbody>
         </table>
-        @if(filteredData.value.length > 20)
-          <div class="text-center py-2 text-xs text-zinc-500">... and {{ filteredData.value.length - 20 }} more</div>
+        @if(remainingCount.value > 0)
+          <div class="text-center py-2 text-xs text-zinc-500">... and {{ remainingCount.value }} more</div>
         @endif
       @endif
     </div>

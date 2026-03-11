@@ -13,6 +13,19 @@ const filteredEndpoints = computed<EndpointStats[]>(() => {
   }
   return filtered
 })
+
+function getMethodClass(method: string): string {
+  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
+  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
+  if (method === 'DELETE') return 'bg-red-500/15 text-red-500'
+  return 'bg-amber-500/15 text-amber-500'
+}
+
+function getErrorClass(errorRate: number): string {
+  if (errorRate > 20) return 'text-red-500'
+  if (errorRate > 5) return 'text-amber-500'
+  return 'text-emerald-500'
+}
 </script>
 <div class="animate-fade-in">
   <div class="flex items-center justify-between mb-6">
@@ -29,9 +42,11 @@ const filteredEndpoints = computed<EndpointStats[]>(() => {
   <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
     @if(loading.value)
       <div class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
-    @elseif(filteredEndpoints.value.length === 0)
+    @endif
+    @if(!loading.value && filteredEndpoints.value.length === 0)
       <div class="text-center py-8 text-zinc-500 text-sm">No endpoints found.</div>
-    @else
+    @endif
+    @if(!loading.value && filteredEndpoints.value.length > 0)
       <table class="w-full border-collapse">
         <thead>
           <tr>
@@ -44,14 +59,12 @@ const filteredEndpoints = computed<EndpointStats[]>(() => {
         </thead>
         <tbody>
           @foreach(filteredEndpoints.value as e)
-            <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate(`/endpoints/${encodeURIComponent(e.method + ' ' + e.url)}`)">
-              <td class="px-3 py-2.5 border-b border-zinc-800/50">
-                <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase {{ e.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : e.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : e.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-amber-500/15 text-amber-500' }}">{{ e.method }}</span>
-              </td>
+            <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate('/endpoints/' + encodeURIComponent(e.method + ' ' + e.url))">
+              <td class="px-3 py-2.5 border-b border-zinc-800/50"><span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" @class="getMethodClass(e.method)">{{ e.method }}</span></td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs text-zinc-400">{{ e.url }}</td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-sm text-zinc-300 tabular-nums">{{ e.count }}</td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ e.avgDuration }}ms</td>
-              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs tabular-nums {{ e.errorRate > 20 ? 'text-red-500' : e.errorRate > 5 ? 'text-amber-500' : 'text-emerald-500' }}">{{ e.errorRate }}%</td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs tabular-nums" @class="getErrorClass(e.errorRate)">{{ e.errorRate }}%</td>
             </tr>
           @endforeach
         </tbody>

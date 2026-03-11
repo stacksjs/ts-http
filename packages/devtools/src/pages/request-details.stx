@@ -2,9 +2,39 @@
 
 @section('content')
 <script client>
-const pathParts: string[] = useRoute().split('/')
+const route = useRoute()
+const pathParts: string[] = route.path.split('/')
 const requestId: string = pathParts[pathParts.length - 1]
 const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/requests/${requestId}`, { initialData: null })
+
+const hasData = computed<boolean>(() => !loading.value && !error.value && !!req.value)
+const hasError = computed<boolean>(() => !loading.value && (!!error.value || !req.value))
+
+const requestHeaderEntries = computed<string[][]>(() => {
+  if (!req.value || !req.value.requestHeaders) return []
+  return Object.entries(req.value.requestHeaders)
+})
+
+const responseHeaderEntries = computed<string[][]>(() => {
+  if (!req.value || !req.value.responseHeaders) return []
+  return Object.entries(req.value.responseHeaders)
+})
+
+const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
+
+function methodClass(method: string): string {
+  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
+  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
+  if (method === 'DELETE') return 'bg-red-500/15 text-red-500'
+  return 'bg-amber-500/15 text-amber-500'
+}
+
+function statusClass(status: number): string {
+  if (status < 300) return 'bg-emerald-500/15 text-emerald-500'
+  if (status < 400) return 'bg-indigo-500/15 text-indigo-400'
+  if (status < 500) return 'bg-amber-500/15 text-amber-500'
+  return 'bg-red-500/15 text-red-500'
+}
 </script>
 <div class="animate-fade-in">
   <div class="flex items-center gap-2 text-sm text-zinc-500 mb-4">
@@ -15,13 +45,17 @@ const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/reque
 
   @if(loading.value)
     <div class="text-sm text-zinc-500">Loading request details...</div>
-  @elseif(error.value || !req.value)
+  @endif
+
+  @if(hasError.value)
     <div class="text-sm text-red-500">Request not found.</div>
-  @else
+  @endif
+
+  @if(hasData.value)
     <div class="flex items-center gap-4 mb-6 flex-wrap">
-      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase {{ req.value.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : req.value.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : req.value.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-amber-500/15 text-amber-500' }}">{{ req.value.method }}</span>
+      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" @class="methodClass(req.value.method)">{{ req.value.method }}</span>
       <span class="font-mono text-sm text-zinc-300 break-all">{{ req.value.url }}</span>
-      <span class="inline-flex px-2.5 py-1 rounded-full text-sm font-medium {{ req.value.status < 300 ? 'bg-emerald-500/15 text-emerald-500' : req.value.status < 400 ? 'bg-indigo-500/15 text-indigo-400' : req.value.status < 500 ? 'bg-amber-500/15 text-amber-500' : 'bg-red-500/15 text-red-500' }}">{{ req.value.status }} {{ req.value.statusText }}</span>
+      <span class="inline-flex px-2.5 py-1 rounded-full text-sm font-medium" @class="statusClass(req.value.status)">{{ req.value.status }} {{ req.value.statusText }}</span>
       <span class="text-sm text-zinc-500 tabular-nums">{{ req.value.duration }}ms</span>
     </div>
 
@@ -30,23 +64,25 @@ const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/reque
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
         <div class="text-sm font-semibold text-zinc-50 mb-4">Request</div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Headers</div>
-        @if(req.value.requestHeaders && Object.keys(req.value.requestHeaders).length > 0)
+        @if(requestHeaderEntries.value.length === 0)
+          <div class="text-sm text-zinc-500">No headers</div>
+        @endif
+        @if(requestHeaderEntries.value.length > 0)
           <table class="w-full border-collapse">
-            @foreach(Object.entries(req.value.requestHeaders) as [key, val])
+            @foreach(requestHeaderEntries.value as entry)
               <tr class="hover:bg-[#1e1e26]">
-                <td class="px-3 py-1.5 text-xs font-mono text-indigo-400 border-b border-zinc-800/50 whitespace-nowrap">{{ key }}</td>
-                <td class="px-3 py-1.5 text-xs font-mono text-zinc-400 border-b border-zinc-800/50 break-all">{{ val }}</td>
+                <td class="px-3 py-1.5 text-xs font-mono text-indigo-400 border-b border-zinc-800/50 whitespace-nowrap">{{ entry[0] }}</td>
+                <td class="px-3 py-1.5 text-xs font-mono text-zinc-400 border-b border-zinc-800/50 break-all">{{ entry[1] }}</td>
               </tr>
             @endforeach
           </table>
-        @else
-          <div class="text-sm text-zinc-500">No headers</div>
         @endif
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mt-4 mb-2">Body</div>
+        @if(!req.value.requestBody)
+          <div class="text-sm text-zinc-500">No body</div>
+        @endif
         @if(req.value.requestBody)
           <pre class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.requestBody }}</pre>
-        @else
-          <div class="text-sm text-zinc-500">No body</div>
         @endif
       </div>
 
@@ -54,23 +90,25 @@ const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/reque
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
         <div class="text-sm font-semibold text-zinc-50 mb-4">Response</div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Headers</div>
-        @if(req.value.responseHeaders && Object.keys(req.value.responseHeaders).length > 0)
+        @if(responseHeaderEntries.value.length === 0)
+          <div class="text-sm text-zinc-500">No headers</div>
+        @endif
+        @if(responseHeaderEntries.value.length > 0)
           <table class="w-full border-collapse">
-            @foreach(Object.entries(req.value.responseHeaders) as [key, val])
+            @foreach(responseHeaderEntries.value as entry)
               <tr class="hover:bg-[#1e1e26]">
-                <td class="px-3 py-1.5 text-xs font-mono text-indigo-400 border-b border-zinc-800/50 whitespace-nowrap">{{ key }}</td>
-                <td class="px-3 py-1.5 text-xs font-mono text-zinc-400 border-b border-zinc-800/50 break-all">{{ val }}</td>
+                <td class="px-3 py-1.5 text-xs font-mono text-indigo-400 border-b border-zinc-800/50 whitespace-nowrap">{{ entry[0] }}</td>
+                <td class="px-3 py-1.5 text-xs font-mono text-zinc-400 border-b border-zinc-800/50 break-all">{{ entry[1] }}</td>
               </tr>
             @endforeach
           </table>
-        @else
-          <div class="text-sm text-zinc-500">No headers</div>
         @endif
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mt-4 mb-2">Body</div>
+        @if(!req.value.responseBody)
+          <div class="text-sm text-zinc-500">No body</div>
+        @endif
         @if(req.value.responseBody)
           <pre class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.responseBody }}</pre>
-        @else
-          <div class="text-sm text-zinc-500">No body</div>
         @endif
       </div>
     </div>
@@ -78,7 +116,7 @@ const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/reque
     <!-- Tags & Retry -->
     <div class="mt-6 flex items-center gap-4">
       <div class="flex items-center gap-2">
-        @foreach(req.value.tags as tag)
+        @foreach(tags.value as tag)
           <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium bg-zinc-500/15 text-zinc-400">{{ tag }}</span>
         @endforeach
       </div>

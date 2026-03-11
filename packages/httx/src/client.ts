@@ -1,7 +1,7 @@
 import type { Result } from 'ts-error-handling'
 import type { HttxConfig, HttxResponse, RequestCompleteRecord, RequestOptions, RetryOptions } from './types'
 import { err, ok } from 'ts-error-handling'
-import { HttxNetworkError, HttxResponseError, HttxTimeoutError } from './errors'
+import { HttxNetworkError, HttxRequestError, HttxResponseError, HttxTimeoutError } from './errors'
 import { debugLog, sleep } from './utils'
 
 export class HttxClient {
@@ -177,11 +177,17 @@ export class HttxClient {
       response.headers.forEach((value, key) => { resHeaders[key] = value })
     }
 
+    // Extract status from HttxResponseError when no response object
+    const errorStatus = error instanceof HttxResponseError ? error.statusCode ?? 0
+      : error instanceof HttxRequestError ? error.statusCode ?? 0
+        : 0
+    const errorStatusText = error instanceof HttxResponseError ? error.statusText : ''
+
     const record: RequestCompleteRecord = {
       method: options.method,
       url,
-      status: response?.status ?? 0,
-      statusText: response?.statusText ?? (error?.message ?? 'Unknown Error'),
+      status: response?.status ?? errorStatus,
+      statusText: response?.statusText ?? (errorStatusText || error?.message || 'Unknown Error'),
       duration: response?.timings.duration ?? fallbackDuration ?? 0,
       requestHeaders: reqHeaders,
       responseHeaders: resHeaders,

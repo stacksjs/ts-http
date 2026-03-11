@@ -5,6 +5,7 @@ import type { DashboardConfig } from './src/types'
 const dashboardConfig: DashboardConfig = {
   port: 4401,
   host: 'localhost',
+  storage: { driver: 'sqlite', sqlite: { dbPath: 'httx.sqlite' } },
 }
 
 const apiHandlers = createApiRoutes(dashboardConfig)

@@ -99,6 +99,9 @@ function breadcrumb(): string {
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* Hide unprocessed mustache templates until JS runs */
+    [x-cloak] { display: none !important; }
   </style>
   @stack('styles')
 </head>

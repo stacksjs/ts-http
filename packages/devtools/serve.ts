@@ -20,6 +20,7 @@ const port = portIdx >= 0 && args[portIdx + 1] ? Number(args[portIdx + 1]) : 440
 const dashboardConfig: DashboardConfig = {
   port,
   host: 'localhost',
+  storage: { driver: 'sqlite', sqlite: { dbPath: 'httx.sqlite' } },
 }
 
 const apiHandlers = createApiRoutes(dashboardConfig)

@@ -10,6 +10,25 @@ const epB = ref<EndpointDetail | null>(null)
 const compareChart = ref<HTMLCanvasElement | null>(null)
 let chart: any = null
 
+const hasComparison = computed<boolean>(() => !!epA.value && !!epB.value)
+
+const avgColorA = computed<string>(() => {
+  if (!epA.value || !epB.value) return 'text-zinc-400'
+  return epA.value.avgDuration <= epB.value.avgDuration ? 'text-emerald-500' : 'text-zinc-400'
+})
+const avgColorB = computed<string>(() => {
+  if (!epA.value || !epB.value) return 'text-zinc-400'
+  return epB.value.avgDuration <= epA.value.avgDuration ? 'text-emerald-500' : 'text-zinc-400'
+})
+const errColorA = computed<string>(() => {
+  if (!epA.value || !epB.value) return 'text-zinc-400'
+  return epA.value.errorRate <= epB.value.errorRate ? 'text-emerald-500' : 'text-zinc-400'
+})
+const errColorB = computed<string>(() => {
+  if (!epA.value || !epB.value) return 'text-zinc-400'
+  return epB.value.errorRate <= epA.value.errorRate ? 'text-emerald-500' : 'text-zinc-400'
+})
+
 watch(endpoints, (eps: EndpointStats[]) => {
   if (eps.length >= 2 && !selectedA.value) {
     selectedA.value = eps[0].method + ' ' + eps[0].url
@@ -60,37 +79,37 @@ function onSelectB(e: Event): void { selectedB.value = (e.target as HTMLSelectEl
     <div>
       <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Endpoint A</label>
       <select @change="onSelectA($event)" class="w-full bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-indigo-500 cursor-pointer">
-        @foreach(endpoints.value as e, i)
-          <option value="{{ e.method }} {{ e.url }}" {{ i === 0 ? 'selected' : '' }}>{{ e.method }} {{ e.url }}</option>
+        @foreach(endpoints.value as ep)
+          <option value="{{ ep.method }} {{ ep.url }}">{{ ep.method }} {{ ep.url }}</option>
         @endforeach
       </select>
     </div>
     <div>
       <label class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2 block">Endpoint B</label>
       <select @change="onSelectB($event)" class="w-full bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-indigo-500 cursor-pointer">
-        @foreach(endpoints.value as e, i)
-          <option value="{{ e.method }} {{ e.url }}" {{ i === 1 ? 'selected' : '' }}>{{ e.method }} {{ e.url }}</option>
+        @foreach(endpoints.value as ep)
+          <option value="{{ ep.method }} {{ ep.url }}">{{ ep.method }} {{ ep.url }}</option>
         @endforeach
       </select>
     </div>
   </div>
 
-  @if(epA.value && epB.value)
+  @if(hasComparison.value)
     <div class="grid grid-cols-2 gap-4 mb-6 max-sm:grid-cols-1">
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
         <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-3">Avg Duration</div>
         <div class="flex items-end justify-between">
-          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">A</div><div class="text-xl font-bold tabular-nums {{ epA.value.avgDuration <= epB.value.avgDuration ? 'text-emerald-500' : 'text-zinc-400' }}">{{ epA.value.avgDuration }} <span class="text-xs font-normal text-zinc-500">ms</span></div></div>
+          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">A</div><div class="text-xl font-bold tabular-nums" @class="avgColorA.value">{{ epA.value.avgDuration }} <span class="text-xs font-normal text-zinc-500">ms</span></div></div>
           <div class="text-xs text-zinc-600">vs</div>
-          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">B</div><div class="text-xl font-bold tabular-nums {{ epB.value.avgDuration <= epA.value.avgDuration ? 'text-emerald-500' : 'text-zinc-400' }}">{{ epB.value.avgDuration }} <span class="text-xs font-normal text-zinc-500">ms</span></div></div>
+          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">B</div><div class="text-xl font-bold tabular-nums" @class="avgColorB.value">{{ epB.value.avgDuration }} <span class="text-xs font-normal text-zinc-500">ms</span></div></div>
         </div>
       </div>
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
         <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-3">Error Rate</div>
         <div class="flex items-end justify-between">
-          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">A</div><div class="text-xl font-bold tabular-nums {{ epA.value.errorRate <= epB.value.errorRate ? 'text-emerald-500' : 'text-zinc-400' }}">{{ epA.value.errorRate }} <span class="text-xs font-normal text-zinc-500">%</span></div></div>
+          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">A</div><div class="text-xl font-bold tabular-nums" @class="errColorA.value">{{ epA.value.errorRate }} <span class="text-xs font-normal text-zinc-500">%</span></div></div>
           <div class="text-xs text-zinc-600">vs</div>
-          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">B</div><div class="text-xl font-bold tabular-nums {{ epB.value.errorRate <= epA.value.errorRate ? 'text-emerald-500' : 'text-zinc-400' }}">{{ epB.value.errorRate }} <span class="text-xs font-normal text-zinc-500">%</span></div></div>
+          <div class="text-center"><div class="text-xs text-zinc-500 mb-1">B</div><div class="text-xl font-bold tabular-nums" @class="errColorB.value">{{ epB.value.errorRate }} <span class="text-xs font-normal text-zinc-500">%</span></div></div>
         </div>
       </div>
     </div>

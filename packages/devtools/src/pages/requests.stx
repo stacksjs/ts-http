@@ -7,6 +7,8 @@ const activeMethod = ref<string>('ALL')
 const activeStatus = ref<string>('ALL')
 const searchTerm = ref<string>('')
 
+const methods: string[] = ['ALL', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+
 const filteredRequests = computed<RequestRecord[]>(() => {
   let filtered: RequestRecord[] = allRequests.value || []
   if (activeMethod.value !== 'ALL') filtered = filtered.filter((r: RequestRecord) => r.method === activeMethod.value)
@@ -26,10 +28,27 @@ const filteredRequests = computed<RequestRecord[]>(() => {
   return filtered
 })
 
-const methods: string[] = ['ALL', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-
 function setMethod(m: string): void {
   activeMethod.value = m
+}
+
+function getMethodClass(method: string): string {
+  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
+  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
+  if (method === 'PUT' || method === 'PATCH') return 'bg-amber-500/15 text-amber-500'
+  if (method === 'DELETE') return 'bg-red-500/15 text-red-500'
+  return 'bg-zinc-500/15 text-zinc-400'
+}
+
+function getStatusClass(status: number): string {
+  if (status < 300) return 'bg-emerald-500/15 text-emerald-500'
+  if (status < 400) return 'bg-indigo-500/15 text-indigo-400'
+  if (status < 500) return 'bg-amber-500/15 text-amber-500'
+  return 'bg-red-500/15 text-red-500'
+}
+
+function isMethodActive(m: string): string {
+  return activeMethod.value === m ? 'active border-indigo-500 text-indigo-400 bg-indigo-500/10' : 'border-zinc-800 text-zinc-400 bg-[#1e1e26] hover:border-zinc-600'
 }
 </script>
 <div class="animate-fade-in">
@@ -46,7 +65,7 @@ function setMethod(m: string): void {
 
     <div class="flex gap-1">
       @foreach(methods as m)
-        <button @click="setMethod('{{ m }}')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors bg-[#1e1e26] text-zinc-400 border border-zinc-800 hover:border-zinc-600" :class="{ active: activeMethod.value === '{{ m }}' }">{{ m }}</button>
+        <button @click="setMethod(m)" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors border" @class="isMethodActive(m)">{{ m }}</button>
       @endforeach
     </div>
 
@@ -63,39 +82,35 @@ function setMethod(m: string): void {
   <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
     @if(loading.value)
       <div class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
-    @else
-      @if(filteredRequests.value.length === 0)
-        <div class="text-center py-8 text-zinc-500 text-sm">No matching requests found.</div>
-      @else
-        <table class="w-full border-collapse">
-          <thead>
-            <tr>
-              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Method</th>
-              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">URL</th>
-              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Status</th>
-              <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Duration</th>
-              <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Size</th>
-              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Time</th>
+    @endif
+    @if(!loading.value && filteredRequests.value.length === 0)
+      <div class="text-center py-8 text-zinc-500 text-sm">No matching requests found.</div>
+    @endif
+    @if(!loading.value && filteredRequests.value.length > 0)
+      <table class="w-full border-collapse">
+        <thead>
+          <tr>
+            <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Method</th>
+            <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">URL</th>
+            <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Status</th>
+            <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Duration</th>
+            <th class="px-3 py-2 text-right text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Size</th>
+            <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach(filteredRequests.value as r)
+            <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate('/requests/' + r.id)">
+              <td class="px-3 py-2.5 border-b border-zinc-800/50"><span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" @class="getMethodClass(r.method)">{{ r.method }}</span></td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap">{{ r.url }}</td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="getStatusClass(r.status)">{{ r.status }}</span></td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs text-zinc-400 tabular-nums">{{ r.responseSize }}B</td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-xs text-zinc-500">{{ r.timestamp }}</td>
             </tr>
-          </thead>
-          <tbody>
-            @foreach(filteredRequests.value as r)
-              <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate(`/requests/${r.id}`)">
-                <td class="px-3 py-2.5 border-b border-zinc-800/50">
-                  <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase {{ r.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : r.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : r.method === 'PUT' || r.method === 'PATCH' ? 'bg-amber-500/15 text-amber-500' : r.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-zinc-500/15 text-zinc-400' }}">{{ r.method }}</span>
-                </td>
-                <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap">{{ r.url }}</td>
-                <td class="px-3 py-2.5 border-b border-zinc-800/50">
-                  <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ r.status < 300 ? 'bg-emerald-500/15 text-emerald-500' : r.status < 400 ? 'bg-indigo-500/15 text-indigo-400' : r.status < 500 ? 'bg-amber-500/15 text-amber-500' : 'bg-red-500/15 text-red-500' }}">{{ r.status }}</span>
-                </td>
-                <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
-                <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs text-zinc-400 tabular-nums">{{ r.responseSize }}B</td>
-                <td class="px-3 py-2.5 border-b border-zinc-800/50 text-xs text-zinc-500">{{ r.timestamp }}</td>
-              </tr>
-            @endforeach
-          </tbody>
-        </table>
-      @endif
+          @endforeach
+        </tbody>
+      </table>
     @endif
   </div>
 </div>

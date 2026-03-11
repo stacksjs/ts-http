@@ -12,6 +12,26 @@ const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filt
 const throughputChart = ref<HTMLCanvasElement | null>(null)
 const statusChart = ref<HTMLCanvasElement | null>(null)
 
+function getMethodClass(method: string): string {
+  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
+  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
+  if (method === 'DELETE') return 'bg-red-500/15 text-red-500'
+  return 'bg-amber-500/15 text-amber-500'
+}
+
+function getStatusClass(status: number): string {
+  if (status < 300) return 'bg-emerald-500/15 text-emerald-500'
+  if (status < 400) return 'bg-indigo-500/15 text-indigo-400'
+  if (status < 500) return 'bg-amber-500/15 text-amber-500'
+  return 'bg-red-500/15 text-red-500'
+}
+
+function getSeverityClass(severity: string): string {
+  if (severity === 'critical') return 'bg-red-500/15 text-red-500'
+  if (severity === 'warning') return 'bg-amber-500/15 text-amber-500'
+  return 'bg-indigo-500/15 text-indigo-400'
+}
+
 onMount(() => {
   const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {
     if (typeof Chart === 'undefined' || !stats.value || !stats.value.throughputHistory || !stats.value.throughputHistory.length) return
@@ -100,34 +120,31 @@ onMount(() => {
       </div>
       @if(reqsLoading.value)
         <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-      @else
-        @if(recentRequests.value.length === 0)
-          <div class="text-center py-6 text-zinc-500 text-sm">No requests yet.</div>
-        @else
-          <table class="w-full border-collapse">
-            <thead>
-              <tr>
-                @foreach(['Method', 'URL', 'Status', 'Duration'] as header)
-                  <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">{{ header }}</th>
-                @endforeach
+      @endif
+      @if(!reqsLoading.value && recentRequests.value.length === 0)
+        <div class="text-center py-6 text-zinc-500 text-sm">No requests yet.</div>
+      @endif
+      @if(!reqsLoading.value && recentRequests.value.length > 0)
+        <table class="w-full border-collapse">
+          <thead>
+            <tr>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Method</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">URL</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Status</th>
+              <th class="px-3 py-2 text-left text-[0.6875rem] font-medium text-zinc-500 uppercase tracking-wider border-b border-zinc-800">Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach(recentRequests.value as r)
+              <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate('/requests/' + r.id)">
+                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" @class="getMethodClass(r.method)">{{ r.method }}</span></td>
+                <td class="px-3 py-2 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{{ r.url }}</td>
+                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="getStatusClass(r.status)">{{ r.status }}</span></td>
+                <td class="px-3 py-2 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
               </tr>
-            </thead>
-            <tbody>
-              @foreach(recentRequests.value as r)
-                <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate(`/requests/${r.id}`)">
-                  <td class="px-3 py-2 border-b border-zinc-800/50">
-                    <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase {{ r.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : r.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : r.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-amber-500/15 text-amber-500' }}">{{ r.method }}</span>
-                  </td>
-                  <td class="px-3 py-2 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{{ r.url }}</td>
-                  <td class="px-3 py-2 border-b border-zinc-800/50">
-                    <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ r.status < 300 ? 'bg-emerald-500/15 text-emerald-500' : r.status < 400 ? 'bg-indigo-500/15 text-indigo-400' : r.status < 500 ? 'bg-amber-500/15 text-amber-500' : 'bg-red-500/15 text-red-500' }}">{{ r.status }}</span>
-                  </td>
-                  <td class="px-3 py-2 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
-        @endif
+            @endforeach
+          </tbody>
+        </table>
       @endif
     </div>
 
@@ -139,20 +156,20 @@ onMount(() => {
       </div>
       @if(alertsLoading.value)
         <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-      @else
-        @if(activeAlerts.value.length === 0)
-          <div class="text-center py-6 text-emerald-500 text-sm">All systems operational</div>
-        @else
-          @foreach(activeAlerts.value as a)
-            <div class="flex items-center justify-between py-2.5 border-b border-zinc-800/50 last:border-0">
-              <div class="flex items-center gap-3">
-                <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ a.severity === 'critical' ? 'bg-red-500/15 text-red-500' : a.severity === 'warning' ? 'bg-amber-500/15 text-amber-500' : 'bg-indigo-500/15 text-indigo-400' }}">{{ a.severity }}</span>
-                <span class="text-sm text-zinc-300">{{ a.name }}</span>
-              </div>
-              <span class="text-xs text-zinc-500">{{ a.condition }} {{ a.operator }} {{ a.threshold }}</span>
+      @endif
+      @if(!alertsLoading.value && activeAlerts.value.length === 0)
+        <div class="text-center py-6 text-emerald-500 text-sm">All systems operational</div>
+      @endif
+      @if(!alertsLoading.value && activeAlerts.value.length > 0)
+        @foreach(activeAlerts.value as a)
+          <div class="flex items-center justify-between py-2.5 border-b border-zinc-800/50 last:border-0">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="getSeverityClass(a.severity)">{{ a.severity }}</span>
+              <span class="text-sm text-zinc-300">{{ a.name }}</span>
             </div>
-          @endforeach
-        @endif
+            <span class="text-xs text-zinc-500">{{ a.condition }} {{ a.operator }} {{ a.threshold }}</span>
+          </div>
+        @endforeach
       @endif
     </div>
   </div>

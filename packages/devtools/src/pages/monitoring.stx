@@ -6,10 +6,31 @@ const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/a
 const { data: events, loading: eventsLoading } = useQuery<EventLogEntry[]>('/api/events', { initialData: [] })
 
 const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filter((a: MonitoringAlert) => !a.resolved))
-const healthScore = computed<number>(() => Math.max(0, 100 - activeAlerts.value.length * 15))
+const healthScore = computed<number>(() => Math.max(0, 100 - (activeAlerts.value ? activeAlerts.value.length : 0) * 15))
 const reversedEvents = computed<EventLogEntry[]>(() => [...(events.value || [])].reverse())
 
 const typeColors: Record<string, string> = { request: 'text-indigo-400', error: 'text-red-500', alert: 'text-amber-500', system: 'text-zinc-400', config: 'text-emerald-500' }
+
+function healthClass(): string {
+  const score: number = healthScore.value
+  if (score >= 80) return 'text-emerald-500'
+  if (score >= 50) return 'text-amber-500'
+  return 'text-red-500'
+}
+
+function getSeverityClass(severity: string): string {
+  if (severity === 'critical') return 'bg-red-500/15 text-red-500'
+  if (severity === 'warning') return 'bg-amber-500/15 text-amber-500'
+  return 'bg-indigo-500/15 text-indigo-400'
+}
+
+function getTypeColor(type: string): string {
+  return typeColors[type] || 'text-zinc-400'
+}
+
+function formatTime(timestamp: string): string {
+  return new Date(timestamp).toLocaleTimeString()
+}
 </script>
 <div class="animate-fade-in">
   <div class="flex items-center justify-between mb-6">
@@ -22,7 +43,7 @@ const typeColors: Record<string, string> = { request: 'text-indigo-400', error: 
   <div class="grid grid-cols-3 gap-4 mb-6 max-sm:grid-cols-1">
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Health Score</div>
-      <div class="text-4xl font-bold tabular-nums {{ healthScore.value >= 80 ? 'text-emerald-500' : healthScore.value >= 50 ? 'text-amber-500' : 'text-red-500' }}" x-text="healthScore.value"></div>
+      <div class="text-4xl font-bold tabular-nums" @class="healthClass()">{{ healthScore.value }}</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Uptime</div>
@@ -30,7 +51,7 @@ const typeColors: Record<string, string> = { request: 'text-indigo-400', error: 
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Active Alerts</div>
-      <div class="text-4xl font-bold text-red-500 tabular-nums" x-text="activeAlerts.value.length"></div>
+      <div class="text-4xl font-bold text-red-500 tabular-nums" x-text="activeAlerts.value ? activeAlerts.value.length : 0"></div>
     </div>
   </div>
 
@@ -39,11 +60,15 @@ const typeColors: Record<string, string> = { request: 'text-indigo-400', error: 
       <div class="text-sm font-semibold text-zinc-50 mb-4">Alerts</div>
       @if(alertsLoading.value)
         <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-      @else
+      @endif
+      @if(!alertsLoading.value && (alerts.value || []).length === 0)
+        <div class="text-center py-6 text-zinc-500 text-sm">No alerts</div>
+      @endif
+      @if(!alertsLoading.value && (alerts.value || []).length > 0)
         @foreach(alerts.value as a)
           <div class="flex items-center justify-between py-3 border-b border-zinc-800/50 last:border-0">
             <div class="flex items-center gap-3">
-              <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium {{ a.severity === 'critical' ? 'bg-red-500/15 text-red-500' : a.severity === 'warning' ? 'bg-amber-500/15 text-amber-500' : 'bg-indigo-500/15 text-indigo-400' }}">{{ a.severity }}</span>
+              <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="getSeverityClass(a.severity)">{{ a.severity }}</span>
               <div>
                 <div class="text-sm text-zinc-300">{{ a.name }}</div>
                 <div class="text-xs text-zinc-500">{{ a.condition }} {{ a.operator }} {{ a.threshold }}</div>
@@ -51,7 +76,8 @@ const typeColors: Record<string, string> = { request: 'text-indigo-400', error: 
             </div>
             @if(a.resolved)
               <span class="text-xs text-emerald-500">Resolved</span>
-            @else
+            @endif
+            @if(!a.resolved)
               <span class="text-xs text-red-500">Active</span>
             @endif
           </div>
@@ -67,12 +93,16 @@ const typeColors: Record<string, string> = { request: 'text-indigo-400', error: 
       <div class="max-h-[400px] overflow-y-auto">
         @if(eventsLoading.value)
           <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-        @else
+        @endif
+        @if(!eventsLoading.value && reversedEvents.value.length === 0)
+          <div class="text-center py-6 text-zinc-500 text-sm">No events</div>
+        @endif
+        @if(!eventsLoading.value && reversedEvents.value.length > 0)
           @foreach(reversedEvents.value as e)
             <div class="flex items-start gap-3 py-2 border-b border-zinc-800/30 last:border-0">
-              <span class="text-[0.6875rem] font-medium uppercase shrink-0 w-14 {{ typeColors[e.type] || 'text-zinc-400' }}">{{ e.type }}</span>
+              <span class="text-[0.6875rem] font-medium uppercase shrink-0 w-14" @class="getTypeColor(e.type)">{{ e.type }}</span>
               <span class="text-xs text-zinc-400 flex-1">{{ e.message }}</span>
-              <span class="text-[0.6875rem] text-zinc-600 shrink-0 tabular-nums">{{ e.timestamp }}</span>
+              <span class="text-[0.6875rem] text-zinc-600 shrink-0 tabular-nums">{{ formatTime(e.timestamp) }}</span>
             </div>
           @endforeach
         @endif
