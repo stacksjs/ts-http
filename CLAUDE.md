@@ -514,3 +514,23 @@ When a `.stx` file has `<script client>` with signals:
 5. **After editing STX source**: Always rebuild STX + bun-plugin, clear `.stx` cache, restart dev server.
 6. **Chart.js/D3 polling for lib load**: `setInterval` to wait for `typeof Chart !== 'undefined'` is OK — this polls for external lib loading, not for UI updates.
 7. **Devtools port**: 4401. Kill old process with `lsof -i :4401 -t | xargs kill` if port is in use.
+
+---
+
+## Linting
+
+- Use **pickier** for linting — never use eslint directly
+- Run `bunx --bun pickier .` to lint, `bunx --bun pickier . --fix` to auto-fix
+- When fixing unused variable warnings, prefer `// eslint-disable-next-line` comments over prefixing with `_`
+
+## Frontend
+
+- Use **stx** for templating — never write vanilla JS (`var`, `document.*`, `window.*`) in stx templates
+- Use **crosswind** as the default CSS framework
+- stx `<script>` tags should only contain stx-compatible code (signals, composables, directives)
+
+## Dependencies
+
+- **buddy-bot** handles dependency updates — not renovatebot
+- **better-dx** provides shared dev tooling as peer dependencies — do not install its peers (e.g., `typescript`, `pickier`, `bun-plugin-dtsx`) separately if `better-dx` is already in `package.json`
+- If `better-dx` is in `package.json`, ensure `bunfig.toml` includes `linker = "hoisted"`
