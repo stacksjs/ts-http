@@ -51,7 +51,7 @@
     "@stacksjs/httx": "^0.1.7"
   },
   "devDependencies": {
-    "@stacksjs/stx": "^0.2.5",
-    "bun-plugin-stx": "^0.2.5"
+    "@stacksjs/stx": "^0.2.9",
+    "bun-plugin-stx": "^0.2.9"
   }
 }
