@@ -11,6 +11,7 @@ const dashboardConfig: DashboardConfig = {
 const apiHandlers = createApiRoutes(dashboardConfig)
 
 const routes: Record<string, (req: Request) => Response | Promise<Response>> = {
+  '/api/ingest': (req) => apiHandlers['/api/ingest'](req),
   '/api/stats': (req) => apiHandlers['/api/stats'](req),
   '/api/requests': (req) => apiHandlers['/api/requests'](req),
   '/api/endpoints': (req) => apiHandlers['/api/endpoints'](req),

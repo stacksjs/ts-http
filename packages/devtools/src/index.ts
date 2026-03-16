@@ -4,6 +4,8 @@ import { createApiRoutes, fetchEndpointDetail, fetchRequestById, resolveConfig }
 export type { DashboardConfig, DashboardStats, EndpointDetail, EndpointStats, EventLogEntry, HttpMethod, MonitoringAlert, RequestMetrics, RequestRecord, StatusDistribution, StorageConfig, TimeSeriesPoint, ThroughputPoint } from './types'
 export { createApiRoutes, fetchAlerts, fetchDashboardStats, fetchEndpointDetail, fetchEndpointList, fetchEventLog, fetchMonitoringState, fetchRequestById, fetchRequestHistory } from './api'
 export { createRecorder } from './recorder'
+export { trackRequests, isTrackingRequests } from './track'
+export type { TrackRequestsOptions } from './track'
 export { putRequest, queryAllRequests, getRequestById, getRequestCount, pruneOldRequests, closeDb } from './storage'
 export type { SqliteStorageConfig } from './storage'
 

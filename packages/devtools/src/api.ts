@@ -1,3 +1,4 @@
+import type { RequestCompleteRecord } from '../../httx/src/types'
 import type { DashboardConfig, DashboardStats, EndpointDetail, EndpointStats, EventLogEntry, HttpMethod, MonitoringAlert, RequestRecord, StatusDistribution, TimeSeriesPoint, ThroughputPoint } from './types'
 
 const defaultConfig: Required<Pick<DashboardConfig, 'port' | 'host' | 'refreshInterval' | 'maxHistory'>> = {
@@ -159,6 +160,7 @@ export const mockAlerts: MonitoringAlert[] = generateMockAlerts()
 
 // --- SQLite imports ---
 import { queryAllRequests as sqliteQueryAll, getRequestById as sqliteGetById } from './storage'
+import { createRecorder } from './recorder'
 import type { SqliteStorageConfig } from './storage'
 
 function getSqliteConfig(config: DashboardConfig): SqliteStorageConfig {
@@ -330,7 +332,35 @@ export async function fetchMonitoringState(_config?: DashboardConfig): Promise<{
 export function createApiRoutes(config: DashboardConfig) {
   const resolvedConfig = resolveConfig(config)
 
+  // Recorder for ingest endpoint — writes to the same SQLite the dashboard reads
+  const sqliteConfig = getSqliteConfig(config)
+  const recorder = isSqlite(config) ? createRecorder(sqliteConfig) : null
+
   return {
+    '/api/ingest': async (req?: Request) => {
+      if (!req || req.method !== 'POST') {
+        return Response.json({ error: 'POST required' }, { status: 405 })
+      }
+
+      if (!recorder) {
+        return Response.json({ error: 'SQLite storage not configured' }, { status: 500 })
+      }
+
+      try {
+        const body = await req.json() as RequestCompleteRecord
+
+        if (!body.method || !body.url) {
+          return Response.json({ error: 'Missing required fields: method, url' }, { status: 400 })
+        }
+
+        recorder(body)
+        return Response.json({ ok: true })
+      }
+      catch {
+        return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
+      }
+    },
+
     '/api/stats': async (_req?: Request) => {
       const stats = await fetchDashboardStats(resolvedConfig)
       return Response.json(stats)

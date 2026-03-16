@@ -9,6 +9,7 @@
  *   bun packages/devtools/serve.ts --port 4401
  */
 
+import { resolve, dirname } from 'node:path'
 import { serve } from '/Users/glennmichaeltorregosa/Documents/Projects/stx/packages/bun-plugin/src/serve.ts'
 import { createApiRoutes } from './src/api'
 import type { DashboardConfig } from './src/types'
@@ -17,16 +18,20 @@ const args = process.argv.slice(2)
 const portIdx = args.indexOf('--port')
 const port = portIdx >= 0 && args[portIdx + 1] ? Number(args[portIdx + 1]) : 4401
 
+// Resolve dbPath relative to this file so it works regardless of CWD
+const dbPath = resolve(dirname(import.meta.path), 'httx.sqlite')
+
 const dashboardConfig: DashboardConfig = {
   port,
   host: 'localhost',
-  storage: { driver: 'sqlite', sqlite: { dbPath: 'httx.sqlite' } },
+  storage: { driver: 'sqlite', sqlite: { dbPath } },
 }
 
 const apiHandlers = createApiRoutes(dashboardConfig)
 
 // Build exact-match routes for STX serve
 const routes: Record<string, (req: Request) => Response | Promise<Response>> = {
+  '/api/ingest': (req) => apiHandlers['/api/ingest'](req),
   '/api/stats': (req) => apiHandlers['/api/stats'](req),
   '/api/requests': (req) => apiHandlers['/api/requests'](req),
   '/api/endpoints': (req) => apiHandlers['/api/endpoints'](req),

@@ -6,11 +6,13 @@
  *   bun packages/devtools/scripts/seed.ts
  */
 
+import { resolve, dirname } from 'node:path'
 import { HttxClient } from '../../httx/src/client'
 import { createRecorder } from '../src/recorder'
 import { getRequestCount } from '../src/storage'
 
-const recorder = createRecorder({ dbPath: 'httx.sqlite' })
+const dbPath = resolve(dirname(import.meta.path), '..', 'httx.sqlite')
+const recorder = createRecorder({ dbPath })
 
 const client = new HttxClient({
   timeout: 10000,
@@ -69,7 +71,7 @@ const targets = [
   { method: 'GET' as const, url: 'https://jsonplaceholder.typicode.com/todos/2' },
 ]
 
-const before = getRequestCount({ dbPath: 'httx.sqlite' })
+const before = getRequestCount({ dbPath })
 console.log(`Starting seed... (${before} existing records)`)
 
 let success = 0
@@ -95,5 +97,5 @@ for (const target of targets) {
   }
 }
 
-const after = getRequestCount({ dbPath: 'httx.sqlite' })
+const after = getRequestCount({ dbPath })
 console.log(`\nDone! ${success} succeeded, ${failed} failed. Total records: ${after}`)
