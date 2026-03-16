@@ -9,8 +9,8 @@ const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/a
 const recentRequests = computed<RequestRecord[]>(() => (requests.value || []).slice(-10).reverse())
 const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filter((a: MonitoringAlert) => !a.resolved))
 
-const throughputChart = ref<HTMLCanvasElement | null>(null)
-const statusChart = ref<HTMLCanvasElement | null>(null)
+const throughputChart = useRef('throughputChart')
+const statusChart = useRef('statusChart')
 
 function getMethodClass(method: string): string {
   if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'

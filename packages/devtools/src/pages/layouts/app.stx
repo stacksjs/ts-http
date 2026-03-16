@@ -2,7 +2,7 @@
 const sidebarCollapsed = ref<boolean>(false)
 const sidebar = ref<HTMLElement | null>(null)
 const mainWrapper = ref<HTMLElement | null>(null)
-const route = useRoute()
+const currentPath = ref<string>(window.location.pathname)
 
 onMount(() => {
   if (typeof localStorage !== 'undefined') {
@@ -11,23 +11,35 @@ onMount(() => {
   }
 })
 
+// Keep currentPath in sync with SPA navigation
+// Use direct addEventListener (not useEventListener) because the layout is permanent —
+// useEventListener registers onDestroy cleanup which gets wiped on stx:load during SPA nav
+onMount(() => {
+  window.addEventListener('stx:navigate', () => {
+    currentPath.value = window.location.pathname
+  })
+  window.addEventListener('popstate', () => {
+    currentPath.value = window.location.pathname
+  })
+})
+
 function toggleSidebar(): void {
   sidebarCollapsed.value = !sidebarCollapsed.value
   if (typeof localStorage !== 'undefined') localStorage.setItem('httx-sidebar-collapsed', String(sidebarCollapsed.value))
 }
 
 function isActive(path: string): boolean {
-  const currentPath = route.path
-  if (path === '/') return currentPath === '/'
-  return currentPath.startsWith(path)
+  const p = currentPath.value
+  if (path === '/') return p === '/'
+  return p.startsWith(path)
 }
 
 function breadcrumb(): string {
-  const currentPath = route.path
-  if (currentPath === '/') return 'Dashboard'
-  if (currentPath.startsWith('/requests/')) return 'Request Details'
-  if (currentPath.startsWith('/endpoints/')) return 'Endpoint Details'
-  const segment: string = currentPath.slice(1)
+  const p = currentPath.value
+  if (p === '/') return 'Dashboard'
+  if (p.startsWith('/requests/')) return 'Request Details'
+  if (p.startsWith('/endpoints/')) return 'Endpoint Details'
+  const segment: string = p.slice(1)
   return segment.charAt(0).toUpperCase() + segment.slice(1)
 }
 </script>
@@ -65,8 +77,8 @@ function breadcrumb(): string {
     .sidebar.collapsed .sidebar-brand { justify-content: center; padding: 0.75rem 0; }
     .sidebar.collapsed .nav-item { justify-content: center; padding: 0.5rem 0; }
     .sidebar.collapsed .nav-item svg { margin-right: 0; }
-    .nav-item.active { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-    .nav-item.active:hover { background: rgba(99, 102, 241, 0.15); }
+    .nav-item.active { background: rgba(99, 102, 241, 0.15) !important; color: #818cf8 !important; font-weight: 500 !important; }
+    .nav-item.active:hover { background: rgba(99, 102, 241, 0.15) !important; }
 
     /* Filter buttons */
     .filter-btn.active { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }

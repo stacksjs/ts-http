@@ -19,7 +19,7 @@ interface NetworkLink {
 }
 
 const { data: requests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
-const networkViz = ref<HTMLElement | null>(null)
+const networkViz = useRef('networkViz')
 
 onMount(() => {
   const waitForD3: ReturnType<typeof setInterval> = setInterval(() => {

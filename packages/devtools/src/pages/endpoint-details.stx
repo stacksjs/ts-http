@@ -6,8 +6,8 @@ const route = useRoute()
 const param: string = decodeURIComponent(route.path.split('/endpoints/')[1] || '')
 const { data: ep, loading, error } = useQuery<EndpointDetail | null>(`/api/endpoints/${encodeURIComponent(param)}`, { initialData: null })
 
-const epTrendChart = ref<HTMLCanvasElement | null>(null)
-const epStatusChart = ref<HTMLCanvasElement | null>(null)
+const epTrendChart = useRef('epTrendChart')
+const epStatusChart = useRef('epStatusChart')
 
 const hasData = computed<boolean>(() => !loading.value && !error.value && !!ep.value)
 const hasError = computed<boolean>(() => !loading.value && (!!error.value || !ep.value))

@@ -15,9 +15,9 @@ const p50 = computed<number>(() => { const d: number[] = durations.value; return
 const p95 = computed<number>(() => { const d: number[] = durations.value; return d.length ? d[Math.ceil(0.95 * d.length) - 1] : 0 })
 const p99 = computed<number>(() => { const d: number[] = durations.value; return d.length ? d[Math.ceil(0.99 * d.length) - 1] : 0 })
 
-const rtChart = ref<HTMLCanvasElement | null>(null)
-const sdChart = ref<HTMLCanvasElement | null>(null)
-const epBar = ref<HTMLCanvasElement | null>(null)
+const rtChart = useRef('rtChart')
+const sdChart = useRef('sdChart')
+const epBar = useRef('epBar')
 
 onMount(() => {
   const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {

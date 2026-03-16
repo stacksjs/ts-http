@@ -7,7 +7,7 @@ const selectedA = ref<string>('')
 const selectedB = ref<string>('')
 const epA = ref<EndpointDetail | null>(null)
 const epB = ref<EndpointDetail | null>(null)
-const compareChart = ref<HTMLCanvasElement | null>(null)
+const compareChart = useRef('compareChart')
 let chart: any = null
 
 const hasComparison = computed<boolean>(() => !!epA.value && !!epB.value)
