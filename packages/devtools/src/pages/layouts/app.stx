@@ -1,31 +1,11 @@
 <script client>
-const sidebarCollapsed = ref<boolean>(false)
-const sidebar = ref<HTMLElement | null>(null)
-const mainWrapper = ref<HTMLElement | null>(null)
-const currentPath = ref<string>(window.location.pathname)
+const sidebarCollapsed = useLocalStorage('httx-sidebar-collapsed', false)
+const route = useRoute()
 
-onMount(() => {
-  if (typeof localStorage !== 'undefined') {
-    const stored = localStorage.getItem('httx-sidebar-collapsed')
-    if (stored === 'true') sidebarCollapsed.value = true
-  }
-})
-
-// Keep currentPath in sync with SPA navigation
-// Use direct addEventListener (not useEventListener) because the layout is permanent —
-// useEventListener registers onDestroy cleanup which gets wiped on stx:load during SPA nav
-onMount(() => {
-  window.addEventListener('stx:navigate', () => {
-    currentPath.value = window.location.pathname
-  })
-  window.addEventListener('popstate', () => {
-    currentPath.value = window.location.pathname
-  })
-})
+const currentPath = computed<string>(() => route.value.path)
 
 function toggleSidebar(): void {
-  sidebarCollapsed.value = !sidebarCollapsed.value
-  if (typeof localStorage !== 'undefined') localStorage.setItem('httx-sidebar-collapsed', String(sidebarCollapsed.value))
+  sidebarCollapsed.set(!sidebarCollapsed())
 }
 
 function isActive(path: string): boolean {
@@ -121,7 +101,7 @@ function breadcrumb(): string {
   @include('sidebar')
 
   <!-- Main wrapper -->
-  <div ref="mainWrapper" class="main-wrapper" :class="{ collapsed: sidebarCollapsed.value }">
+  <div ref="mainWrapper" class="main-wrapper" :class="{ collapsed: sidebarCollapsed() }">
     <header class="flex items-center justify-between px-6 py-3 bg-[#141419] border-b border-zinc-800">
       <div class="flex items-center gap-2 text-sm text-zinc-400">
         <a href="/" @click.prevent="navigate('/')" class="hover:text-zinc-50 transition-colors">httx</a>

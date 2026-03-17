@@ -36,7 +36,7 @@ function getErrorClass(errorRate: number): string {
   </div>
 
   <div class="mb-4">
-    <input type="text" x-model="searchTerm" placeholder="Search endpoints..." class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 transition-colors w-72">
+    <input type="text" @model="searchTerm" placeholder="Search endpoints..." class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 transition-colors w-72">
   </div>
 
   <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">

@@ -65,7 +65,7 @@ function exportCsv(): void {
     <div class="flex items-center gap-4 flex-wrap">
       <div>
         <label class="text-xs text-zinc-500 block mb-1">Method</label>
-        <select x-model="exportMethod" class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-indigo-500 cursor-pointer">
+        <select @model="exportMethod" class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-indigo-500 cursor-pointer">
           <option value="ALL">All Methods</option>
           <option value="GET">GET</option>
           <option value="POST">POST</option>
@@ -76,7 +76,7 @@ function exportCsv(): void {
       </div>
       <div>
         <label class="text-xs text-zinc-500 block mb-1">Status</label>
-        <select x-model="exportStatus" class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-indigo-500 cursor-pointer">
+        <select @model="exportStatus" class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-indigo-500 cursor-pointer">
           <option value="ALL">All Status</option>
           <option value="2xx">2xx</option>
           <option value="3xx">3xx</option>

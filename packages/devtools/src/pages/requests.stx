@@ -61,7 +61,7 @@ function isMethodActive(m: string): string {
 
   <!-- Filters -->
   <div class="flex items-center gap-3 mb-4 flex-wrap">
-    <input type="text" x-model="searchTerm" placeholder="Search by URL, host, or status..." class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 transition-colors w-72">
+    <input type="text" @model="searchTerm" placeholder="Search by URL, host, or status..." class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-indigo-500 transition-colors w-72">
 
     <div class="flex gap-1">
       @foreach(methods as m)
@@ -69,7 +69,7 @@ function isMethodActive(m: string): string {
       @endforeach
     </div>
 
-    <select x-model="activeStatus" class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-indigo-500 cursor-pointer">
+    <select @model="activeStatus" class="bg-[#1e1e26] border border-zinc-800 rounded-md px-3 py-1.5 text-xs text-zinc-400 focus:outline-none focus:border-indigo-500 cursor-pointer">
       <option value="ALL">All Status</option>
       <option value="2xx">2xx Success</option>
       <option value="3xx">3xx Redirect</option>

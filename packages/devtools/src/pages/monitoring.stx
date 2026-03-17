@@ -51,7 +51,7 @@ function formatTime(timestamp: string): string {
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Active Alerts</div>
-      <div class="text-4xl font-bold text-red-500 tabular-nums" x-text="activeAlerts.value ? activeAlerts.value.length : 0"></div>
+      <div class="text-4xl font-bold text-red-500 tabular-nums">{{ activeAlerts.value ? activeAlerts.value.length : 0 }}</div>
     </div>
   </div>
 

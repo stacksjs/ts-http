@@ -72,19 +72,19 @@ onMount(() => {
   <div class="grid grid-cols-4 gap-4 mb-6 max-sm:grid-cols-2">
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 hover:border-indigo-500 transition-colors">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Requests</div>
-      <div class="text-[1.75rem] font-bold text-zinc-50 mt-1 tabular-nums" x-text="stats.value.totalRequests"></div>
+      <div class="text-[1.75rem] font-bold text-zinc-50 mt-1 tabular-nums">{{ stats.value.totalRequests }}</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 hover:border-indigo-500 transition-colors">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Avg Response Time</div>
-      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums"><span x-text="stats.value.avgResponseTime"></span> <span class="text-xs text-zinc-500 font-normal">ms</span></div>
+      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums">{{ stats.value.avgResponseTime }} <span class="text-xs text-zinc-500 font-normal">ms</span></div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 hover:border-indigo-500 transition-colors">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Error Rate</div>
-      <div class="text-[1.75rem] font-bold text-red-500 mt-1 tabular-nums"><span x-text="stats.value.errorRate"></span> <span class="text-xs text-zinc-500 font-normal">%</span></div>
+      <div class="text-[1.75rem] font-bold text-red-500 mt-1 tabular-nums">{{ stats.value.errorRate }} <span class="text-xs text-zinc-500 font-normal">%</span></div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 hover:border-indigo-500 transition-colors">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Requests/min</div>
-      <div class="text-[1.75rem] font-bold text-zinc-50 mt-1 tabular-nums" x-text="stats.value.requestsPerMinute"></div>
+      <div class="text-[1.75rem] font-bold text-zinc-50 mt-1 tabular-nums">{{ stats.value.requestsPerMinute }}</div>
     </div>
   </div>
 

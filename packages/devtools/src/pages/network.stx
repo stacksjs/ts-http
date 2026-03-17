@@ -90,8 +90,8 @@ onMount(() => {
   </div>
 
   <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
-    <div x-show="loading.value" class="text-center py-12 text-zinc-500 text-sm">Loading...</div>
-    <div x-show="!loading.value" class="d3-container" ref="networkViz" style="min-height: 500px;"></div>
+    <div :if="loading.value" class="text-center py-12 text-zinc-500 text-sm">Loading...</div>
+    <div :if="!loading.value" class="d3-container" ref="networkViz" style="min-height: 500px;"></div>
   </div>
 </div>
 @endsection

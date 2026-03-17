@@ -59,22 +59,22 @@ onMount(() => {
   <div class="grid grid-cols-4 gap-4 mb-6 max-sm:grid-cols-2">
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Average</div>
-      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums" x-text="avgResponseTime.value"></div>
+      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums">{{ avgResponseTime.value }}</div>
       <div class="text-xs text-zinc-500">ms</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">P50</div>
-      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums" x-text="p50.value"></div>
+      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums">{{ p50.value }}</div>
       <div class="text-xs text-zinc-500">ms</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">P95</div>
-      <div class="text-[1.75rem] font-bold text-amber-500 mt-1 tabular-nums" x-text="p95.value"></div>
+      <div class="text-[1.75rem] font-bold text-amber-500 mt-1 tabular-nums">{{ p95.value }}</div>
       <div class="text-xs text-zinc-500">ms</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">P99</div>
-      <div class="text-[1.75rem] font-bold text-red-500 mt-1 tabular-nums" x-text="p99.value"></div>
+      <div class="text-[1.75rem] font-bold text-red-500 mt-1 tabular-nums">{{ p99.value }}</div>
       <div class="text-xs text-zinc-500">ms</div>
     </div>
   </div>
@@ -94,19 +94,19 @@ onMount(() => {
   <div class="grid grid-cols-4 gap-4 mb-6 max-sm:grid-cols-2">
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 relative overflow-hidden status-card-accent accent-success">
       <div class="text-sm font-semibold text-zinc-500">2xx</div>
-      <div class="text-[1.75rem] font-bold text-emerald-500 mt-1 tabular-nums" x-text="stats.value.statusDistribution['2xx']"></div>
+      <div class="text-[1.75rem] font-bold text-emerald-500 mt-1 tabular-nums">{{ stats.value.statusDistribution['2xx'] }}</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 relative overflow-hidden status-card-accent accent-info">
       <div class="text-sm font-semibold text-zinc-500">3xx</div>
-      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums" x-text="stats.value.statusDistribution['3xx']"></div>
+      <div class="text-[1.75rem] font-bold text-indigo-400 mt-1 tabular-nums">{{ stats.value.statusDistribution['3xx'] }}</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 relative overflow-hidden status-card-accent accent-warning">
       <div class="text-sm font-semibold text-zinc-500">4xx</div>
-      <div class="text-[1.75rem] font-bold text-amber-500 mt-1 tabular-nums" x-text="stats.value.statusDistribution['4xx']"></div>
+      <div class="text-[1.75rem] font-bold text-amber-500 mt-1 tabular-nums">{{ stats.value.statusDistribution['4xx'] }}</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4 relative overflow-hidden status-card-accent accent-error">
       <div class="text-sm font-semibold text-zinc-500">5xx</div>
-      <div class="text-[1.75rem] font-bold text-red-500 mt-1 tabular-nums" x-text="stats.value.statusDistribution['5xx']"></div>
+      <div class="text-[1.75rem] font-bold text-red-500 mt-1 tabular-nums">{{ stats.value.statusDistribution['5xx'] }}</div>
     </div>
   </div>
 
