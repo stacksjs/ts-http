@@ -21,6 +21,9 @@
     "http-client",
     "metrics"
   ],
+  "bin": {
+    "httx-dashboard": "./src/cli.ts"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -48,7 +51,9 @@
   },
   "dependencies": {
     "@cwcss/crosswind": "^0.1.6",
-    "@stacksjs/httx": "^0.1.7"
+    "@stacksjs/httx": "^0.1.7",
+    "bunfig": "^0.5.0",
+    "ts-broadcasting": "^0.0.1"
   },
   "devDependencies": {
     "@stacksjs/stx": "^0.2.5",

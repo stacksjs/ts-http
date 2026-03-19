@@ -10,7 +10,7 @@
  */
 
 import { resolve, dirname } from 'node:path'
-import { serve } from '/Users/glennmichaeltorregosa/Documents/Projects/stx/packages/bun-plugin/src/serve.ts'
+import { serve } from 'bun-plugin-stx/serve'
 import { createApiRoutes } from './src/api'
 import type { DashboardConfig } from './src/types'
 

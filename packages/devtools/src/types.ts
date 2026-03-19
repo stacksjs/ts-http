@@ -8,6 +8,7 @@ export interface StorageConfig {
 export interface DashboardConfig {
   port?: number
   host?: string
+  broadcastPort?: number
   auth?: AuthConfig
   refreshInterval?: number
   maxHistory?: number
