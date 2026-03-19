@@ -2,35 +2,14 @@
 
 @section('content')
 <script client>
+import { getSeverityClass, getHealthClass, getTypeColor, formatTime } from '../utils'
+
 const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/api/alerts', { initialData: [] })
 const { data: events, loading: eventsLoading } = useQuery<EventLogEntry[]>('/api/events', { initialData: [] })
 
 const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filter((a: MonitoringAlert) => !a.resolved))
 const healthScore = computed<number>(() => Math.max(0, 100 - (activeAlerts.value ? activeAlerts.value.length : 0) * 15))
 const reversedEvents = computed<EventLogEntry[]>(() => [...(events.value || [])].reverse())
-
-const typeColors: Record<string, string> = { request: 'text-indigo-400', error: 'text-red-500', alert: 'text-amber-500', system: 'text-zinc-400', config: 'text-emerald-500' }
-
-function healthClass(): string {
-  const score: number = healthScore.value
-  if (score >= 80) return 'text-emerald-500'
-  if (score >= 50) return 'text-amber-500'
-  return 'text-red-500'
-}
-
-function getSeverityClass(severity: string): string {
-  if (severity === 'critical') return 'bg-red-500/15 text-red-500'
-  if (severity === 'warning') return 'bg-amber-500/15 text-amber-500'
-  return 'bg-indigo-500/15 text-indigo-400'
-}
-
-function getTypeColor(type: string): string {
-  return typeColors[type] || 'text-zinc-400'
-}
-
-function formatTime(timestamp: string): string {
-  return new Date(timestamp).toLocaleTimeString()
-}
 </script>
 <div class="animate-fade-in">
   <div class="flex items-center justify-between mb-6">
@@ -43,7 +22,7 @@ function formatTime(timestamp: string): string {
   <div class="grid grid-cols-3 gap-4 mb-6 max-sm:grid-cols-1">
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Health Score</div>
-      <div class="text-4xl font-bold tabular-nums" @class="healthClass()">{{ healthScore.value }}</div>
+      <div class="text-4xl font-bold tabular-nums" @class="getHealthClass(healthScore.value)">{{ healthScore.value }}</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Uptime</div>

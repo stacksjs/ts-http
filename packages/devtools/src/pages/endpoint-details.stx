@@ -2,6 +2,8 @@
 
 @section('content')
 <script client>
+import { getMethodClass, getStatusClass, getErrorRateClass } from '../utils'
+
 const route = useRoute()
 const param: string = decodeURIComponent(route.path.split('/endpoints/')[1] || '')
 const { data: ep, loading, error } = useQuery<EndpointDetail | null>(`/api/endpoints/${encodeURIComponent(param)}`, { initialData: null })
@@ -12,25 +14,6 @@ const epStatusChart = useRef('epStatusChart')
 const hasData = computed<boolean>(() => !loading.value && !error.value && !!ep.value)
 const hasError = computed<boolean>(() => !loading.value && (!!error.value || !ep.value))
 const recentRequests = computed<RecentRequest[]>(() => ep.value ? (ep.value.recentRequests || []) : [])
-
-function methodClass(method: string): string {
-  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
-  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
-  if (method === 'DELETE') return 'bg-red-500/15 text-red-500'
-  return 'bg-amber-500/15 text-amber-500'
-}
-
-function statusBadgeClass(status: number): string {
-  if (status < 300) return 'bg-emerald-500/15 text-emerald-500'
-  if (status < 400) return 'bg-indigo-500/15 text-indigo-400'
-  if (status < 500) return 'bg-amber-500/15 text-amber-500'
-  return 'bg-red-500/15 text-red-500'
-}
-
-function errorRateClass(): string {
-  if (!ep.value) return 'text-emerald-500'
-  return ep.value.errorRate > 10 ? 'text-red-500' : 'text-emerald-500'
-}
 
 onMount(() => {
   const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {
@@ -71,7 +54,7 @@ onMount(() => {
 
   @if(hasData.value)
     <div class="flex items-center gap-3 mb-2">
-      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" @class="methodClass(ep.value.method)">{{ ep.value.method }}</span>
+      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" @class="getMethodClass(ep.value.method)">{{ ep.value.method }}</span>
       <span class="font-mono text-base text-zinc-300">{{ ep.value.url }}</span>
     </div>
     <p class="text-xs text-zinc-500 mb-6">{{ ep.value.count }} requests · Last seen {{ ep.value.lastSeen }}</p>
@@ -91,7 +74,7 @@ onMount(() => {
       </div>
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
         <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Error Rate</div>
-        <div class="text-[1.75rem] font-bold mt-1 tabular-nums" @class="errorRateClass()">{{ ep.value.errorRate }} <span class="text-xs text-zinc-500 font-normal">%</span></div>
+        <div class="text-[1.75rem] font-bold mt-1 tabular-nums" @class="getErrorRateClass(ep.value.errorRate)">{{ ep.value.errorRate }} <span class="text-xs text-zinc-500 font-normal">%</span></div>
       </div>
     </div>
 
@@ -124,7 +107,7 @@ onMount(() => {
           <tbody>
             @foreach(recentRequests.value as r)
               <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate('/requests/' + r.id)">
-                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="statusBadgeClass(r.status)">{{ r.status }}</span></td>
+                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="getStatusClass(r.status)">{{ r.status }}</span></td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-right text-xs text-zinc-400 tabular-nums">{{ r.responseSize }}B</td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-xs text-zinc-500">{{ r.timestamp }}</td>

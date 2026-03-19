@@ -2,6 +2,8 @@
 
 @section('content')
 <script client>
+import { getMethodClass, getErrorRateClass } from '../utils'
+
 const { data: endpoints, loading } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
 const searchTerm = ref<string>('')
 
@@ -13,19 +15,6 @@ const filteredEndpoints = computed<EndpointStats[]>(() => {
   }
   return filtered
 })
-
-function getMethodClass(method: string): string {
-  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
-  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
-  if (method === 'DELETE') return 'bg-red-500/15 text-red-500'
-  return 'bg-amber-500/15 text-amber-500'
-}
-
-function getErrorClass(errorRate: number): string {
-  if (errorRate > 20) return 'text-red-500'
-  if (errorRate > 5) return 'text-amber-500'
-  return 'text-emerald-500'
-}
 </script>
 <div class="animate-fade-in">
   <div class="flex items-center justify-between mb-6">
@@ -64,7 +53,7 @@ function getErrorClass(errorRate: number): string {
               <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs text-zinc-400">{{ e.url }}</td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-sm text-zinc-300 tabular-nums">{{ e.count }}</td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ e.avgDuration }}ms</td>
-              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs tabular-nums" @class="getErrorClass(e.errorRate)">{{ e.errorRate }}%</td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs tabular-nums" @class="getErrorRateClass(e.errorRate)">{{ e.errorRate }}%</td>
             </tr>
           @endforeach
         </tbody>

@@ -53,11 +53,11 @@ function onRequest(req: Request): Response | Promise<Response> | null {
   const endpointMatch = pathname.match(/^\/api\/endpoints\/(.+)$/)
   if (endpointMatch) {
     const encoded = decodeURIComponent(endpointMatch[1])
-    const dashSlash = encoded.indexOf('-/')
-    if (dashSlash >= 0) {
-      const method = encoded.slice(0, dashSlash)
-      const path = encoded.slice(dashSlash + 1)
-      return apiHandlers['/api/endpoints/:path'](method, path)
+    const parts = encoded.split(' ')
+    if (parts.length >= 2) {
+      const method = parts[0]
+      const epPath = parts.slice(1).join(' ')
+      return apiHandlers['/api/endpoints/:path'](method, epPath)
     }
   }
 

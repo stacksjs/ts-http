@@ -2,6 +2,8 @@
 
 @section('content')
 <script client>
+import { getMethodClass } from '../utils'
+
 const { data: allRequests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
 const exportMethod = ref<string>('ALL')
 const exportStatus = ref<string>('ALL')
@@ -23,12 +25,6 @@ const filteredData = computed<RequestRecord[]>(() => {
 
 const previewData = computed<RequestRecord[]>(() => filteredData.value.slice(0, 20))
 const remainingCount = computed<number>(() => Math.max(0, filteredData.value.length - 20))
-
-function getMethodClass(method: string): string {
-  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
-  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
-  return 'bg-zinc-500/15 text-zinc-400'
-}
 
 function exportJson(): void {
   const blob = new Blob([JSON.stringify(filteredData.value, null, 2)], { type: 'application/json' })

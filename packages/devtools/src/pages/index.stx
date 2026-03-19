@@ -2,6 +2,8 @@
 
 @section('content')
 <script client>
+import { getMethodClass, getStatusClass, getSeverityClass } from '../utils'
+
 const { data: stats, loading: statsLoading } = useQuery<DashboardStats>('/api/stats', { initialData: { totalRequests: 0, avgResponseTime: 0, errorRate: 0, requestsPerMinute: 0, statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, throughputHistory: [], responseTimeHistory: [], recentEvents: [], activeAlerts: [] } })
 const { data: requests, loading: reqsLoading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
 const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/api/alerts', { initialData: [] })
@@ -11,26 +13,6 @@ const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filt
 
 const throughputChart = useRef('throughputChart')
 const statusChart = useRef('statusChart')
-
-function getMethodClass(method: string): string {
-  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
-  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
-  if (method === 'DELETE') return 'bg-red-500/15 text-red-500'
-  return 'bg-amber-500/15 text-amber-500'
-}
-
-function getStatusClass(status: number): string {
-  if (status < 300) return 'bg-emerald-500/15 text-emerald-500'
-  if (status < 400) return 'bg-indigo-500/15 text-indigo-400'
-  if (status < 500) return 'bg-amber-500/15 text-amber-500'
-  return 'bg-red-500/15 text-red-500'
-}
-
-function getSeverityClass(severity: string): string {
-  if (severity === 'critical') return 'bg-red-500/15 text-red-500'
-  if (severity === 'warning') return 'bg-amber-500/15 text-amber-500'
-  return 'bg-indigo-500/15 text-indigo-400'
-}
 
 onMount(() => {
   const waitForCharts: ReturnType<typeof setInterval> = setInterval(() => {

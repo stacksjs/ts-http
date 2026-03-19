@@ -2,6 +2,8 @@
 
 @section('content')
 <script client>
+import { getMethodClass, getStatusClass } from '../utils'
+
 const route = useRoute()
 const pathParts: string[] = route.path.split('/')
 const requestId: string = pathParts[pathParts.length - 1]
@@ -21,20 +23,6 @@ const responseHeaderEntries = computed<string[][]>(() => {
 })
 
 const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
-
-function methodClass(method: string): string {
-  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
-  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
-  if (method === 'DELETE') return 'bg-red-500/15 text-red-500'
-  return 'bg-amber-500/15 text-amber-500'
-}
-
-function statusClass(status: number): string {
-  if (status < 300) return 'bg-emerald-500/15 text-emerald-500'
-  if (status < 400) return 'bg-indigo-500/15 text-indigo-400'
-  if (status < 500) return 'bg-amber-500/15 text-amber-500'
-  return 'bg-red-500/15 text-red-500'
-}
 </script>
 <div class="animate-fade-in">
   <div class="flex items-center gap-2 text-sm text-zinc-500 mb-4">
@@ -53,9 +41,9 @@ function statusClass(status: number): string {
 
   @if(hasData.value)
     <div class="flex items-center gap-4 mb-6 flex-wrap">
-      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" @class="methodClass(req.value.method)">{{ req.value.method }}</span>
+      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" @class="getMethodClass(req.value.method)">{{ req.value.method }}</span>
       <span class="font-mono text-sm text-zinc-300 break-all">{{ req.value.url }}</span>
-      <span class="inline-flex px-2.5 py-1 rounded-full text-sm font-medium" @class="statusClass(req.value.status)">{{ req.value.status }} {{ req.value.statusText }}</span>
+      <span class="inline-flex px-2.5 py-1 rounded-full text-sm font-medium" @class="getStatusClass(req.value.status)">{{ req.value.status }} {{ req.value.statusText }}</span>
       <span class="text-sm text-zinc-500 tabular-nums">{{ req.value.duration }}ms</span>
     </div>
 
