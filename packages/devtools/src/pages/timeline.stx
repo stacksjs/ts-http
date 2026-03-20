@@ -61,4 +61,5 @@ onMount(() => {
     <div :if="!loading.value" class="d3-container" ref="timelineViz" style="min-height: 500px;"></div>
   </div>
 </div>
+
 @endsection

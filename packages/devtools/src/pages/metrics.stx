@@ -2,9 +2,9 @@
 
 @section('content')
 <script client>
-const { data: stats, loading: statsLoading } = useQuery<DashboardStats>('/api/stats', { initialData: { statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, responseTimeHistory: [], topEndpoints: [] } })
-const { data: requests } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
-const { data: endpoints } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
+const { data: stats, loading: statsLoading, refetch: refetchStats } = useQuery<DashboardStats>('/api/stats', { initialData: { statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, responseTimeHistory: [], topEndpoints: [] } })
+const { data: requests, refetch: refetchRequests } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
+const { data: endpoints, refetch: refetchEndpoints } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
 
 const durations = computed<number[]>(() => (requests.value || []).map((r: RequestRecord) => r.duration).sort((a: number, b: number) => a - b))
 const avgResponseTime = computed<number>(() => {
@@ -44,7 +44,17 @@ onMount(() => {
       options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#71717a', font: { size: 10 } }, grid: { color: '#27272a' } }, y: { ticks: { color: '#a1a1aa', font: { size: 10, family: 'monospace' } }, grid: { display: false } } } },
     })
   }, 100)
-  return () => clearInterval(waitForCharts)
+  function onNewRequest(): void {
+    refetchStats()
+    refetchRequests()
+    refetchEndpoints()
+  }
+  window.addEventListener('httx:request-recorded', onNewRequest)
+
+  return () => {
+    clearInterval(waitForCharts)
+    window.removeEventListener('httx:request-recorded', onNewRequest)
+  }
 })
 </script>
 <div class="animate-fade-in">
@@ -115,4 +125,5 @@ onMount(() => {
     <div class="chart-container"><canvas ref="epBar"></canvas></div>
   </div>
 </div>
+
 @endsection

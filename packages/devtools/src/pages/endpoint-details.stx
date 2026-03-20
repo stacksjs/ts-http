@@ -2,7 +2,26 @@
 
 @section('content')
 <script client>
-import { getMethodClass, getStatusClass, getErrorRateClass } from '../utils'
+function getMethodClass(method: string): string {
+  if (method === 'GET') return 'bg-emerald-500/15 text-emerald-500'
+  if (method === 'POST') return 'bg-indigo-500/15 text-indigo-400'
+  if (method === 'PUT' || method === 'PATCH') return 'bg-amber-500/15 text-amber-500'
+  if (method === 'DELETE') return 'bg-red-500/15 text-red-500'
+  return 'bg-zinc-500/15 text-zinc-400'
+}
+
+function getStatusClass(status: number): string {
+  if (status < 300) return 'bg-emerald-500/15 text-emerald-500'
+  if (status < 400) return 'bg-indigo-500/15 text-indigo-400'
+  if (status < 500) return 'bg-amber-500/15 text-amber-500'
+  return 'bg-red-500/15 text-red-500'
+}
+
+function getErrorRateClass(errorRate: number): string {
+  if (errorRate > 20) return 'text-red-500'
+  if (errorRate > 5) return 'text-amber-500'
+  return 'text-emerald-500'
+}
 
 const route = useRoute()
 const param: string = decodeURIComponent(route.path.split('/endpoints/')[1] || '')
@@ -39,7 +58,7 @@ onMount(() => {
 </script>
 <div class="animate-fade-in">
   <div class="flex items-center gap-2 text-sm text-zinc-500 mb-4">
-    <a href="/endpoints" @click.prevent="navigate('/endpoints')" class="hover:text-zinc-300 transition-colors">Endpoints</a>
+    <StxLink to="/endpoints" class="hover:text-zinc-300 transition-colors">Endpoints</StxLink>
     <span class="text-zinc-600">/</span>
     <span class="text-zinc-400">{{ param }}</span>
   </div>
@@ -119,4 +138,5 @@ onMount(() => {
     </div>
   @endif
 </div>
+
 @endsection

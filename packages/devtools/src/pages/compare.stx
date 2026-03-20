@@ -120,4 +120,5 @@ function onSelectB(e: Event): void { selectedB.value = (e.target as HTMLSelectEl
     <div class="chart-container"><canvas ref="compareChart"></canvas></div>
   </div>
 </div>
+
 @endsection

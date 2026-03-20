@@ -40,37 +40,64 @@
 
 ## 2. COMPLETE STX CLIENT-SIDE RUNTIME API
 
-### Reactivity Primitives
+### Reactivity Primitives (v2 — signals-first)
+
+**v2 recommended (signals):**
 
 | Function | Signature | Purpose |
 |---|---|---|
-| `ref()` | `ref<T>(value: T): Signal<T>` | Create reactive state. Read via `.value`, write via `.value =` |
-| `computed()` | `computed<T>(getter: () => T): Signal<T>` | Derived reactive value, auto-tracks dependencies |
-| `reactive()` | `reactive<T>(obj: T): T` | Make object deeply reactive |
-| `watch()` | `watch(source, callback, options?): stop` | Watch a source and run callback on change |
-| `watchEffect()` | `watchEffect(fn: () => void): stop` | Auto-tracking effect (alias: `effect()`) |
+| `state()` | `state<T>(value: T): Signal<T>` | Create reactive state. Read via `count()`, write via `count.set(value)` |
+| `derived()` | `derived<T>(getter: () => T): Signal<T>` | Derived reactive value, auto-tracks dependencies. Read via `total()` |
 | `effect()` | `effect(fn: () => void): cleanup` | Run side effect, re-runs when dependencies change |
 | `batch()` | `batch(fn: () => void): void` | Batch multiple signal updates, run effects once |
-| `isRef()` | `isRef(value): boolean` | Check if value is a signal |
-| `unref()` | `unref(value): T` | Unwrap signal without tracking |
-| `peek()` | `peek(fn: () => T): T` | Read signals without tracking as dependencies |
+| `untrack()` | `untrack(fn: () => T): T` | Read signals without tracking as dependencies |
+| `peek()` | `peek(fn: () => T): T` | Alias for untrack |
+| `isSignal()` | `isSignal(value): boolean` | Check if value is a signal |
+| `isDerived()` | `isDerived(value): boolean` | Check if value is a derived signal |
 
-**Vue compatibility aliases:** `ref` → `state`, `computed` → `derived`, `watchEffect` → `effect`
+**Vue-style aliases (also auto-imported, fully supported):**
+
+| Function | Signature | Purpose |
+|---|---|---|
+| `ref()` | `ref<T>(value: T): Signal<T>` | Create reactive state. Read/write via `.value` |
+| `computed()` | `computed<T>(getter: () => T): Signal<T>` | Derived reactive value. Read via `.value` |
+| `reactive()` | `reactive<T>(obj: T): T` | Make object deeply reactive |
+| `watch()` | `watch(source, callback, options?): stop` | Watch a source and run callback on change |
+| `watchEffect()` | `watchEffect(fn: () => void): stop` | Auto-tracking effect |
+| `watchMultiple()` | `watchMultiple(sources, callback): stop` | Watch multiple sources |
+
+> **Both APIs work and are interchangeable.** Our codebase uses Vue-style (`ref`/`computed`/`.value`) which is fully supported. New code can use either.
 
 ### Lifecycle Hooks
 
-| Hook | Signature | Purpose |
+| Hook | Alias | Purpose |
 |---|---|---|
-| `onMount()` | `onMount(callback: () => void \| cleanup): void` | Run after component mounts. Return cleanup function for teardown |
-| `onDestroy()` | `onDestroy(callback: () => void): void` | Run when component is destroyed |
+| `onMount()` | `onMounted()` | Run after component mounts. Return cleanup function for teardown |
+| `onDestroy()` | `onUnmounted()` | Run when component is destroyed |
+| `onUpdate()` | `onUpdated()` | Run when component updates (re-renders) |
+
+### Component Definition (v2)
+
+| Function | Purpose |
+|---|---|
+| `defineProps<T>()` | Declare typed props |
+| `withDefaults(defineProps<T>(), defaults)` | Props with default values |
+| `defineEmits<T>()` | Declare typed events |
+| `defineExpose()` | Expose public API from component |
+| `provide(key, value)` | Provide value to descendants |
+| `inject(key, default?)` | Inject value from ancestor |
 
 ### Data Fetching
 
 | Composable | Returns | Purpose |
 |---|---|---|
-| `useQuery<T>(url, options?)` | `{ data, loading, error, isStale, refetch, invalidate }` | Cached data fetching. Options: `initialData`, `cacheTime` (default 5min), `staleTime`, `refetchInterval`, `refetchOnFocus` |
-| `useFetch<T>(url, options?)` | `{ data, loading, error, refetch, isLoading, hasError, isEmpty }` | Simple fetch. Options: `transform`, `immediate`, `method`, `headers`, `body` |
-| `useMutation<T>(url, options?)` | `{ data, loading, error, mutate, reset }` | POST/PUT/DELETE. Options: `method`, `onSuccess`, `onError`, `optimisticUpdate`, `invalidateQueries` |
+| `useQuery<T>(url, options?)` | `{ data, loading, error, isStale, refetch, invalidate }` | Cached data fetching with background revalidation |
+| `useFetch<T>(url, options?)` | `{ data, loading, error, refetch }` | Simple fetch with reactive state |
+| `useMutation<T>(url, options?)` | `{ data, loading, error, mutate, reset }` | POST/PUT/DELETE with optimistic updates |
+
+**`useQuery` options:** `initialData`, `staleTime` (0), `cacheTime` (300000), `cacheKey`, `refetchInterval`, `refetchOnFocus`, `immediate` (true), `transform`, `headers`, `onSuccess`, `onError`
+
+**`useMutation` options:** `method` ('POST'), `headers`, `transform`, `optimisticData`, `invalidateQueries`, `onSuccess`, `onError`
 
 ### Navigation & Routing
 
@@ -135,9 +162,13 @@
 
 | Composable | Purpose |
 |---|---|
-| `useHead(options)` | Set title, meta, link, script, style, htmlAttrs, bodyAttrs |
-| `useSeoMeta(options)` | Set SEO meta: title, description, ogTitle, ogImage, twitterCard, etc. |
+| `useHead(options)` | Set title, meta, link, script, style, htmlAttrs, bodyAttrs, titleTemplate |
+| `useSeoMeta(options)` | Set SEO meta: title, description, ogTitle, ogImage, twitterCard, articleAuthor, etc. |
+| `useMeta(options?)` | Simplified meta tag management |
 | `definePageMeta(options)` | Page config: title, description, layout, middleware, keepAlive |
+| `@title('Page Title')` | Template directive for setting page title |
+| `@meta('name', 'content')` | Template directive for meta tags |
+| `@head...@endhead` | Raw head content block |
 
 ### Template Directives (HTML Attributes)
 
@@ -203,11 +234,15 @@ Use in `{{ }}` expressions: `{{ value | pipeName }}` or `{{ value | pipeName:arg
 STX ships a built-in SPA router. It intercepts link clicks, fetches pages via AJAX, swaps content, manages history, handles cleanup, and re-initializes scripts — **all automatically**. You never need to write a custom router.
 
 ### How to enable it
+
+**v2 App Shell mode (preferred):** Router is auto-configured when using app shell (`app.stx` with `<slot />`). Container is set to `[data-stx-content]` automatically. No manual setup needed.
+
+**Legacy mode (still works):**
 ```html
 <!-- In your layout file, before </body> -->
 @stxRouter('main')
 ```
-The argument is the CSS selector for the content container. `'main'` targets the `<main>` element. You can also use `'#content'`, `'[data-stx-content]'`, etc.
+The argument is the CSS selector for the content container.
 
 ### What it does on navigation
 1. Intercepts `<a href>` clicks on internal links (same-origin, no `target="_blank"`, no modifier keys)
@@ -259,6 +294,27 @@ stxRouter.clearCache()      // Clear response cache
 stxRouter.updateNav()       // Refresh active link classes
 ```
 
+### `<StxLink>` Component (v2)
+Built-in navigation component. Renders `<a>` with SPA navigation and active class management.
+```html
+<StxLink to="/requests" class="nav-item" activeClass="active">Requests</StxLink>
+<StxLink to="/" exactActiveClass="current">Home</StxLink>
+<StxLink to="/dashboard" prefetch>Dashboard</StxLink>
+```
+| Prop | Default | Description |
+|---|---|---|
+| `to` | — | Target URL (required) |
+| `activeClass` | `'active'` | Class when route matches or is parent |
+| `exactActiveClass` | `'exact-active'` | Class only on exact path match |
+| `prefetch` | `false` | Prefetch on hover |
+| `className` | `''` | CSS class for `<a>` element |
+
+### Fragment Navigation (v2)
+- SPA requests include `X-STX-Router: true` header
+- Server responds with page fragment + `X-STX-Fragment: true` header
+- Router detects fragment via header (no content sniffing)
+- View Transitions API with CSS fallback
+
 ### WHY you never write a custom router
 The STX router handles: effect cleanup, scope disposal, style injection/removal, script re-execution, view transitions, prefetching, history management, active link classes. Rolling your own means missing all of this and leaking memory.
 
@@ -266,103 +322,63 @@ The STX router handles: effect cleanup, scope disposal, style injection/removal,
 
 ## 4. CORRECT PATTERNS — How to Write STX Pages
 
-### Layout file pattern (`layouts/app.stx`)
+### App Shell pattern (v2 — `app.stx`)
+
+The app shell replaces `@extends`/`@section`/`@yield`. Drop an `app.stx` in the pages directory with `<slot />` — it wraps all pages automatically. Shell scripts/styles persist across SPA navigations.
+
 ```stx
 <script client>
-const sidebarCollapsed = ref<boolean>(false)
-const route = useRoute()
-
-onMount(() => {
-  if (typeof localStorage !== 'undefined') {
-    const stored = localStorage.getItem('httx-sidebar-collapsed')
-    if (stored === 'true') sidebarCollapsed.value = true
-  }
-})
+const sidebarCollapsed = useLocalStorage('httx-sidebar-collapsed', false)
 
 function toggleSidebar(): void {
-  sidebarCollapsed.value = !sidebarCollapsed.value
-  if (typeof localStorage !== 'undefined')
-    localStorage.setItem('httx-sidebar-collapsed', String(sidebarCollapsed.value))
-}
-
-function isActive(path: string): boolean {
-  if (path === '/') return route.path === '/'
-  return route.path.startsWith(path)
-}
-
-function breadcrumb(): string {
-  if (route.path === '/') return 'Dashboard'
-  const segment = route.path.slice(1)
-  return segment.charAt(0).toUpperCase() + segment.slice(1)
+  sidebarCollapsed.set(!sidebarCollapsed())
 }
 </script>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>...</head>
-<body>
-  @include('sidebar')
+<style>
+  .sidebar { ... }
+  .main-wrapper { ... }
+</style>
 
-  <div class="main-wrapper" :class="{ collapsed: sidebarCollapsed.value }">
-    <header>
-      <span>{{ breadcrumb() }}</span>
-    </header>
-    <main>
-      @yield('content')
-    </main>
-  </div>
+@include('sidebar')
 
-  @stxRouter('main')
-</body>
-</html>
+<div class="main-wrapper" :class="{ collapsed: sidebarCollapsed() }">
+  <header>...</header>
+  <main>
+    <slot />
+  </main>
+</div>
 ```
 
 **Key points:**
-- Sidebar collapse uses `ref<boolean>` + `:class` binding — NOT `.style.display` or `.classList.toggle`
-- Route info from `useRoute()` — NOT `window.location`
-- `localStorage` access only in `onMount()` — it's a browser API, acceptable
-- `@stxRouter('main')` before `</body>` — enables SPA navigation
+- `<slot />` is the page injection point — replaces `@yield('content')`
+- Shell is processed once at startup, cached across requests
+- Direct requests get full HTML (shell + page), SPA requests get fragment only
+- Router auto-configured to swap `[data-stx-content]` container
+- No `<!DOCTYPE>`, `<html>`, `<head>`, `<body>` — composed by the server
 
 ### Sidebar pattern (partials/sidebar.stx)
 ```stx
-<aside class="sidebar" :class="{ collapsed: sidebarCollapsed.value }">
-  <div class="sidebar-brand">
-    <span>httx</span>
-  </div>
-
+<aside class="sidebar" :class="{ collapsed: sidebarCollapsed() }">
   <nav>
-    <a href="/" @click.prevent="navigate('/')"
-       class="nav-item" :class="{ active: isActive('/') }">
-      Dashboard
-    </a>
-    <a href="/requests" @click.prevent="navigate('/requests')"
-       class="nav-item" :class="{ active: isActive('/requests') }">
-      Requests
-    </a>
-    <!-- more nav items... -->
+    <StxLink to="/" class="nav-item" exactActiveClass="active">Dashboard</StxLink>
+    <StxLink to="/requests" class="nav-item" activeClass="active">Requests</StxLink>
   </nav>
-
-  <button @click="toggleSidebar()" class="collapse-btn">
-    <!-- icon -->
-  </button>
+  <button @click="toggleSidebar()"><!-- icon --></button>
 </aside>
 ```
 
 **Key points:**
-- `@click.prevent="navigate(...)"` for SPA links — NOT `onclick="window.location ="`
-- `:class="{ active: isActive('/path') }"` for active state — NOT `element.classList.add('active')`
-- `:class="{ collapsed: sidebarCollapsed.value }"` for collapse — NOT `.style.width = '56px'`
+- `<StxLink>` for navigation — NOT `<a @click.prevent="navigate()">`
+- `activeClass`/`exactActiveClass` for active state — NOT manual `:class="{ active: isActive() }"`
+- No `isActive()` function needed — `<StxLink>` handles it automatically
 
-### Page script pattern (data-driven page)
+### Page pattern (v2 — pure fragments, no layout boilerplate)
 ```stx
-@extends('layouts/app')
-
-@section('content')
 <script client>
-// 1. Fetch data with useQuery (auto-caches, auto-refetches)
-const { data: items, loading } = useQuery<Item[]>('/api/items', { initialData: [] })
+import { getStatusClass } from '../utils'
 
-// 2. Derive filtered/computed state — NO manual updateUI() function
+const { data: items, loading, refetch } = useQuery<Item[]>('/api/items', { initialData: [] })
 const searchTerm = ref<string>('')
 const filtered = computed<Item[]>(() => {
   let list: Item[] = items.value || []
@@ -373,26 +389,14 @@ const filtered = computed<Item[]>(() => {
   return list
 })
 
-// 3. Helper functions for template use (pure functions, no DOM access)
-function getStatusClass(status: number): string {
-  if (status < 300) return 'bg-emerald-500/15 text-emerald-500'
-  if (status < 400) return 'bg-indigo-500/15 text-indigo-400'
-  return 'bg-red-500/15 text-red-500'
-}
-
-// 4. onMount ONLY for external libs (Chart.js, D3) — NOT for updateUI
 onMount(() => {
-  // Chart.js init — legitimate canvas API usage
-  const waitForChart = setInterval(() => {
-    if (typeof Chart === 'undefined' || !chartRef.value) return
-    clearInterval(waitForChart)
-    new Chart(chartRef.value, { ... })
-  }, 100)
-  return () => clearInterval(waitForChart)
+  // Listen for real-time broadcast events
+  function onNewData(): void { refetch() }
+  window.addEventListener('httx:request-recorded', onNewData)
+  return () => window.removeEventListener('httx:request-recorded', onNewData)
 })
 </script>
 
-<!-- 5. Template uses @if/@foreach — NO innerHTML, NO DOM manipulation -->
 <div class="animate-fade-in">
   <input type="text" x-model="searchTerm" placeholder="Search...">
 
@@ -418,17 +422,16 @@ onMount(() => {
     </table>
   @endif
 </div>
-@endsection
 ```
 
-**Key points:**
-- `useQuery()` for data — NOT `fetch()` in `onMount()` with manual state
+**Key points (v2):**
+- **No `@extends`/`@section`/`@endsection`** — pages are pure fragments, shell wraps them
+- `useQuery()` for data with `refetch` for real-time updates via WebSocket broadcast
 - `computed()` for derived state — NOT `updateUI()` function
 - `@if`/`@foreach` in template — NOT `innerHTML` string building
-- `@class` for dynamic classes — NOT ternary in class attribute string
-- `x-model` for search input — NOT `addEventListener('input')`
-- `navigate()` in `@click` — NOT `window.location` or `onclick`
-- `onMount()` ONLY for Chart.js/D3 — NOT for DOM manipulation
+- `<StxLink>` for navigation — NOT `<a @click.prevent="navigate()">`
+- Import shared helpers from `../utils` — NOT inline per-page definitions
+- `onMount()` for Chart.js/D3 init AND event listener setup (with cleanup return)
 
 ### What NEVER belongs in a page script:
 ```typescript
@@ -479,10 +482,11 @@ rm -rf /Users/glennmichaeltorregosa/Documents/Stacks/ts-http/packages/devtools/.
 | File | What it is |
 |---|---|
 | `packages/httx/src/client.ts` | HTTP client library |
-| `packages/devtools/server.ts` | API server (SQLite backend) |
-| `packages/devtools/serve.ts` | Dev server entry |
-| `packages/devtools/src/pages/layouts/app.stx` | Main layout (sidebar, header, router) |
-| `packages/devtools/src/pages/partials/sidebar.stx` | Sidebar navigation partial |
+| `packages/devtools/server.ts` | Custom Bun.serve() with app shell, broadcasting, API routes |
+| `packages/devtools/src/pages/app.stx` | App shell (sidebar, header, styles, WebSocket client) |
+| `packages/devtools/src/pages/partials/sidebar.stx` | Sidebar navigation (uses `<StxLink>`) |
+| `packages/devtools/partials/sidebar.stx` | **Must stay in sync** with src/pages version (STX resolves this one) |
+| `packages/devtools/src/utils.ts` | Shared UI helpers (getMethodClass, getStatusClass, etc.) |
 | `packages/devtools/src/pages/*.stx` | All page templates |
 
 ---
