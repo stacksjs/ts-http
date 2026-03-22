@@ -1,10 +1,11 @@
 <script client>
-const sidebarCollapsed = useLocalStorage('httx-sidebar-collapsed', false)
+const sidebarCollapsed = ref<boolean>(false)
 const currentPath = ref<string>(typeof window !== 'undefined' ? window.location.pathname : '/')
 const wsConnected = ref<boolean>(false)
 
 function toggleSidebar(): void {
-  sidebarCollapsed.set(!sidebarCollapsed())
+  sidebarCollapsed.value = !sidebarCollapsed.value
+  localStorage.setItem('httx-sidebar-collapsed', String(sidebarCollapsed.value))
 }
 
 function breadcrumb(): string {
@@ -17,6 +18,9 @@ function breadcrumb(): string {
 }
 
 onMount(() => {
+  const stored = localStorage.getItem('httx-sidebar-collapsed')
+  if (stored === 'true') sidebarCollapsed.value = true
+
   function syncPath(): void {
     currentPath.value = window.location.pathname
   }
@@ -134,7 +138,7 @@ onMount(() => {
 <body>
   @include('sidebar')
 
-  <div ref="mainWrapper" class="main-wrapper" :class="{ collapsed: sidebarCollapsed() }">
+  <div ref="mainWrapper" class="main-wrapper" :class="{ collapsed: sidebarCollapsed.value }">
     <header class="flex items-center justify-between px-6 py-3 bg-[#141419] border-b border-zinc-800">
       <div class="flex items-center gap-2 text-sm text-zinc-400">
         <StxLink to="/" class="hover:text-zinc-50 transition-colors">httx</StxLink>
