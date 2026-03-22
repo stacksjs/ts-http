@@ -5,7 +5,7 @@ import { HttxNetworkError, HttxRequestError, HttxResponseError, HttxTimeoutError
 import { debugLog, sleep } from './utils'
 
 export class HttxClient {
-  private config: Required<HttxConfig>
+  private config: Required<Omit<HttxConfig, 'onRequestComplete'>> & Pick<HttxConfig, 'onRequestComplete'>
 
   constructor(config: Partial<HttxConfig> = {}) {
     this.config = {
