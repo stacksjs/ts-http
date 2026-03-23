@@ -1,5 +1,6 @@
 <script client>
 const sidebarCollapsed = ref<boolean>(false)
+const currentPath = ref<string>(typeof window !== 'undefined' ? window.location.pathname : '/')
 const wsConnected = ref<boolean>(false)
 
 function toggleSidebar(): void {
@@ -7,26 +8,24 @@ function toggleSidebar(): void {
   localStorage.setItem('httx-sidebar-collapsed', String(sidebarCollapsed.value))
 }
 
+function breadcrumb(): string {
+  const p = currentPath.value
+  if (p === '/') return 'Dashboard'
+  if (p.startsWith('/requests/')) return 'Request Details'
+  if (p.startsWith('/endpoints/')) return 'Endpoint Details'
+  const segment: string = p.slice(1)
+  return segment.charAt(0).toUpperCase() + segment.slice(1)
+}
+
 onMount(() => {
   const stored = localStorage.getItem('httx-sidebar-collapsed')
   if (stored === 'true') sidebarCollapsed.value = true
 
-  // Update breadcrumb via direct DOM (not reactive signal) to avoid
-  // triggering zombie effects from body-level processElement walk
-  function updateBreadcrumb(): void {
-    const p = window.location.pathname
-    let crumb = 'Dashboard'
-    if (p !== '/') {
-      if (p.startsWith('/requests/')) crumb = 'Request Details'
-      else if (p.startsWith('/endpoints/')) crumb = 'Endpoint Details'
-      else { const seg = p.slice(1); crumb = seg.charAt(0).toUpperCase() + seg.slice(1) }
-    }
-    const el = document.getElementById('breadcrumb-text')
-    if (el) el.textContent = crumb
+  function syncPath(): void {
+    currentPath.value = window.location.pathname
   }
-  updateBreadcrumb()
-  window.addEventListener('popstate', updateBreadcrumb)
-  window.addEventListener('stx:navigate', updateBreadcrumb)
+  window.addEventListener('popstate', syncPath)
+  window.addEventListener('stx:navigate', syncPath)
 
   const wsUrl: string = 'ws://localhost:6002/app'
   let ws: WebSocket | null = null
@@ -63,8 +62,8 @@ onMount(() => {
   connect()
 
   return () => {
-    window.removeEventListener('popstate', updateBreadcrumb)
-    window.removeEventListener('stx:navigate', updateBreadcrumb)
+    window.removeEventListener('popstate', syncPath)
+    window.removeEventListener('stx:navigate', syncPath)
     if (reconnectTimer) clearTimeout(reconnectTimer)
     if (ws) ws.close()
   }
@@ -144,7 +143,7 @@ onMount(() => {
       <div class="flex items-center gap-2 text-sm text-zinc-400">
         <StxLink to="/" class="hover:text-zinc-50 transition-colors">httx</StxLink>
         <span class="text-zinc-600">/</span>
-        <span id="breadcrumb-text" class="text-zinc-50"></span>
+        <span class="text-zinc-50">{{ breadcrumb() }}</span>
       </div>
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-1.5 text-xs">
@@ -160,7 +159,6 @@ onMount(() => {
   </div>
 
   @stack('scripts')
-  <script>window.__stxRouterConfig={container:'main'};</script>
-  <script src="/stx-router.js"></script>
+  @stxRouter('main')
 </body>
 </html>
