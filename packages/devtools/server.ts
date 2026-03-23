@@ -68,9 +68,19 @@ const routes: Record<string, (req: Request) => Response | Promise<Response>> = {
   '/api/alerts': (req) => apiHandlers['/api/alerts'](req),
 }
 
+// Router script served as static JS
+const routerJs = await Bun.file(resolve(dirname(import.meta.path), 'src/pages/stx-router.js')).text()
+
 function onRequest(req: Request): Response | Promise<Response> | null {
   const url = new URL(req.url)
   const pathname = url.pathname
+
+  // Serve router script
+  if (pathname === '/stx-router.js') {
+    return new Response(routerJs, {
+      headers: { 'Content-Type': 'application/javascript', 'Cache-Control': 'public, max-age=3600' },
+    })
+  }
 
   const requestMatch = pathname.match(/^\/api\/requests\/(.+)$/)
   if (requestMatch) {

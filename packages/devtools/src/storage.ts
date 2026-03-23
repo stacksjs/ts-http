@@ -56,11 +56,11 @@ export function putRequest(record: RequestRecord, config: SqliteStorageConfig = 
   const d = getDb(config)
   const stmt = d.prepare(`
     INSERT OR REPLACE INTO requests
-      (id, method, url, path, host, status, status_text, duration, request_size, response_size,
-       timestamp, request_headers, response_headers, request_body, response_body, tags, retry_count, error)
+    (id, method, url, path, host, status, status_text, duration, request_size, response_size,
+    timestamp, request_headers, response_headers, request_body, response_body, tags, retry_count, error)
     VALUES
-      ($id, $method, $url, $path, $host, $status, $statusText, $duration, $requestSize, $responseSize,
-       $timestamp, $requestHeaders, $responseHeaders, $requestBody, $responseBody, $tags, $retryCount, $error)
+    ($id, $method, $url, $path, $host, $status, $statusText, $duration, $requestSize, $responseSize,
+    $timestamp, $requestHeaders, $responseHeaders, $requestBody, $responseBody, $tags, $retryCount, $error)
   `)
 
   stmt.run({
