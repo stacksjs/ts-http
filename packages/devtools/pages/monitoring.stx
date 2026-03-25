@@ -50,7 +50,7 @@ onMount(() => {
   <div class="grid grid-cols-3 gap-4 mb-6 max-sm:grid-cols-1">
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Health Score</div>
-      <div class="text-4xl font-bold tabular-nums" @class="getHealthClass(healthScore.value)">{{ healthScore.value }}</div>
+      <div class="text-4xl font-bold tabular-nums" :class="getHealthClass(healthScore.value)">{{ healthScore.value }}</div>
     </div>
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5 text-center">
       <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Uptime</div>
@@ -65,31 +65,23 @@ onMount(() => {
   <div class="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
       <div class="text-sm font-semibold text-zinc-50 mb-4">Alerts</div>
-      @if(alertsLoading.value)
-        <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-      @endif
-      @if(!alertsLoading.value && (alerts.value || []).length === 0)
-        <div class="text-center py-6 text-zinc-500 text-sm">No alerts</div>
-      @endif
-      @if(!alertsLoading.value && (alerts.value || []).length > 0)
-        @foreach(alerts.value as a)
+      <div :if="alertsLoading.value" class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+      <div :if="!alertsLoading.value && (alerts.value || []).length === 0" class="text-center py-6 text-zinc-500 text-sm">No alerts</div>
+      <div :if="!alertsLoading.value && (alerts.value || []).length > 0">
+        <template @for="a in alerts.value">
           <div class="flex items-center justify-between py-3 border-b border-zinc-800/50 last:border-0">
             <div class="flex items-center gap-3">
-              <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="getSeverityClass(a.severity)">{{ a.severity }}</span>
+              <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" :class="getSeverityClass(a.severity)">{{ a.severity }}</span>
               <div>
                 <div class="text-sm text-zinc-300">{{ a.name }}</div>
                 <div class="text-xs text-zinc-500">{{ a.condition }} {{ a.operator }} {{ a.threshold }}</div>
               </div>
             </div>
-            @if(a.resolved)
-              <span class="text-xs text-emerald-500">Resolved</span>
-            @endif
-            @if(!a.resolved)
-              <span class="text-xs text-red-500">Active</span>
-            @endif
+            <span :if="a.resolved" class="text-xs text-emerald-500">Resolved</span>
+            <span :if="!a.resolved" class="text-xs text-red-500">Active</span>
           </div>
-        @endforeach
-      @endif
+        </template>
+      </div>
     </div>
 
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
@@ -98,21 +90,17 @@ onMount(() => {
         <span class="text-xs text-zinc-500 animate-pulse">Live</span>
       </div>
       <div class="max-h-[400px] overflow-y-auto">
-        @if(eventsLoading.value)
-          <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-        @endif
-        @if(!eventsLoading.value && reversedEvents.value.length === 0)
-          <div class="text-center py-6 text-zinc-500 text-sm">No events</div>
-        @endif
-        @if(!eventsLoading.value && reversedEvents.value.length > 0)
-          @foreach(reversedEvents.value as e)
+        <div :if="eventsLoading.value" class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+        <div :if="!eventsLoading.value && reversedEvents.value.length === 0" class="text-center py-6 text-zinc-500 text-sm">No events</div>
+        <div :if="!eventsLoading.value && reversedEvents.value.length > 0">
+          <template @for="e in reversedEvents.value">
             <div class="flex items-start gap-3 py-2 border-b border-zinc-800/30 last:border-0">
-              <span class="text-[0.6875rem] font-medium uppercase shrink-0 w-14" @class="getTypeColor(e.type)">{{ e.type }}</span>
+              <span class="text-[0.6875rem] font-medium uppercase shrink-0 w-14" :class="getTypeColor(e.type)">{{ e.type }}</span>
               <span class="text-xs text-zinc-400 flex-1">{{ e.message }}</span>
               <span class="text-[0.6875rem] text-zinc-600 shrink-0 tabular-nums">{{ formatTime(e.timestamp) }}</span>
             </div>
-          @endforeach
-        @endif
+          </template>
+        </div>
       </div>
     </div>
   </div>

@@ -236,7 +236,7 @@ function onRequest(req: Request): Response | Promise<Response> | null {
 }
 
 await serve({
-  patterns: ['src/pages/'],
+  patterns: ['pages/'],
   port,
   routes,
   onRequest,
