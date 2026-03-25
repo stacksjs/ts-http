@@ -147,8 +147,8 @@ onMount(() => {
       </div>
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-1.5 text-xs">
-          <span class="inline-block w-1.5 h-1.5 rounded-full" @class="{ 'bg-emerald-500': wsConnected.value, 'bg-zinc-600': !wsConnected.value }"></span>
-          <span @class="{ 'text-emerald-500': wsConnected.value, 'text-zinc-500': !wsConnected.value }">{{ wsConnected.value ? 'Live' : 'Disconnected' }}</span>
+          <span class="inline-block w-1.5 h-1.5 rounded-full" :class="{ 'bg-emerald-500': wsConnected.value, 'bg-zinc-600': !wsConnected.value }"></span>
+          <span :class="{ 'text-emerald-500': wsConnected.value, 'text-zinc-500': !wsConnected.value }">{{ wsConnected.value ? 'Live' : 'Disconnected' }}</span>
         </div>
       </div>
     </header>

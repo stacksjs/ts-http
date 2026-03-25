@@ -129,13 +129,9 @@ onMount(() => {
         <span class="text-sm font-semibold text-zinc-50">Recent Requests</span>
         <StxLink to="/requests" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">View All</StxLink>
       </div>
-      @if(reqsLoading.value)
-        <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-      @endif
-      @if(!reqsLoading.value && recentRequests.value.length === 0)
-        <div class="text-center py-6 text-zinc-500 text-sm">No requests yet.</div>
-      @endif
-      @if(!reqsLoading.value && recentRequests.value.length > 0)
+      <div :if="reqsLoading.value" class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+      <div :if="!reqsLoading.value && recentRequests.value.length === 0" class="text-center py-6 text-zinc-500 text-sm">No requests yet.</div>
+      <div :if="!reqsLoading.value && recentRequests.value.length > 0">
         <table class="w-full border-collapse">
           <thead>
             <tr>
@@ -146,17 +142,17 @@ onMount(() => {
             </tr>
           </thead>
           <tbody>
-            @foreach(recentRequests.value as r)
+            <template @for="r in recentRequests.value">
               <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate('/requests/' + r.id)">
-                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" @class="getMethodClass(r.method)">{{ r.method }}</span></td>
+                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" :class="getMethodClass(r.method)">{{ r.method }}</span></td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 font-mono text-xs text-zinc-400 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{{ r.url }}</td>
-                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="getStatusClass(r.status)">{{ r.status }}</span></td>
+                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" :class="getStatusClass(r.status)">{{ r.status }}</span></td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
               </tr>
-            @endforeach
+            </template>
           </tbody>
         </table>
-      @endif
+      </div>
     </div>
 
     <!-- Active alerts -->
@@ -165,23 +161,19 @@ onMount(() => {
         <span class="text-sm font-semibold text-zinc-50">Active Alerts</span>
         <StxLink to="/monitoring" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">View All</StxLink>
       </div>
-      @if(alertsLoading.value)
-        <div class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-      @endif
-      @if(!alertsLoading.value && activeAlerts.value.length === 0)
-        <div class="text-center py-6 text-emerald-500 text-sm">All systems operational</div>
-      @endif
-      @if(!alertsLoading.value && activeAlerts.value.length > 0)
-        @foreach(activeAlerts.value as a)
+      <div :if="alertsLoading.value" class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+      <div :if="!alertsLoading.value && activeAlerts.value.length === 0" class="text-center py-6 text-emerald-500 text-sm">All systems operational</div>
+      <div :if="!alertsLoading.value && activeAlerts.value.length > 0">
+        <template @for="a in activeAlerts.value">
           <div class="flex items-center justify-between py-2.5 border-b border-zinc-800/50 last:border-0">
             <div class="flex items-center gap-3">
-              <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="getSeverityClass(a.severity)">{{ a.severity }}</span>
+              <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" :class="getSeverityClass(a.severity)">{{ a.severity }}</span>
               <span class="text-sm text-zinc-300">{{ a.name }}</span>
             </div>
             <span class="text-xs text-zinc-500">{{ a.condition }} {{ a.operator }} {{ a.threshold }}</span>
           </div>
-        @endforeach
-      @endif
+        </template>
+      </div>
     </div>
   </div>
 </div>

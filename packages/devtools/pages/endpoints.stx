@@ -47,13 +47,9 @@ const filteredEndpoints = computed<EndpointStats[]>(() => {
   </div>
 
   <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
-    @if(loading.value)
-      <div class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
-    @endif
-    @if(!loading.value && filteredEndpoints.value.length === 0)
-      <div class="text-center py-8 text-zinc-500 text-sm">No endpoints found.</div>
-    @endif
-    @if(!loading.value && filteredEndpoints.value.length > 0)
+    <div :if="loading.value" class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
+    <div :if="!loading.value && filteredEndpoints.value.length === 0" class="text-center py-8 text-zinc-500 text-sm">No endpoints found.</div>
+    <div :if="!loading.value && filteredEndpoints.value.length > 0">
       <table class="w-full border-collapse">
         <thead>
           <tr>
@@ -65,18 +61,18 @@ const filteredEndpoints = computed<EndpointStats[]>(() => {
           </tr>
         </thead>
         <tbody>
-          @foreach(filteredEndpoints.value as e)
+          <template @for="e in filteredEndpoints.value">
             <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate('/endpoints/' + encodeURIComponent(e.method + ' ' + e.url))">
-              <td class="px-3 py-2.5 border-b border-zinc-800/50"><span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" @class="getMethodClass(e.method)">{{ e.method }}</span></td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50"><span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" :class="getMethodClass(e.method)">{{ e.method }}</span></td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs text-zinc-400">{{ e.url }}</td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-sm text-zinc-300 tabular-nums">{{ e.count }}</td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ e.avgDuration }}ms</td>
-              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs tabular-nums" @class="getErrorRateClass(e.errorRate)">{{ e.errorRate }}%</td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs tabular-nums" :class="getErrorRateClass(e.errorRate)">{{ e.errorRate }}%</td>
             </tr>
-          @endforeach
+          </template>
         </tbody>
       </table>
-    @endif
+    </div>
   </div>
 </div>
 

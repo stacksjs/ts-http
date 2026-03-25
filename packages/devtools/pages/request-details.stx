@@ -44,19 +44,15 @@ const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
     <span class="text-zinc-400">{{ requestId }}</span>
   </div>
 
-  @if(loading.value)
-    <div class="text-sm text-zinc-500">Loading request details...</div>
-  @endif
+  <div :if="loading.value" class="text-sm text-zinc-500">Loading request details...</div>
 
-  @if(hasError.value)
-    <div class="text-sm text-red-500">Request not found.</div>
-  @endif
+  <div :if="hasError.value" class="text-sm text-red-500">Request not found.</div>
 
-  @if(hasData.value)
+  <div :if="hasData.value">
     <div class="flex items-center gap-4 mb-6 flex-wrap">
-      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" @class="getMethodClass(req.value.method)">{{ req.value.method }}</span>
+      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" :class="getMethodClass(req.value.method)">{{ req.value.method }}</span>
       <span class="font-mono text-sm text-zinc-300 break-all">{{ req.value.url }}</span>
-      <span class="inline-flex px-2.5 py-1 rounded-full text-sm font-medium" @class="getStatusClass(req.value.status)">{{ req.value.status }} {{ req.value.statusText }}</span>
+      <span class="inline-flex px-2.5 py-1 rounded-full text-sm font-medium" :class="getStatusClass(req.value.status)">{{ req.value.status }} {{ req.value.statusText }}</span>
       <span class="text-sm text-zinc-500 tabular-nums">{{ req.value.duration }}ms</span>
     </div>
 
@@ -65,68 +61,54 @@ const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
         <div class="text-sm font-semibold text-zinc-50 mb-4">Request</div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Headers</div>
-        @if(requestHeaderEntries.value.length === 0)
-          <div class="text-sm text-zinc-500">No headers</div>
-        @endif
-        @if(requestHeaderEntries.value.length > 0)
+        <div :if="requestHeaderEntries.value.length === 0" class="text-sm text-zinc-500">No headers</div>
+        <div :if="requestHeaderEntries.value.length > 0">
           <table class="w-full border-collapse">
-            @foreach(requestHeaderEntries.value as entry)
+            <template @for="entry in requestHeaderEntries.value">
               <tr class="hover:bg-[#1e1e26]">
                 <td class="px-3 py-1.5 text-xs font-mono text-indigo-400 border-b border-zinc-800/50 whitespace-nowrap">{{ entry[0] }}</td>
                 <td class="px-3 py-1.5 text-xs font-mono text-zinc-400 border-b border-zinc-800/50 break-all">{{ entry[1] }}</td>
               </tr>
-            @endforeach
+            </template>
           </table>
-        @endif
+        </div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mt-4 mb-2">Body</div>
-        @if(!req.value.requestBody)
-          <div class="text-sm text-zinc-500">No body</div>
-        @endif
-        @if(req.value.requestBody)
-          <pre class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.requestBody }}</pre>
-        @endif
+        <div :if="!req.value.requestBody" class="text-sm text-zinc-500">No body</div>
+        <pre :if="req.value.requestBody" class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.requestBody }}</pre>
       </div>
 
       <!-- Response panel -->
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
         <div class="text-sm font-semibold text-zinc-50 mb-4">Response</div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Headers</div>
-        @if(responseHeaderEntries.value.length === 0)
-          <div class="text-sm text-zinc-500">No headers</div>
-        @endif
-        @if(responseHeaderEntries.value.length > 0)
+        <div :if="responseHeaderEntries.value.length === 0" class="text-sm text-zinc-500">No headers</div>
+        <div :if="responseHeaderEntries.value.length > 0">
           <table class="w-full border-collapse">
-            @foreach(responseHeaderEntries.value as entry)
+            <template @for="entry in responseHeaderEntries.value">
               <tr class="hover:bg-[#1e1e26]">
                 <td class="px-3 py-1.5 text-xs font-mono text-indigo-400 border-b border-zinc-800/50 whitespace-nowrap">{{ entry[0] }}</td>
                 <td class="px-3 py-1.5 text-xs font-mono text-zinc-400 border-b border-zinc-800/50 break-all">{{ entry[1] }}</td>
               </tr>
-            @endforeach
+            </template>
           </table>
-        @endif
+        </div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mt-4 mb-2">Body</div>
-        @if(!req.value.responseBody)
-          <div class="text-sm text-zinc-500">No body</div>
-        @endif
-        @if(req.value.responseBody)
-          <pre class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.responseBody }}</pre>
-        @endif
+        <div :if="!req.value.responseBody" class="text-sm text-zinc-500">No body</div>
+        <pre :if="req.value.responseBody" class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.responseBody }}</pre>
       </div>
     </div>
 
     <!-- Tags & Retry -->
     <div class="mt-6 flex items-center gap-4">
       <div class="flex items-center gap-2">
-        @foreach(tags.value as tag)
+        <template @for="tag in tags.value">
           <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium bg-zinc-500/15 text-zinc-400">{{ tag }}</span>
-        @endforeach
+        </template>
       </div>
-      @if(req.value.retryCount > 0)
-        <span class="text-xs text-amber-500">{{ req.value.retryCount }} retries</span>
-      @endif
+      <span :if="req.value.retryCount > 0" class="text-xs text-amber-500">{{ req.value.retryCount }} retries</span>
       <span class="text-xs text-zinc-500">{{ req.value.timestamp }}</span>
     </div>
-  @endif
+  </div>
 </div>
 
 @endsection

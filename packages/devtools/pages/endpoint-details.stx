@@ -63,17 +63,13 @@ onMount(() => {
     <span class="text-zinc-400">{{ param }}</span>
   </div>
 
-  @if(loading.value)
-    <div class="text-sm text-zinc-500">Loading endpoint details...</div>
-  @endif
+  <div :if="loading.value" class="text-sm text-zinc-500">Loading endpoint details...</div>
 
-  @if(hasError.value)
-    <div class="text-sm text-red-500">Endpoint not found.</div>
-  @endif
+  <div :if="hasError.value" class="text-sm text-red-500">Endpoint not found.</div>
 
-  @if(hasData.value)
+  <div :if="hasData.value">
     <div class="flex items-center gap-3 mb-2">
-      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" @class="getMethodClass(ep.value.method)">{{ ep.value.method }}</span>
+      <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" :class="getMethodClass(ep.value.method)">{{ ep.value.method }}</span>
       <span class="font-mono text-base text-zinc-300">{{ ep.value.url }}</span>
     </div>
     <p class="text-xs text-zinc-500 mb-6">{{ ep.value.count }} requests · Last seen {{ ep.value.lastSeen }}</p>
@@ -93,7 +89,7 @@ onMount(() => {
       </div>
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
         <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Error Rate</div>
-        <div class="text-[1.75rem] font-bold mt-1 tabular-nums" @class="getErrorRateClass(ep.value.errorRate)">{{ ep.value.errorRate }} <span class="text-xs text-zinc-500 font-normal">%</span></div>
+        <div class="text-[1.75rem] font-bold mt-1 tabular-nums" :class="getErrorRateClass(ep.value.errorRate)">{{ ep.value.errorRate }} <span class="text-xs text-zinc-500 font-normal">%</span></div>
       </div>
     </div>
 
@@ -110,10 +106,8 @@ onMount(() => {
 
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
       <div class="text-sm font-semibold text-zinc-50 mb-4">Recent Requests</div>
-      @if(recentRequests.value.length === 0)
-        <div class="text-center py-6 text-zinc-500 text-sm">No recent requests.</div>
-      @endif
-      @if(recentRequests.value.length > 0)
+      <div :if="recentRequests.value.length === 0" class="text-center py-6 text-zinc-500 text-sm">No recent requests.</div>
+      <div :if="recentRequests.value.length > 0">
         <table class="w-full border-collapse">
           <thead>
             <tr>
@@ -124,19 +118,19 @@ onMount(() => {
             </tr>
           </thead>
           <tbody>
-            @foreach(recentRequests.value as r)
+            <template @for="r in recentRequests.value">
               <tr class="hover:bg-[#1e1e26] cursor-pointer transition-colors" @click="navigate('/requests/' + r.id)">
-                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" @class="getStatusClass(r.status)">{{ r.status }}</span></td>
+                <td class="px-3 py-2 border-b border-zinc-800/50"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" :class="getStatusClass(r.status)">{{ r.status }}</span></td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-right text-xs text-zinc-400 tabular-nums">{{ r.responseSize }}B</td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-xs text-zinc-500">{{ r.timestamp }}</td>
               </tr>
-            @endforeach
+            </template>
           </tbody>
         </table>
-      @endif
+      </div>
     </div>
-  @endif
+  </div>
 </div>
 
 @endsection
