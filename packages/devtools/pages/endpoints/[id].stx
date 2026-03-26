@@ -24,7 +24,7 @@ function getErrorRateClass(errorRate: number): string {
 }
 
 const route = useRoute()
-const param: string = decodeURIComponent(route.path.split('/endpoints/')[1] || '')
+const param: string = route.params.id ? decodeURIComponent(route.params.id) : decodeURIComponent(route.path.split('/endpoints/')[1] || '')
 const { data: ep, loading, error } = useQuery<EndpointDetail | null>(`/api/endpoints/${encodeURIComponent(param)}`, { initialData: null })
 
 const epTrendChart = useRef('epTrendChart')

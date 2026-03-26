@@ -18,8 +18,7 @@ function getStatusClass(status: number): string {
 }
 
 const route = useRoute()
-const pathParts: string[] = route.path.split('/')
-const requestId: string = pathParts[pathParts.length - 1]
+const requestId: string = route.params.id || route.path.split('/').pop() || ''
 const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/requests/${requestId}`, { initialData: null })
 
 const hasData = computed<boolean>(() => !loading.value && !error.value && !!req.value)
