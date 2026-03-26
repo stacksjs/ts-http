@@ -1,0 +1,157 @@
+<script client>
+const sidebarCollapsed = ref<boolean>(false)
+const currentPath = ref<string>(typeof window !== 'undefined' ? window.location.pathname : '/')
+const wsConnected = ref<boolean>(false)
+
+function toggleSidebar(): void {
+  sidebarCollapsed.value = !sidebarCollapsed.value
+  localStorage.setItem('httx-sidebar-collapsed', String(sidebarCollapsed.value))
+}
+
+function breadcrumb(): string {
+  const p = currentPath.value
+  if (p === '/') return 'Dashboard'
+  if (p.startsWith('/requests/')) return 'Request Details'
+  if (p.startsWith('/endpoints/')) return 'Endpoint Details'
+  const segment: string = p.slice(1)
+  return segment.charAt(0).toUpperCase() + segment.slice(1)
+}
+
+onMount(() => {
+  const stored = localStorage.getItem('httx-sidebar-collapsed')
+  if (stored === 'true') sidebarCollapsed.value = true
+
+  function syncPath(): void {
+    currentPath.value = window.location.pathname
+  }
+  window.addEventListener('popstate', syncPath)
+  window.addEventListener('stx:navigate', syncPath)
+
+  const wsUrl: string = 'ws://localhost:6002/app'
+  let ws: WebSocket | null = null
+  let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+
+  function connect(): void {
+    ws = new WebSocket(wsUrl)
+
+    ws.onopen = () => {
+      wsConnected.value = true
+      ws!.send(JSON.stringify({ event: 'subscribe', channel: 'dashboard' }))
+    }
+
+    ws.onmessage = (evt: MessageEvent) => {
+      try {
+        const msg = JSON.parse(evt.data as string) as { event: string, channel: string, data: unknown }
+        if (msg.channel === 'dashboard' && msg.event === 'request.recorded') {
+          window.dispatchEvent(new CustomEvent('httx:request-recorded', { detail: msg.data }))
+        }
+      }
+      catch {}
+    }
+
+    ws.onclose = () => {
+      wsConnected.value = false
+      reconnectTimer = setTimeout(connect, 3000)
+    }
+
+    ws.onerror = () => {
+      ws?.close()
+    }
+  }
+
+  connect()
+
+  return () => {
+    window.removeEventListener('popstate', syncPath)
+    window.removeEventListener('stx:navigate', syncPath)
+    if (reconnectTimer) clearTimeout(reconnectTimer)
+    if (ws) ws.close()
+  }
+})
+</script>
+
+@push('head')
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7" defer></script>
+@endpush
+
+@include('sidebar')
+
+<div ref="mainWrapper" class="main-wrapper" :class="{ collapsed: sidebarCollapsed.value }">
+  <header class="flex items-center justify-between px-6 py-3 bg-[#141419] border-b border-zinc-800">
+    <div class="flex items-center gap-2 text-sm text-zinc-400">
+      <StxLink to="/" class="hover:text-zinc-50 transition-colors">httx</StxLink>
+      <span class="text-zinc-600">/</span>
+      <span class="text-zinc-50">{{ breadcrumb() }}</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-1.5 text-xs">
+        <span class="inline-block w-1.5 h-1.5 rounded-full" :class="{ 'bg-emerald-500': wsConnected.value, 'bg-zinc-600': !wsConnected.value }"></span>
+        <span :class="{ 'text-emerald-500': wsConnected.value, 'text-zinc-500': !wsConnected.value }">{{ wsConnected.value ? 'Live' : 'Disconnected' }}</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="p-6 max-w-[1400px] mx-auto">
+    @yield('content')
+  </main>
+</div>
+
+@stack('scripts')
+@stxRouter('main')
+
+<style>
+  :root {
+    --bg: #0a0a0f; --bg2: #141419; --bg3: #1e1e26;
+    --text: #f5f5f7; --text2: #a1a1aa; --muted: #71717a; --border: #27272a;
+    --accent: #6366f1; --accent2: #818cf8;
+    --success: #10b981; --warning: #f59e0b; --error: #ef4444;
+    --sidebar-w: 240px; --sidebar-collapsed: 56px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+
+  .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w); background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: width 0.2s ease; z-index: 50; overflow: hidden; }
+  .sidebar.collapsed { width: var(--sidebar-collapsed); }
+  .sidebar.collapsed .nav-label, .sidebar.collapsed .nav-group-title, .sidebar.collapsed .sidebar-brand span, .sidebar.collapsed .sidebar-footer span { display: none; }
+  .sidebar.collapsed .sidebar-brand { justify-content: center; padding: 0.75rem 0; }
+  .sidebar.collapsed .nav-item { justify-content: center; padding: 0.5rem 0; }
+  .sidebar.collapsed .nav-item svg { margin-right: 0; }
+  .nav-item.active { background: rgba(99, 102, 241, 0.15) !important; color: #818cf8 !important; font-weight: 500 !important; }
+  .nav-item.active:hover { background: rgba(99, 102, 241, 0.15) !important; }
+
+  .filter-btn.active { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
+
+  .main-wrapper { margin-left: var(--sidebar-w); transition: margin-left 0.2s ease; min-height: 100vh; }
+  .main-wrapper.collapsed { margin-left: var(--sidebar-collapsed); }
+
+  .chart-container { position: relative; height: 280px; width: 100%; }
+  .chart-container-sm { position: relative; height: 200px; width: 100%; }
+
+  .status-card-accent::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+  .accent-success::before { background: var(--success); }
+  .accent-info::before { background: var(--accent); }
+  .accent-warning::before { background: var(--warning); }
+  .accent-error::before { background: var(--error); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .animate-fade-in { animation: fadeIn 0.3s ease forwards; }
+  .animate-pulse { animation: pulse 2s ease-in-out infinite; }
+
+  .d3-container { width: 100%; min-height: 400px; overflow: hidden; }
+  .d3-container svg { width: 100%; height: 100%; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  [x-cloak] { display: none !important; }
+</style>
+@stack('styles')
