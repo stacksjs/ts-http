@@ -152,5 +152,8 @@ onMount(() => {
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
   [x-cloak] { display: none !important; }
+
+  /* StxLink — ensure pointer cursor and clean link style */
+  /* StxLink component handles cursor/decoration natively */
 </style>
 @stack('styles')

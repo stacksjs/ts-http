@@ -94,7 +94,7 @@ function onSelectB(e: Event): void { selectedB.value = (e.target as HTMLSelectEl
     </div>
   </div>
 
-  <div :if="hasComparison.value">
+  <div @if="hasComparison.value">
     <div class="grid grid-cols-2 gap-4 mb-6 max-sm:grid-cols-1">
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
         <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-3">Avg Duration</div>

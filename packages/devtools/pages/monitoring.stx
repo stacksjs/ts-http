@@ -65,9 +65,11 @@ onMount(() => {
   <div class="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
     <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
       <div class="text-sm font-semibold text-zinc-50 mb-4">Alerts</div>
-      <div :if="alertsLoading.value" class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-      <div :if="!alertsLoading.value && (alerts.value || []).length === 0" class="text-center py-6 text-zinc-500 text-sm">No alerts</div>
-      <div :if="!alertsLoading.value && (alerts.value || []).length > 0">
+      <div @if="alertsLoading.value" class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+      <div @if="!alertsLoading.value && (alerts.value || []).length === 0">
+        <EmptyState icon="check" title="No active alerts" variant="success" description="All endpoints are healthy." />
+      </div>
+      <div @if="!alertsLoading.value && (alerts.value || []).length > 0">
         <template @for="a in alerts.value">
           <div class="flex items-center justify-between py-3 border-b border-zinc-800/50 last:border-0">
             <div class="flex items-center gap-3">
@@ -77,8 +79,8 @@ onMount(() => {
                 <div class="text-xs text-zinc-500">{{ a.condition }} {{ a.operator }} {{ a.threshold }}</div>
               </div>
             </div>
-            <span :if="a.resolved" class="text-xs text-emerald-500">Resolved</span>
-            <span :if="!a.resolved" class="text-xs text-red-500">Active</span>
+            <span @if="a.resolved" class="text-xs text-emerald-500">Resolved</span>
+            <span @if="!a.resolved" class="text-xs text-red-500">Active</span>
           </div>
         </template>
       </div>
@@ -90,9 +92,11 @@ onMount(() => {
         <span class="text-xs text-zinc-500 animate-pulse">Live</span>
       </div>
       <div class="max-h-[400px] overflow-y-auto">
-        <div :if="eventsLoading.value" class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
-        <div :if="!eventsLoading.value && reversedEvents.value.length === 0" class="text-center py-6 text-zinc-500 text-sm">No events</div>
-        <div :if="!eventsLoading.value && reversedEvents.value.length > 0">
+        <div @if="eventsLoading.value" class="text-center py-6 text-zinc-500 text-sm">Loading...</div>
+        <div @if="!eventsLoading.value && reversedEvents.value.length === 0">
+          <EmptyState icon="activity" title="No events" description="Events will appear as requests are processed." />
+        </div>
+        <div @if="!eventsLoading.value && reversedEvents.value.length > 0">
           <template @for="e in reversedEvents.value">
             <div class="flex items-start gap-3 py-2 border-b border-zinc-800/30 last:border-0">
               <span class="text-[0.6875rem] font-medium uppercase shrink-0 w-14" :class="getTypeColor(e.type)">{{ e.type }}</span>

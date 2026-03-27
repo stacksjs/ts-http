@@ -43,16 +43,35 @@ const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
     <span class="text-zinc-400">{{ requestId }}</span>
   </div>
 
-  <div :if="loading.value" class="text-sm text-zinc-500">Loading request details...</div>
+  <div @if="loading.value" class="text-sm text-zinc-500">Loading request details...</div>
 
-  <div :if="hasError.value" class="text-sm text-red-500">Request not found.</div>
+  <div @if="hasError.value" class="text-sm text-red-500">Request not found.</div>
 
-  <div :if="hasData.value">
-    <div class="flex items-center gap-4 mb-6 flex-wrap">
+  <div @if="hasData.value">
+    <div class="flex items-center gap-4 mb-4 flex-wrap">
       <span class="inline-flex px-2.5 py-1 rounded text-sm font-bold uppercase" :class="getMethodClass(req.value.method)">{{ req.value.method }}</span>
       <span class="font-mono text-sm text-zinc-300 break-all">{{ req.value.url }}</span>
       <span class="inline-flex px-2.5 py-1 rounded-full text-sm font-medium" :class="getStatusClass(req.value.status)">{{ req.value.status }} {{ req.value.statusText }}</span>
-      <span class="text-sm text-zinc-500 tabular-nums">{{ req.value.duration }}ms</span>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="grid grid-cols-4 gap-4 mb-6 max-sm:grid-cols-2">
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Duration</div>
+        <div class="text-xl font-bold text-indigo-400 mt-1 tabular-nums">{{ req.value.duration }} <span class="text-xs text-zinc-500 font-normal">ms</span></div>
+      </div>
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Response Size</div>
+        <div class="text-xl font-bold text-zinc-300 mt-1 tabular-nums">{{ req.value.responseSize }} <span class="text-xs text-zinc-500 font-normal">B</span></div>
+      </div>
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Host</div>
+        <div class="text-sm font-mono text-zinc-300 mt-1 truncate">{{ req.value.host }}</div>
+      </div>
+      <div class="bg-[#141419] border border-zinc-800 rounded-lg p-4">
+        <div class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Path</div>
+        <div class="text-sm font-mono text-zinc-300 mt-1 truncate">{{ req.value.path }}</div>
+      </div>
     </div>
 
     <div class="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
@@ -60,8 +79,10 @@ const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
         <div class="text-sm font-semibold text-zinc-50 mb-4">Request</div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Headers</div>
-        <div :if="requestHeaderEntries.value.length === 0" class="text-sm text-zinc-500">No headers</div>
-        <div :if="requestHeaderEntries.value.length > 0">
+        <div @if="requestHeaderEntries.value.length === 0">
+          <EmptyState icon="inbox" title="No headers" />
+        </div>
+        <div @if="requestHeaderEntries.value.length > 0">
           <table class="w-full border-collapse">
             <template @for="entry in requestHeaderEntries.value">
               <tr class="hover:bg-[#1e1e26]">
@@ -72,16 +93,18 @@ const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
           </table>
         </div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mt-4 mb-2">Body</div>
-        <div :if="!req.value.requestBody" class="text-sm text-zinc-500">No body</div>
-        <pre :if="req.value.requestBody" class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.requestBody }}</pre>
+        <div @if="!req.value.requestBody" class="text-sm text-zinc-500">No body</div>
+        <pre @if="req.value.requestBody" class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.requestBody }}</pre>
       </div>
 
       <!-- Response panel -->
       <div class="bg-[#141419] border border-zinc-800 rounded-lg p-5">
         <div class="text-sm font-semibold text-zinc-50 mb-4">Response</div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Headers</div>
-        <div :if="responseHeaderEntries.value.length === 0" class="text-sm text-zinc-500">No headers</div>
-        <div :if="responseHeaderEntries.value.length > 0">
+        <div @if="responseHeaderEntries.value.length === 0">
+          <EmptyState icon="inbox" title="No headers" />
+        </div>
+        <div @if="responseHeaderEntries.value.length > 0">
           <table class="w-full border-collapse">
             <template @for="entry in responseHeaderEntries.value">
               <tr class="hover:bg-[#1e1e26]">
@@ -92,8 +115,8 @@ const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
           </table>
         </div>
         <div class="text-[0.65rem] font-semibold text-zinc-500 uppercase tracking-wider mt-4 mb-2">Body</div>
-        <div :if="!req.value.responseBody" class="text-sm text-zinc-500">No body</div>
-        <pre :if="req.value.responseBody" class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.responseBody }}</pre>
+        <div @if="!req.value.responseBody" class="text-sm text-zinc-500">No body</div>
+        <pre @if="req.value.responseBody" class="bg-[#0a0a0f] rounded-md p-3 text-xs font-mono text-zinc-400 overflow-x-auto max-h-64 overflow-y-auto">{{ req.value.responseBody }}</pre>
       </div>
     </div>
 
@@ -104,7 +127,7 @@ const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
           <span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium bg-zinc-500/15 text-zinc-400">{{ tag }}</span>
         </template>
       </div>
-      <span :if="req.value.retryCount > 0" class="text-xs text-amber-500">{{ req.value.retryCount }} retries</span>
+      <span @if="req.value.retryCount > 0" class="text-xs text-amber-500">{{ req.value.retryCount }} retries</span>
       <span class="text-xs text-zinc-500">{{ req.value.timestamp }}</span>
     </div>
   </div>

@@ -99,9 +99,11 @@ function exportCsv(): void {
       <span class="text-xs text-zinc-500">{{ filteredData.value.length }} records</span>
     </div>
     <div class="max-h-[400px] overflow-y-auto">
-      <div :if="loading.value" class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
-      <div :if="!loading.value && filteredData.value.length === 0" class="text-center py-8 text-zinc-500 text-sm">No matching records.</div>
-      <div :if="!loading.value && filteredData.value.length > 0">
+      <div @if="loading.value" class="text-center py-8 text-zinc-500 text-sm">Loading...</div>
+      <div @if="!loading.value && filteredData.value.length === 0">
+        <EmptyState icon="search" title="No matching records" description="Try adjusting your filters or date range." />
+      </div>
+      <div @if="!loading.value && filteredData.value.length > 0">
         <table class="w-full border-collapse">
           <thead>
             <tr>
@@ -124,7 +126,7 @@ function exportCsv(): void {
             </template>
           </tbody>
         </table>
-        <div :if="remainingCount.value > 0" class="text-center py-2 text-xs text-zinc-500">... and {{ remainingCount.value }} more</div>
+        <div @if="remainingCount.value > 0" class="text-center py-2 text-xs text-zinc-500">... and {{ remainingCount.value }} more</div>
       </div>
     </div>
   </div>

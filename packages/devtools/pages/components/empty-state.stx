@@ -1,0 +1,35 @@
+<script server>
+const icon = props.icon || 'inbox'
+const title = props.title || ''
+const description = props.description || ''
+const variant = props.variant || 'default'
+
+const icons = {
+  inbox: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  check: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+  alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+  activity: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+}
+
+const svgPath = icons[icon] || icons.inbox
+const variantColor = variant === 'success' ? 'text-emerald-500' : 'text-zinc-500'
+const iconColor = variant === 'success' ? 'text-emerald-500/50' : 'text-zinc-700'
+</script>
+
+<template>
+  <div class="flex flex-col items-center justify-center py-10 px-4">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-3 {{ iconColor }}">
+      {!! svgPath !!}
+    </svg>
+    @if(title)
+      <div class="text-sm font-medium {{ variantColor }} mb-1">{{ title }}</div>
+    @endif
+    @if(description)
+      <div class="text-xs text-zinc-600 text-center max-w-[280px]">{{ description }}</div>
+    @endif
+    <slot />
+  </div>
+</template>
