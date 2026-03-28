@@ -50,13 +50,13 @@
     "typecheck": "bun tsc --noEmit"
   },
   "dependencies": {
-    "@cwcss/crosswind": "^0.1.6",
+    "@cwcss/crosswind": "^0.2.0",
     "@stacksjs/httx": "^0.1.7",
-    "bunfig": "^0.5.0",
-    "ts-broadcasting": "^0.0.1"
+    "bunfig": "^0.15.6",
+    "ts-broadcasting": "^0.0.4"
   },
   "devDependencies": {
-    "@stacksjs/stx": "^0.2.5",
-    "bun-plugin-stx": "^0.2.5"
+    "@stacksjs/stx": "^0.2.10",
+    "bun-plugin-stx": "^0.2.10"
   }
 }

@@ -26,6 +26,6 @@
     "typecheck": "bun tsc --noEmit"
   },
   "dependencies": {
-    "ts-error-handling": "^0.1.0"
+    "ts-error-handling": "^0.1.1"
   }
 }
