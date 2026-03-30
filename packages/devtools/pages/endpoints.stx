@@ -66,7 +66,7 @@ const filteredEndpoints = computed<EndpointStats[]>(() => {
           <template @for="e in filteredEndpoints.value">
             <tr class="hover:bg-[#1e1e26] transition-colors">
               <td class="px-3 py-2.5 border-b border-zinc-800/50"><span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" :class="getMethodClass(e.method)">{{ e.method }}</span></td>
-              <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs"><a :href="'/endpoints/' + encodeURIComponent(e.method + ' ' + e.url)" data-stx-link class="text-zinc-400 hover:text-indigo-400 transition-colors cursor-pointer">{{ e.url }}</a></td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs"><StxLink :to="'/endpoints/' + encodeURIComponent(e.method + ' ' + e.url)" class="text-zinc-400 hover:text-indigo-400 transition-colors cursor-pointer">{{ e.url }}</StxLink></td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-sm text-zinc-300 tabular-nums">{{ e.count }}</td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ e.avgDuration }}ms</td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs tabular-nums" :class="getErrorRateClass(e.errorRate)">{{ e.errorRate }}%</td>

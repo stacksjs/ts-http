@@ -128,10 +128,10 @@ onMount(() => {
           <tbody>
             <template @for="r in recentRequests.value">
               <tr class="hover:bg-[#1e1e26] transition-colors">
-                <td class="px-3 py-2 border-b border-zinc-800/50"><a :href="'/requests/' + r.id" data-stx-link class="hover:text-indigo-400 transition-colors cursor-pointer"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" :class="getStatusClass(r.status)">{{ r.status }}</span></a></td>
+                <td class="px-3 py-2 border-b border-zinc-800/50"><StxLink :to="'/requests/' + r.id" class="hover:text-indigo-400 transition-colors cursor-pointer"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" :class="getStatusClass(r.status)">{{ r.status }}</span></StxLink></td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
                 <td class="px-3 py-2 border-b border-zinc-800/50 text-right text-xs text-zinc-400 tabular-nums">{{ r.responseSize }}B</td>
-                <td class="px-3 py-2 border-b border-zinc-800/50 text-xs text-zinc-500"><a :href="'/requests/' + r.id" data-stx-link class="text-zinc-500 hover:text-indigo-400 transition-colors cursor-pointer">{{ r.timestamp }}</a></td>
+                <td class="px-3 py-2 border-b border-zinc-800/50 text-xs text-zinc-500"><StxLink :to="'/requests/' + r.id" class="text-zinc-500 hover:text-indigo-400 transition-colors cursor-pointer">{{ r.timestamp }}</StxLink></td>
               </tr>
             </template>
           </tbody>
