@@ -1,12 +1,9 @@
 <script client>
-const sidebarCollapsed = ref<boolean>(false)
+import { useSidebar } from '@/stores/sidebar'
+
+const { collapsed: sidebarCollapsed, toggle: toggleSidebar } = useSidebar()
 const currentPath = ref<string>(typeof window !== 'undefined' ? window.location.pathname : '/')
 const wsConnected = ref<boolean>(false)
-
-function toggleSidebar(): void {
-  sidebarCollapsed.value = !sidebarCollapsed.value
-  localStorage.setItem('httx-sidebar-collapsed', String(sidebarCollapsed.value))
-}
 
 function breadcrumb(): string {
   const p = currentPath.value
@@ -18,9 +15,6 @@ function breadcrumb(): string {
 }
 
 onMount(() => {
-  const stored = localStorage.getItem('httx-sidebar-collapsed')
-  if (stored === 'true') sidebarCollapsed.value = true
-
   function syncPath(): void {
     currentPath.value = window.location.pathname
   }
