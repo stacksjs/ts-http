@@ -1,4 +1,4 @@
-<script server>
+<script>
 const icon = props.icon || 'inbox'
 const title = props.title || ''
 const description = props.description || ''
@@ -19,17 +19,15 @@ const variantColor = variant === 'success' ? 'text-emerald-500' : 'text-zinc-500
 const iconColor = variant === 'success' ? 'text-emerald-500/50' : 'text-zinc-700'
 </script>
 
-<template>
-  <div class="flex flex-col items-center justify-center py-10 px-4">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-3 {{ iconColor }}">
-      {!! svgPath !!}
-    </svg>
-    @if(title)
-      <div class="text-sm font-medium {{ variantColor }} mb-1">{{ title }}</div>
-    @endif
-    @if(description)
-      <div class="text-xs text-zinc-600 text-center max-w-[280px]">{{ description }}</div>
-    @endif
-    <slot />
-  </div>
-</template>
+<div class="flex flex-col items-center justify-center py-10 px-4">
+  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-3 {{ iconColor }}">
+    {!! svgPath !!}
+  </svg>
+  @if(title)
+    <div class="text-sm font-medium {{ variantColor }} mb-1">{{ title }}</div>
+  @endif
+  @if(description)
+    <div class="text-xs text-zinc-600 text-center max-w-[280px]">{{ description }}</div>
+  @endif
+  <slot />
+</div>
