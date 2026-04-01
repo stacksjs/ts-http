@@ -1,10 +1,14 @@
 <script>
-const icon = props.icon || 'inbox'
-const title = props.title || ''
-const description = props.description || ''
-const variant = props.variant || 'default'
+interface EmptyStateProps {
+  icon?: 'inbox' | 'search' | 'check' | 'alert' | 'database' | 'activity' | 'zap'
+  title?: string
+  description?: string
+  variant?: 'default' | 'success'
+}
 
-const icons = {
+const { icon = 'inbox', title = '', description = '', variant = 'default' } = defineProps<EmptyStateProps>()
+
+const icons: Record<string, string> = {
   inbox: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
   search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
   check: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
