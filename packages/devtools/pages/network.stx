@@ -2,6 +2,8 @@
 
 @section('content')
 <script client>
+import { useRequests } from '@/stores/requests'
+
 interface NetworkNode {
   id: string
   group: 'client' | 'server'
@@ -18,7 +20,7 @@ interface NetworkLink {
   count: number
 }
 
-const { data: requests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
+const { data: requests, loading } = useRequests()
 const networkViz = useRef('networkViz')
 
 onMount(() => {

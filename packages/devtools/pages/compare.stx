@@ -2,7 +2,9 @@
 
 @section('content')
 <script client>
-const { data: endpoints, loading } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
+import { useEndpoints } from '@/stores/endpoints'
+
+const { data: endpoints, loading } = useEndpoints()
 const selectedA = ref<string>('')
 const selectedB = ref<string>('')
 const epA = ref<EndpointDetail | null>(null)

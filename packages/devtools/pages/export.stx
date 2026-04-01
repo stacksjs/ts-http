@@ -3,8 +3,9 @@
 @section('content')
 <script client>
 import { getMethodClass } from '@/functions/httpColors'
+import { useRequests } from '@/stores/requests'
 
-const { data: allRequests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
+const { data: allRequests, loading } = useRequests()
 const exportMethod = ref<string>('ALL')
 const exportStatus = ref<string>('ALL')
 

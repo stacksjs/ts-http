@@ -2,9 +2,13 @@
 
 @section('content')
 <script client>
-const { data: stats, loading: statsLoading, refetch: refetchStats } = useQuery<DashboardStats>('/api/stats', { initialData: { statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, responseTimeHistory: [], topEndpoints: [] } })
-const { data: requests, refetch: refetchRequests } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
-const { data: endpoints, refetch: refetchEndpoints } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
+import { useStats } from '@/stores/stats'
+import { useRequests } from '@/stores/requests'
+import { useEndpoints } from '@/stores/endpoints'
+
+const { data: stats, loading: statsLoading, refetch: refetchStats } = useStats()
+const { data: requests, refetch: refetchRequests } = useRequests()
+const { data: endpoints, refetch: refetchEndpoints } = useEndpoints()
 
 const durations = computed<number[]>(() => (requests.value || []).map((r: RequestRecord) => r.duration).sort((a: number, b: number) => a - b))
 const avgResponseTime = computed<number>(() => {

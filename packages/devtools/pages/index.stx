@@ -3,10 +3,13 @@
 @section('content')
 <script client>
 import { getMethodClass, getStatusClass, getSeverityClass } from '@/functions/httpColors'
+import { useStats } from '@/stores/stats'
+import { useRequests } from '@/stores/requests'
+import { useAlerts } from '@/stores/alerts'
 
-const { data: stats, loading: statsLoading, refetch: refetchStats } = useQuery<DashboardStats>('/api/stats', { initialData: { totalRequests: 0, avgResponseTime: 0, errorRate: 0, requestsPerMinute: 0, statusDistribution: { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }, throughputHistory: [], responseTimeHistory: [], recentEvents: [], activeAlerts: [] } })
-const { data: requests, loading: reqsLoading, refetch: refetchRequests } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
-const { data: alerts, loading: alertsLoading } = useQuery<MonitoringAlert[]>('/api/alerts', { initialData: [] })
+const { data: stats, loading: statsLoading, refetch: refetchStats } = useStats()
+const { data: requests, loading: reqsLoading, refetch: refetchRequests } = useRequests()
+const { data: alerts, loading: alertsLoading } = useAlerts()
 
 const recentRequests = computed<RequestRecord[]>(() => (requests.value || []).slice(-10).reverse())
 const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filter((a: MonitoringAlert) => !a.resolved))

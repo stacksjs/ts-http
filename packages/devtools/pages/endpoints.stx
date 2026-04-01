@@ -3,8 +3,9 @@
 @section('content')
 <script client>
 import { getMethodClass, getErrorRateClass } from '@/functions/httpColors'
+import { useEndpoints } from '@/stores/endpoints'
 
-const { data: endpoints, loading, refetch: refetchEndpoints } = useQuery<EndpointStats[]>('/api/endpoints', { initialData: [] })
+const { data: endpoints, loading, refetch: refetchEndpoints } = useEndpoints()
 
 onMount(() => {
   function onNewRequest(): void { refetchEndpoints() }

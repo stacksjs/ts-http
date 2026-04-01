@@ -3,8 +3,9 @@
 @section('content')
 <script client>
 import { getMethodClass, getStatusClass } from '@/functions/httpColors'
+import { useRequests } from '@/stores/requests'
 
-const { data: allRequests, loading, refetch: refetchRequests } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
+const { data: allRequests, loading, refetch: refetchRequests } = useRequests()
 
 onMount(() => {
   function onNewRequest(): void { refetchRequests() }

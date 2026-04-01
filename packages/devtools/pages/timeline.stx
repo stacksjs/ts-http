@@ -2,7 +2,9 @@
 
 @section('content')
 <script client>
-const { data: requests, loading } = useQuery<RequestRecord[]>('/api/requests', { initialData: [] })
+import { useRequests } from '@/stores/requests'
+
+const { data: requests, loading } = useRequests()
 const timelineViz = useRef('timelineViz')
 
 onMount(() => {

@@ -4,9 +4,11 @@
 <script client>
 import { getSeverityClass, getHealthClass, getTypeColor } from '@/functions/httpColors'
 import { formatTimestamp as formatTime } from '@/functions/formatting'
+import { useAlerts } from '@/stores/alerts'
+import { useEvents } from '@/stores/events'
 
-const { data: alerts, loading: alertsLoading, refetch: refetchAlerts } = useQuery<MonitoringAlert[]>('/api/alerts', { initialData: [] })
-const { data: events, loading: eventsLoading, refetch: refetchEvents } = useQuery<EventLogEntry[]>('/api/events', { initialData: [] })
+const { data: alerts, loading: alertsLoading, refetch: refetchAlerts } = useAlerts()
+const { data: events, loading: eventsLoading, refetch: refetchEvents } = useEvents()
 
 const activeAlerts = computed<MonitoringAlert[]>(() => (alerts.value || []).filter((a: MonitoringAlert) => !a.resolved))
 const healthScore = computed<number>(() => Math.max(0, 100 - (activeAlerts.value ? activeAlerts.value.length : 0) * 15))
