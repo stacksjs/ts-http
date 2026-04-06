@@ -1,3 +1,5 @@
+import { httxApi } from '@/functions/useHttxBase'
+
 /**
  * Requests store — shared request history across pages.
  */
@@ -11,7 +13,7 @@ export function useRequests() {
       loading.set(true)
       error.set(null)
       try {
-        const res = await globalThis.fetch('/api/requests')
+        const res = await globalThis.fetch(httxApi('/api/requests'))
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         data.set(await res.json())
       }

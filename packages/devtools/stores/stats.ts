@@ -1,3 +1,5 @@
+import { httxApi } from '@/functions/useHttxBase'
+
 /**
  * Dashboard stats store — persists across SPA navigation.
  */
@@ -15,7 +17,7 @@ export function useStats() {
       loading.set(true)
       error.set(null)
       try {
-        const res = await globalThis.fetch('/api/stats')
+        const res = await globalThis.fetch(httxApi('/api/stats'))
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         data.set(await res.json())
       }

@@ -1,3 +1,5 @@
+import { httxApi } from '@/functions/useHttxBase'
+
 /**
  * Endpoints store — shared endpoint stats across pages.
  */
@@ -11,7 +13,7 @@ export function useEndpoints() {
       loading.set(true)
       error.set(null)
       try {
-        const res = await globalThis.fetch('/api/endpoints')
+        const res = await globalThis.fetch(httxApi('/api/endpoints'))
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         data.set(await res.json())
       }

@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+import { httxApi } from '@/functions/useHttxBase'
 import { useEndpoints } from '@/stores/endpoints'
 
 const { data: endpoints, loading } = useEndpoints()
@@ -42,8 +43,8 @@ watch(endpoints, (eps: EndpointStats[]) => {
 async function doCompare(): Promise<void> {
   if (!selectedA.value || !selectedB.value) return
   const [resA, resB]: [Response, Response] = await Promise.all([
-    fetch(`/api/endpoints/${encodeURIComponent(selectedA.value)}`),
-    fetch(`/api/endpoints/${encodeURIComponent(selectedB.value)}`),
+    fetch(httxApi(`/api/endpoints/${encodeURIComponent(selectedA.value)}`)),
+    fetch(httxApi(`/api/endpoints/${encodeURIComponent(selectedB.value)}`)),
   ])
   epA.value = await resA.json() as EndpointDetail
   epB.value = await resB.json() as EndpointDetail

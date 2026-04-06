@@ -1,3 +1,5 @@
+import { httxApi } from '@/functions/useHttxBase'
+
 /**
  * Events store — event log for monitoring page.
  */
@@ -11,7 +13,7 @@ export function useEvents() {
       loading.set(true)
       error.set(null)
       try {
-        const res = await globalThis.fetch('/api/events')
+        const res = await globalThis.fetch(httxApi('/api/events'))
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         data.set(await res.json())
       }

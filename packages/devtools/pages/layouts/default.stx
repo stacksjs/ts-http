@@ -1,12 +1,17 @@
 <script client>
 import { useSidebar } from '@/stores/sidebar'
+import { httxPath, httxWsUrl } from '@/functions/useHttxBase'
 
 const { collapsed: sidebarCollapsed, toggle: toggleSidebar } = useSidebar()
 const currentPath = ref<string>(typeof window !== 'undefined' ? window.location.pathname : '/')
 const wsConnected = ref<boolean>(false)
 
 function breadcrumb(): string {
-  const p = currentPath.value
+  const base: string = globalThis.__httxBasePath || ''
+  let p: string = currentPath.value
+  if (base && p.startsWith(base)) {
+    p = p.slice(base.length) || '/'
+  }
   if (p === '/') return 'Dashboard'
   if (p.startsWith('/requests/')) return 'Request Details'
   if (p.startsWith('/endpoints/')) return 'Endpoint Details'
@@ -21,7 +26,7 @@ onMount(() => {
   window.addEventListener('popstate', syncPath)
   window.addEventListener('stx:navigate', syncPath)
 
-  const wsUrl: string = 'ws://localhost:6002/app'
+  const wsUrl: string = httxWsUrl()
   let ws: WebSocket | null = null
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -74,7 +79,7 @@ onMount(() => {
 <div ref="mainWrapper" class="main-wrapper" :class="{ collapsed: sidebarCollapsed.value }">
   <header class="flex items-center justify-between px-6 py-3 bg-[#141419] border-b border-zinc-800">
     <div class="flex items-center gap-2 text-sm text-zinc-400">
-      <StxLink to="/" class="hover:text-zinc-50 transition-colors">httx</StxLink>
+      <a :href="httxPath('/')" data-stx-link class="hover:text-zinc-50 transition-colors">httx</a>
       <span class="text-zinc-600">/</span>
       <span class="text-zinc-50">{{ breadcrumb() }}</span>
     </div>

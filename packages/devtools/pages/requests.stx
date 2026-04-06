@@ -3,6 +3,7 @@
 @section('content')
 <script client>
 import { getMethodClass, getStatusClass } from '@/functions/httpColors'
+import { httxPath } from '@/functions/useHttxBase'
 import { useRequests } from '@/stores/requests'
 
 const { data: allRequests, loading, refetch: refetchRequests } = useRequests()
@@ -94,7 +95,7 @@ function isMethodActive(m: string): string {
           <template @for="r in filteredRequests.value">
             <tr class="hover:bg-[#1e1e26] transition-colors">
               <td class="px-3 py-2.5 border-b border-zinc-800/50"><span class="inline-flex px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase" :class="getMethodClass(r.method)">{{ r.method }}</span></td>
-              <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap"><StxLink :to="'/requests/' + r.id" class="text-zinc-400 hover:text-indigo-400 transition-colors cursor-pointer">{{ r.url }}</StxLink></td>
+              <td class="px-3 py-2.5 border-b border-zinc-800/50 font-mono text-xs max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap"><a :href="httxPath('/requests/' + r.id)" data-stx-link class="text-zinc-400 hover:text-indigo-400 transition-colors cursor-pointer">{{ r.url }}</a></td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50"><span class="inline-flex px-2 py-0.5 rounded-full text-[0.6875rem] font-medium" :class="getStatusClass(r.status)">{{ r.status }}</span></td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right font-mono text-xs text-zinc-400 tabular-nums">{{ r.duration }}ms</td>
               <td class="px-3 py-2.5 border-b border-zinc-800/50 text-right text-xs text-zinc-400 tabular-nums">{{ r.responseSize }}B</td>

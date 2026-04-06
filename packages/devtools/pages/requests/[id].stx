@@ -3,10 +3,11 @@
 @section('content')
 <script client>
 import { getMethodClass, getStatusClass } from '@/functions/httpColors'
+import { httxPath, httxApi } from '@/functions/useHttxBase'
 
 const route = useRoute()
 const requestId: string = route.params.id || route.path.split('/').pop() || ''
-const { data: req, loading, error } = useQuery<RequestRecord | null>(`/api/requests/${requestId}`, { initialData: null })
+const { data: req, loading, error } = useQuery<RequestRecord | null>(httxApi(`/api/requests/${requestId}`), { initialData: null })
 
 const hasData = computed<boolean>(() => !loading.value && !error.value && !!req.value)
 const hasError = computed<boolean>(() => !loading.value && (!!error.value || !req.value))
@@ -25,7 +26,7 @@ const tags = computed<string[]>(() => req.value ? (req.value.tags || []) : [])
 </script>
 <div class="animate-fade-in">
   <div class="flex items-center gap-2 text-sm text-zinc-500 mb-4">
-    <StxLink to="/requests" class="hover:text-zinc-300 transition-colors">Requests</StxLink>
+    <a :href="httxPath('/requests')" data-stx-link class="hover:text-zinc-300 transition-colors">Requests</a>
     <span class="text-zinc-600">/</span>
     <span class="text-zinc-400">{{ requestId }}</span>
   </div>

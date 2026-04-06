@@ -1,3 +1,5 @@
+import { httxApi } from '@/functions/useHttxBase'
+
 /**
  * Alerts store — monitoring alerts across pages.
  */
@@ -11,7 +13,7 @@ export function useAlerts() {
       loading.set(true)
       error.set(null)
       try {
-        const res = await globalThis.fetch('/api/alerts')
+        const res = await globalThis.fetch(httxApi('/api/alerts'))
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         data.set(await res.json())
       }

@@ -1,4 +1,5 @@
-<script>
+<script server>
+import { httxPath } from '@/functions/useHttxBase'
 
 const requests: RequestRecord[] = []
 const clickable: boolean = false
@@ -21,7 +22,7 @@ const clickable: boolean = false
       </thead>
       <tbody>
         @foreach(requests as req)
-          <tr class="hover:bg-[#1e1e26] transition-colors {{ clickable ? 'cursor-pointer' : '' }}" @click="clickable ? navigate(`/requests/${req.id}`) : null">
+          <tr class="hover:bg-[#1e1e26] transition-colors {{ clickable ? 'cursor-pointer' : '' }}" @click="clickable ? navigate(httxPath(`/requests/${req.id}`)) : null">
             <td class="px-3 py-2.5 border-b border-zinc-800/50">
               <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.6875rem] font-semibold uppercase tracking-wide {{ req.method === 'GET' ? 'bg-emerald-500/15 text-emerald-500' : req.method === 'POST' ? 'bg-indigo-500/15 text-indigo-400' : req.method === 'PUT' || req.method === 'PATCH' ? 'bg-amber-500/15 text-amber-500' : req.method === 'DELETE' ? 'bg-red-500/15 text-red-500' : 'bg-zinc-500/15 text-zinc-400' }}">{{ req.method }}</span>
             </td>

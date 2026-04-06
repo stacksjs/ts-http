@@ -16,6 +16,10 @@ import { createRecorder } from './recorder'
 import type { DashboardConfig } from './types'
 import type { RequestCompleteRecord } from '../../httx/src/types'
 
+// Re-export plugin for Stacks integration
+export { default as httxPlugin } from './plugin'
+export type { HttxPluginOptions } from './plugin'
+
 // Re-export types and API creators for library consumers
 export type { DashboardConfig, DashboardStats, EndpointDetail, EndpointStats, EventLogEntry, HttpMethod, MonitoringAlert, RequestMetrics, RequestRecord, StatusDistribution, StorageConfig, TimeSeriesPoint, ThroughputPoint } from './types'
 export { createApiRoutes, fetchAlerts, fetchDashboardStats, fetchEndpointDetail, fetchEndpointList, fetchEventLog, fetchMonitoringState, fetchRequestById, fetchRequestHistory } from './api'

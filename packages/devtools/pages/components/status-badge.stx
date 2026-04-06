@@ -1,4 +1,4 @@
-<script>
+<script server>
 const status: number = 200
 const text: string = ''
 </script>
