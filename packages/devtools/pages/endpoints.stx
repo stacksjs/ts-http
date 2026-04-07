@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+useHead({ title: 'Endpoints — httx' })
 import { getMethodClass, getErrorRateClass } from '@/functions/httpColors'
 import { httxPath } from '@/functions/useHttxBase'
 import { useEndpoints } from '@/stores/endpoints'

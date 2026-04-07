@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+useHead({ title: 'Compare — httx' })
 import { httxApi } from '@/functions/useHttxBase'
 import { useEndpoints } from '@/stores/endpoints'
 

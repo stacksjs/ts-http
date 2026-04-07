@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+useHead({ title: 'Timeline — httx' })
 import { useRequests } from '@/stores/requests'
 
 const { data: requests, loading } = useRequests()

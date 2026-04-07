@@ -1,6 +1,9 @@
 @extends('layouts/default')
 
 @section('content')
+<script client>
+useHead({ title: 'Settings — httx' })
+</script>
 <div class="animate-fade-in">
   <div class="flex items-center justify-between mb-6">
     <div>

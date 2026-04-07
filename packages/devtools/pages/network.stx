@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+useHead({ title: 'Network — httx' })
 import { useRequests } from '@/stores/requests'
 
 interface NetworkNode {

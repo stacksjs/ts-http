@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+useHead({ title: 'Dashboard — httx' })
 import { getMethodClass, getStatusClass, getSeverityClass } from '@/functions/httpColors'
 import { httxPath } from '@/functions/useHttxBase'
 import { useStats } from '@/stores/stats'

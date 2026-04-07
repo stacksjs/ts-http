@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+useHead({ title: 'Export — httx' })
 import { getMethodClass } from '@/functions/httpColors'
 import { useRequests } from '@/stores/requests'
 

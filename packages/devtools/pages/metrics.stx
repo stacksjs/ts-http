@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+useHead({ title: 'Metrics — httx' })
 import { useStats } from '@/stores/stats'
 import { useRequests } from '@/stores/requests'
 import { useEndpoints } from '@/stores/endpoints'

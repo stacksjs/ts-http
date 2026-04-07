@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+useHead({ title: 'Monitoring — httx' })
 import { getSeverityClass, getHealthClass, getTypeColor } from '@/functions/httpColors'
 import { formatTimestamp as formatTime } from '@/functions/formatting'
 import { useAlerts } from '@/stores/alerts'

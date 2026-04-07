@@ -2,6 +2,7 @@
 
 @section('content')
 <script client>
+useHead({ title: 'Requests — httx' })
 import { getMethodClass, getStatusClass } from '@/functions/httpColors'
 import { httxPath } from '@/functions/useHttxBase'
 import { useRequests } from '@/stores/requests'
