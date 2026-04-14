@@ -18,7 +18,7 @@
 | `.textContent = val` | Direct text mutation | `{{ val }}` or `x-text="val"` |
 | `.style.display = 'none'` | Inline style toggle | `@if(condition)...@endif` or `x-show="condition"` |
 | `.style.anything = ...` | Inline style mutation | `@style="{ prop: value }"` or `@class` |
-| `.className = ...` | Direct class mutation | `@class="getClass(item)"` or `@class="{ active: isActive.value }"` |
+| `.className = ...` | Direct class mutation | `@class="getClass(item)"` or `@class="{ } isActive.value active:"` |
 | `.classList.add/remove/toggle` | Direct class mutation | `@class` directive |
 | `.setAttribute(...)` | Direct attribute mutation | `@bind:attr="expr"` or `:attr="expr"` |
 | `.removeAttribute(...)` | Direct attribute mutation | `@if` to conditionally render |
@@ -195,7 +195,7 @@
 | `x-text="expr"` / `@text="expr"` | Set textContent | `x-text="count.value"` |
 | `x-html="expr"` / `@html="expr"` | Set innerHTML (careful: XSS) | `x-html="rendered.value"` |
 | `x-model="var"` / `@model="var"` | Two-way binding (input/select/textarea) | `<input x-model="search">` |
-| `@class="expr"` / `:class="expr"` | Dynamic classes (string or object) | `@class="{ active: isOn.value }"` |
+| `@class="expr"` / `:class="expr"` | Dynamic classes (string or object) | `@class="{ } isOn.value active:"` |
 | `@style="expr"` / `:style="expr"` | Dynamic styles (string or object) | `@style="{ color: c.value }"` |
 | `@bind:attr="expr"` / `:attr="expr"` | Bind any HTML attribute | `:href="link.value"` |
 | `ref="name"` | Store element reference | `<canvas ref="chart">` |
@@ -352,7 +352,7 @@ function toggleSidebar(): void {
 
 @include('sidebar')
 
-<div class="main-wrapper" :class="{ collapsed: sidebarCollapsed() }">
+<div class="main-wrapper" :class="{ } sidebarCollapsed() collapsed:">
   <header>...</header>
   <main>
     <slot />
@@ -371,7 +371,7 @@ function toggleSidebar(): void {
 ### Sidebar pattern (partials/sidebar.stx)
 
 ```stx
-<aside class="sidebar" :class="{ collapsed: sidebarCollapsed() }">
+<aside class="sidebar" :class="{ } sidebarCollapsed() collapsed:">
   <nav>
     <StxLink to="/" class="nav-item" exactActiveClass="active">Dashboard</StxLink>
     <StxLink to="/requests" class="nav-item" activeClass="active">Requests</StxLink>
@@ -383,7 +383,7 @@ function toggleSidebar(): void {
 **Key points:**
 
 - `<StxLink>` for navigation — NOT `<a @click.prevent="navigate()">`
-- `activeClass`/`exactActiveClass` for active state — NOT manual `:class="{ active: isActive() }"`
+- `activeClass`/`exactActiveClass` for active state — NOT manual `:class="{ } isActive() active:"`
 - No `isActive()` function needed — `<StxLink>` handles it automatically
 
 ### Page pattern (v2 — pure fragments, no layout boilerplate)
@@ -534,7 +534,7 @@ When a `.stx` file has `<script client>` with signals:
 1. **`@if` vs `x-show`**: `@if` removes/adds elements from DOM (use for loading states, conditionally-rendered sections). `x-show` toggles `display: none` (use for quick show/hide of existing elements).
 2. **Nested `@if` inside `@foreach`**: Works. Loop variable is in scope.
 3. **Complex list expressions in `@foreach`**: Use `computed()` to pre-compute the list. Don't inline `items.value.filter(...).map(...)` in the directive.
-4. **`@class` syntax**: String — `@class="getClass(item)"`. Object — `@class="{ active: isActive.value, 'text-red': hasError.value }"`.
+4. **`@class` syntax**: String — `@class="getClass(item)"`. Object — `@class="'text-red': { } hasError.value isActive.value, active:"`.
 5. **After editing STX source**: Always rebuild STX + bun-plugin, clear `.stx` cache, restart dev server.
 6. **Chart.js/D3 polling for lib load**: `setInterval` to wait for `typeof Chart !== 'undefined'` is OK — this polls for external lib loading, not for UI updates.
 7. **Devtools port**: 4401. Kill old process with `lsof -i :4401 -t | xargs kill` if port is in use.
