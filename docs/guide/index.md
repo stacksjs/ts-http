@@ -2,7 +2,7 @@
 
 httx is a modern, lightweight HTTP client designed for simplicity and performance. It provides both CLI and library interfaces, making it perfect for quick API testing from the terminal or integrating into your TypeScript/JavaScript projects.
 
-## Why httx?
+## Why httx
 
 Modern development requires constant API interaction. Whether you're testing endpoints, debugging integrations, or building HTTP-powered applications, you need a tool that's:
 

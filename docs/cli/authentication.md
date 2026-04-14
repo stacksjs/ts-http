@@ -148,7 +148,7 @@ httx get https://api.example.com/data -b "$API_TOKEN"
 ### Shell Script Pattern
 
 ```bash
-#!/bin/bash
+# !/bin/bash
 # api-request.sh
 
 # Load credentials

@@ -29,7 +29,8 @@
 | `document.title = ...` | Direct head mutation | `useTitle()` or `useHead()` composable |
 | `ref<HTMLElement>` for DOM manip | Holding elements to mutate | Template directives. **One exception:** `ref<HTMLCanvasElement>` for Chart.js/D3 |
 
-### The ONLY acceptable uses of refs to DOM elements:
+### The ONLY acceptable uses of refs to DOM elements
+
 1. **Chart.js canvas**: `const chart = ref<HTMLCanvasElement | null>(null)` → `new Chart(chart.value, config)` in `onMount()`
 2. **D3.js container**: `const viz = ref<HTMLElement | null>(null)` → `d3.select(viz.value)` in `onMount()`
 3. **Blob download**: `document.createElement('a')` to trigger file downloads (browser File API)
@@ -231,6 +232,7 @@ Use in `{{ }}` expressions: `{{ value | pipeName }}` or `{{ value | pipeName:arg
 ## 3. SPA ROUTER — `@stxRouter`
 
 ### What it is
+
 STX ships a built-in SPA router. It intercepts link clicks, fetches pages via AJAX, swaps content, manages history, handles cleanup, and re-initializes scripts — **all automatically**. You never need to write a custom router.
 
 ### How to enable it
@@ -245,6 +247,7 @@ STX ships a built-in SPA router. It intercepts link clicks, fetches pages via AJ
 The argument is the CSS selector for the content container.
 
 ### What it does on navigation
+
 1. Intercepts `<a href>` clicks on internal links (same-origin, no `target="_blank"`, no modifier keys)
 2. Fetches the new page HTML via `fetch()` with `X-STX-Router: true` header
 3. Calls `window.stx._cleanupContainer()` to dispose all effects/signals in the old content
@@ -257,6 +260,7 @@ The argument is the CSS selector for the content container.
 10. Optionally scrolls to top
 
 ### Configuration
+
 ```javascript
 // Set before router loads, in layout script
 window.__stxRouterConfig = {
@@ -270,6 +274,7 @@ window.__stxRouterConfig = {
 ```
 
 ### How `navigate()` works
+
 ```typescript
 // Auto-imported in <script client>
 navigate('/requests')           // SPA navigate
@@ -277,7 +282,8 @@ navigate('/endpoints/' + id)    // Dynamic routes
 // Falls back to location.href if router not available
 ```
 
-### Link interception rules — links are NOT intercepted if:
+### Link interception rules — links are NOT intercepted if
+
 - External URL (different origin)
 - Has `target="_blank"`
 - Has `data-stx-no-router` or `data-no-router` attribute
@@ -287,6 +293,7 @@ navigate('/endpoints/' + id)    // Dynamic routes
 - User holding Ctrl/Meta/Shift/Alt key
 
 ### Router public API (on `window.stxRouter` / `window.stx.router`)
+
 ```typescript
 stxRouter.navigate(url)     // Navigate programmatically
 stxRouter.prefetch(url)     // Manually prefetch a page
@@ -295,6 +302,7 @@ stxRouter.updateNav()       // Refresh active link classes
 ```
 
 ### `<StxLink>` Component (v2)
+
 Built-in navigation component. Renders `<a>` with SPA navigation and active class management.
 ```html
 <StxLink to="/requests" class="nav-item" activeClass="active">Requests</StxLink>
@@ -310,12 +318,14 @@ Built-in navigation component. Renders `<a>` with SPA navigation and active clas
 | `className` | `''` | CSS class for `<a>` element |
 
 ### Fragment Navigation (v2)
+
 - SPA requests include `X-STX-Router: true` header
 - Server responds with page fragment + `X-STX-Fragment: true` header
 - Router detects fragment via header (no content sniffing)
 - View Transitions API with CSS fallback
 
 ### WHY you never write a custom router
+
 The STX router handles: effect cleanup, scope disposal, style injection/removal, script re-execution, view transitions, prefetching, history management, active link classes. Rolling your own means missing all of this and leaking memory.
 
 ---
@@ -351,6 +361,7 @@ function toggleSidebar(): void {
 ```
 
 **Key points:**
+
 - `<slot />` is the page injection point — replaces `@yield('content')`
 - Shell is processed once at startup, cached across requests
 - Direct requests get full HTML (shell + page), SPA requests get fragment only
@@ -358,6 +369,7 @@ function toggleSidebar(): void {
 - No `<!DOCTYPE>`, `<html>`, `<head>`, `<body>` — composed by the server
 
 ### Sidebar pattern (partials/sidebar.stx)
+
 ```stx
 <aside class="sidebar" :class="{ collapsed: sidebarCollapsed() }">
   <nav>
@@ -369,11 +381,13 @@ function toggleSidebar(): void {
 ```
 
 **Key points:**
+
 - `<StxLink>` for navigation — NOT `<a @click.prevent="navigate()">`
 - `activeClass`/`exactActiveClass` for active state — NOT manual `:class="{ active: isActive() }"`
 - No `isActive()` function needed — `<StxLink>` handles it automatically
 
 ### Page pattern (v2 — pure fragments, no layout boilerplate)
+
 ```stx
 <script client>
 import { getStatusClass } from '../utils'
@@ -425,6 +439,7 @@ onMount(() => {
 ```
 
 **Key points (v2):**
+
 - **No `@extends`/`@section`/`@endsection`** — pages are pure fragments, shell wraps them
 - `useQuery()` for data with `refetch` for real-time updates via WebSocket broadcast
 - `computed()` for derived state — NOT `updateUI()` function
@@ -433,7 +448,8 @@ onMount(() => {
 - Import shared helpers from `../utils` — NOT inline per-page definitions
 - `onMount()` for Chart.js/D3 init AND event listener setup (with cleanup return)
 
-### What NEVER belongs in a page script:
+### What NEVER belongs in a page script
+
 ```typescript
 // ALL OF THESE ARE WRONG:
 const container = ref<HTMLElement | null>(null)     // ← holding element to mutate
@@ -450,6 +466,7 @@ element.className = 'some-class'                     // ← manual class update
 ## 5. STX SOURCE PATHS — Read Before Writing Code
 
 ### Core framework
+
 | File | What's in it | When to read |
 |---|---|---|
 | `/Users/glennmichaeltorregosa/Documents/Projects/stx/API.md` | Complete API reference | Before writing ANY .stx file |
@@ -462,6 +479,7 @@ element.className = 'some-class'                     // ← manual class update
 | `/Users/glennmichaeltorregosa/Documents/Projects/stx/packages/bun-plugin/src/serve.ts` | Dev server, HMR, file serving | When dev server has issues |
 
 ### Documentation
+
 | File | Contents |
 |---|---|
 | `/Users/glennmichaeltorregosa/Documents/Projects/stx/docs/api/template-syntax.md` | Template syntax reference |
@@ -471,6 +489,7 @@ element.className = 'some-class'                     // ← manual class update
 | `/Users/glennmichaeltorregosa/Documents/Projects/stx/docs/advanced/custom-directives.md` | Custom directive creation |
 
 ### Build commands (always run in this order after STX changes)
+
 ```bash
 cd /Users/glennmichaeltorregosa/Documents/Projects/stx/packages/stx && bun run build
 cd /Users/glennmichaeltorregosa/Documents/Projects/stx/packages/bun-plugin && bun run build
@@ -479,6 +498,7 @@ rm -rf /Users/glennmichaeltorregosa/Documents/Stacks/ts-http/packages/devtools/.
 ```
 
 ### This project
+
 | File | What it is |
 |---|---|
 | `packages/httx/src/client.ts` | HTTP client library |
@@ -529,7 +549,7 @@ When a `.stx` file has `<script client>` with signals:
 
 ## Frontend
 
-- Use **stx** for templating — never write vanilla JS (`var`, `document.*`, `window.*`) in stx templates
+- Use **stx** for templating — never write vanilla JS (`var`, `document._`, `window._`) in stx templates
 - Use **crosswind** as the default CSS framework which enables standard Tailwind-like utility classes
 - stx `<script>` tags should only contain stx-compatible code (signals, composables, directives)
 

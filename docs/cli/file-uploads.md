@@ -196,7 +196,7 @@ fi
 ```bash
 # Check file size before upload
 FILE_SIZE=$(stat -f%z ./large-file.zip)
-MAX_SIZE=$((100 * 1024 * 1024))  # 100MB
+MAX_SIZE=$((100 _ 1024 _ 1024))  # 100MB
 
 if [ "$FILE_SIZE" -le "$MAX_SIZE" ]; then
   httx post https://api.example.com/upload \

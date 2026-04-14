@@ -17,6 +17,7 @@ httx post https://api.example.com/users \
 ```
 
 Sets headers:
+
 - `Content-Type: application/json`
 - `Accept: application/json`
 
@@ -120,6 +121,7 @@ httx post https://api.example.com/users name=John -j --print B
 ```
 
 Print flags:
+
 - `H` - Request headers
 - `B` - Request body
 - `h` - Response headers
@@ -159,6 +161,7 @@ httx get https://api.example.com/users --verbose
 ```
 
 Shows:
+
 - Request method and URL
 - Request headers
 - Request body (if any)

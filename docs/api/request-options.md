@@ -135,6 +135,7 @@ await client.request('/users', {
 ```
 
 Sets headers:
+
 - `Content-Type: application/json`
 - `Accept: application/json` (if not already set)
 

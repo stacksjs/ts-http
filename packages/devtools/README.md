@@ -14,7 +14,7 @@ bunx @stacksjs/httx-dashboard
 bunx @stacksjs/httx-dashboard --port 4401 --broadcast-port 6002
 ```
 
-Open [http://localhost:4401](http://localhost:4401) to view the dashboard.
+Open [<http://localhost:440>1](http://localhost:4401) to view the dashboard.
 
 ### 2. Track Requests in Your App
 
