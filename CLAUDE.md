@@ -174,6 +174,7 @@
 ### Template Directives (HTML Attributes)
 
 **Conditionals & Loops:**
+
 | Attribute | Purpose | Example |
 |---|---|---|
 | `@if="condition"` / `:if="condition"` | Conditional render (removes from DOM) | `@if="loading.value"` |
@@ -183,12 +184,14 @@
 | `@for-empty` / `@empty` | Show when list empty | Sibling of `@for` element |
 
 **Block-style (in templates with `<script client>`):**
+
 | Block | Converts To | Example |
 |---|---|---|
 | `@if(expr)...@endif` | `<template @if="expr">` | `@if(loading.value)..@endif` |
 | `@foreach(list as item)...@endforeach` | `<template @for="item in list">` | `@foreach(items.value as r)..@endforeach` |
 
 **Data Binding:**
+
 | Attribute | Purpose | Example |
 |---|---|---|
 | `{{ expr }}` | Text interpolation (auto-escapes) | `{{ item.name }}` |
@@ -201,6 +204,7 @@
 | `ref="name"` | Store element reference | `<canvas ref="chart">` |
 
 **Events:**
+
 | Attribute | Purpose | Modifiers |
 |---|---|---|
 | `@click="handler"` | Click event | `.prevent`, `.stop`, `.once`, `.self`, `.capture` |
@@ -309,6 +313,7 @@ Built-in navigation component. Renders `<a>` with SPA navigation and active clas
 <StxLink to="/" exactActiveClass="current">Home</StxLink>
 <StxLink to="/dashboard" prefetch>Dashboard</StxLink>
 ```
+
 | Prop | Default | Description |
 |---|---|---|
 | `to` | — | Target URL (required) |
