@@ -1,3 +1,27 @@
+[Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.9...v0.1.10)
+
+### 🐛 Bug Fixes
+
+- make httx packages publishable ([f58928d](https://github.com/stacksjs/ts-http/commit/f58928d)) _(by Chris <chrisbreuer93@gmail.com>)_
+
+### 🧹 Chores
+
+- release v0.1.10 ([d1a3331](https://github.com/stacksjs/ts-http/commit/d1a3331)) _(by Chris <chrisbreuer93@gmail.com>)_
+
+### Contributors
+
+- _Chris <chrisbreuer93@gmail.com>_
+
+[Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.9...HEAD)
+
+### 🐛 Bug Fixes
+
+- make httx packages publishable ([f58928d](https://github.com/stacksjs/ts-http/commit/f58928d)) _(by Chris <chrisbreuer93@gmail.com>)_
+
+### Contributors
+
+- _Chris <chrisbreuer93@gmail.com>_
+
 [Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.8...v0.1.9)
 
 ### 🧹 Chores
