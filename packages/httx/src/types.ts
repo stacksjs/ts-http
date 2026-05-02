@@ -60,6 +60,15 @@ export interface HttxConfig {
   timeout?: number
   retry?: RetryOptions
   onRequestComplete?: (record: RequestCompleteRecord) => void | Promise<void>
+  /**
+   * Per-host circuit breaker. `true` opts in with defaults
+   * (5 failures → 30s cooldown), or pass an options object for
+   * tuning. Defaults to disabled. When the breaker is open for
+   * a host, requests fail fast with `CircuitOpenError` *without*
+   * consuming retry attempts — letting the upstream recover
+   * instead of being hammered by N retrying clients.
+   */
+  circuitBreaker?: boolean | import('./circuit-breaker').CircuitBreakerOptions
 }
 
 export type HttxOptions = Partial<HttxConfig>

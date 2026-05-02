@@ -1,11 +1,13 @@
 import type { Result } from 'ts-error-handling'
 import type { HttxConfig, HttxResponse, RequestCompleteRecord, RequestOptions, RetryOptions } from './types'
 import { err, ok } from 'ts-error-handling'
+import { CircuitBreaker, CircuitOpenError } from './circuit-breaker'
 import { HttxNetworkError, HttxRequestError, HttxResponseError, HttxTimeoutError } from './errors'
 import { debugLog, sleep } from './utils'
 
 export class HttxClient {
-  private config: Required<Omit<HttxConfig, 'onRequestComplete'>> & Pick<HttxConfig, 'onRequestComplete'>
+  private config: Required<Omit<HttxConfig, 'onRequestComplete' | 'circuitBreaker'>> & Pick<HttxConfig, 'onRequestComplete' | 'circuitBreaker'>
+  private readonly breaker: CircuitBreaker | null
 
   constructor(config: Partial<HttxConfig> = {}) {
     this.config = {
@@ -16,6 +18,89 @@ export class HttxClient {
       retry: {},
       ...config,
     }
+    // The circuit breaker is opt-in: callers who don't pass `circuitBreaker`
+    // get the existing behavior unchanged. Passing `true` accepts the
+    // defaults (5 failures, 30s cooldown), or pass the options object for
+    // tuning. A `false` literal disables it explicitly even if a parent
+    // config tried to enable it.
+    this.breaker = config.circuitBreaker === false || config.circuitBreaker === undefined
+      ? null
+      : new CircuitBreaker(config.circuitBreaker === true ? {} : config.circuitBreaker)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Convenience verb methods. The original `request(url, options)` form is
+  // still the canonical entry point; these wrappers just save callers from
+  // typing `{ method: 'GET' }` for the common cases.
+  // ---------------------------------------------------------------------------
+
+  /**
+   * GET request.
+   *
+   * @example
+   * ```ts
+   * const result = await client.get('/users/42')
+   * if (result.isOk) console.log(result.value.data)
+   * ```
+   */
+  get<T = unknown>(url: string, options: Omit<RequestOptions, 'method'> = {} as Omit<RequestOptions, 'method'>): Promise<Result<HttxResponse<T>, Error>> {
+    return this.request<T>(url, { ...(options as RequestOptions), method: 'GET' })
+  }
+
+  /** POST request. `body` is sent as JSON unless `options.form`/`options.multipart` is set. */
+  post<T = unknown>(url: string, body?: unknown, options: Omit<RequestOptions, 'method' | 'body'> = {} as Omit<RequestOptions, 'method' | 'body'>): Promise<Result<HttxResponse<T>, Error>> {
+    return this.request<T>(url, {
+      ...(options as RequestOptions),
+      method: 'POST',
+      body: body as RequestOptions['body'],
+      json: (options as RequestOptions).json ?? (body !== undefined && !((options as RequestOptions).form || (options as RequestOptions).multipart)),
+    })
+  }
+
+  /** PUT request. Same body handling as `post`. */
+  put<T = unknown>(url: string, body?: unknown, options: Omit<RequestOptions, 'method' | 'body'> = {} as Omit<RequestOptions, 'method' | 'body'>): Promise<Result<HttxResponse<T>, Error>> {
+    return this.request<T>(url, {
+      ...(options as RequestOptions),
+      method: 'PUT',
+      body: body as RequestOptions['body'],
+      json: (options as RequestOptions).json ?? (body !== undefined && !((options as RequestOptions).form || (options as RequestOptions).multipart)),
+    })
+  }
+
+  /** PATCH request. Same body handling as `post`. */
+  patch<T = unknown>(url: string, body?: unknown, options: Omit<RequestOptions, 'method' | 'body'> = {} as Omit<RequestOptions, 'method' | 'body'>): Promise<Result<HttxResponse<T>, Error>> {
+    return this.request<T>(url, {
+      ...(options as RequestOptions),
+      method: 'PATCH',
+      body: body as RequestOptions['body'],
+      json: (options as RequestOptions).json ?? (body !== undefined && !((options as RequestOptions).form || (options as RequestOptions).multipart)),
+    })
+  }
+
+  /** DELETE request. */
+  delete<T = unknown>(url: string, options: Omit<RequestOptions, 'method'> = {} as Omit<RequestOptions, 'method'>): Promise<Result<HttxResponse<T>, Error>> {
+    return this.request<T>(url, { ...(options as RequestOptions), method: 'DELETE' })
+  }
+
+  /** HEAD request — useful for existence/size checks. */
+  head<T = unknown>(url: string, options: Omit<RequestOptions, 'method'> = {} as Omit<RequestOptions, 'method'>): Promise<Result<HttxResponse<T>, Error>> {
+    return this.request<T>(url, { ...(options as RequestOptions), method: 'HEAD' })
+  }
+
+  /**
+   * Snapshot of the circuit-breaker state for diagnostics. Returns an
+   * empty array when the breaker is disabled.
+   */
+  circuitSnapshot(): ReturnType<CircuitBreaker['snapshot']> {
+    return this.breaker?.snapshot() ?? []
+  }
+
+  /**
+   * Force-close the circuit for a specific host (no-op if breaker
+   * disabled or host has no entry). Useful after a manual remediation.
+   */
+  resetCircuit(host: string): void {
+    this.breaker?.reset(host)
   }
 
   async request<T = unknown>(
@@ -24,6 +109,22 @@ export class HttxClient {
   ): Promise<Result<HttxResponse<T>, Error>> {
     const retryOptions = this.mergeRetryOptions(options.retry)
     let lastError: Error | undefined
+
+    // Compute the host once so we can short-circuit before consuming a
+    // retry attempt when the circuit is open. URL-parse failures fall
+    // through to the existing per-attempt error handler — those are
+    // user-error (typo'd URL), not breaker concerns.
+    const host = this.tryGetHost(url)
+
+    if (this.breaker && host) {
+      try {
+        this.breaker.guard(host)
+      }
+      catch (e) {
+        if (e instanceof CircuitOpenError) return err(e as Error)
+        throw e
+      }
+    }
 
     for (let attempt = 0; attempt <= (retryOptions.retries || 0); attempt++) {
       if (attempt > 0) {
@@ -35,6 +136,7 @@ export class HttxClient {
       const result = await this.executeRequest<T>(url, options, attempt)
 
       if (result.isOk) {
+        if (this.breaker && host) this.breaker.recordSuccess(host)
         return result
       }
 
@@ -48,7 +150,25 @@ export class HttxClient {
       debugLog('retry', () => `Request failed: ${lastError?.message || 'Unknown error'}`, this.config.verbose)
     }
 
+    if (this.breaker && host && lastError) this.breaker.recordFailure(host)
     return err(lastError || new Error('Request failed'))
+  }
+
+  /**
+   * Best-effort URL parse for the breaker's host key. Returns null
+   * when the URL is unparseable (not absolute + no baseUrl) — in
+   * that case the breaker is bypassed for this request rather than
+   * throwing, since URL parsing happens for real later in the flow.
+   */
+  private tryGetHost(url: string): string | null {
+    try {
+      const base = this.config.baseUrl ? new URL(this.config.baseUrl) : null
+      const parsed = base ? new URL(url, base) : new URL(url)
+      return parsed.host
+    }
+    catch {
+      return null
+    }
   }
 
   private async executeRequest<T = unknown>(
