@@ -5,6 +5,14 @@
   "description": "A modern command-line & library HTTP client, for the API era.",
   "author": "Chris Breuer <chris@stacksjs.org>",
   "license": "MIT",
+  "homepage": "https://github.com/stacksjs/ts-http",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stacksjs/ts-http"
+  },
+  "bugs": {
+    "url": "https://github.com/stacksjs/ts-http/issues"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -24,6 +32,7 @@
   "scripts": {
     "build": "bun build.ts",
     "compile": "bun build ./bin/cli.ts --compile --minify --outfile bin/httx",
+    "prepublishOnly": "bun run build",
     "test": "bun test",
     "typecheck": "bun tsc --noEmit"
   },

@@ -9,8 +9,7 @@
  */
 
 import { serve } from 'bun-plugin-stx/serve'
-// TODO: replace with `import { BroadcastServer } from 'ts-broadcasting'` once npm package ships dist/
-import { BroadcastServer } from '/Users/glennmichaeltorregosa/Documents/Projects/ts-broadcasting/packages/ts-broadcasting/src/server'
+import { BroadcastServer } from 'ts-broadcasting'
 import { createApiRoutes, resolveConfig } from './api'
 import { createRecorder } from './recorder'
 import type { DashboardConfig } from './types'

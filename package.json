@@ -48,7 +48,8 @@
     "changelog": "bunx logsmith --verbose",
     "changelog:generate": "bunx logsmith --output CHANGELOG.md",
     "release": "bun --bun run changelog:generate && bunx --bun bumpx prompt --recursive",
-    "release:patch": "bun --bun run changelog:generate && bunx --bun bumpx patch --recursive --yes && cd packages/httx && bun publish",
+    "release:patch": "bun --bun run changelog:generate && bunx --bun bumpx patch --recursive --yes",
+    "publish:patch": "bun --bun run changelog:generate && bunx --bun bumpx patch --recursive --yes",
     "release:minor": "bun --bun run changelog:generate && bunx --bun bumpx minor --recursive --yes && cd packages/httx && bun publish",
     "release:major": "bun --bun run changelog:generate && bunx --bun bumpx major --recursive --yes && cd packages/httx && bun publish",
     "typecheck": "bunx tsc --noEmit",
@@ -67,7 +68,7 @@
   "dependencies": {
     "@stacksjs/stx": "0.2.10",
     "stx-router": "0.2.10",
-    "ts-broadcasting": "^0.0.1",
+    "ts-broadcasting": "^0.0.5",
     "ts-error-handling": "^0.1.0"
   },
   "devDependencies": {
