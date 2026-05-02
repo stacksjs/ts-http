@@ -1,7 +1,7 @@
 {
   "name": "@stacksjs/httx",
   "type": "module",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "A modern command-line & library HTTP client, for the API era.",
   "author": "Chris Breuer <chris@stacksjs.org>",
   "license": "MIT",
@@ -18,7 +18,9 @@
     "http": "./dist/bin/cli.js",
     "https": "./dist/bin/cli.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "bun build.ts",
     "compile": "bun build ./bin/cli.ts --compile --minify --outfile bin/httx",

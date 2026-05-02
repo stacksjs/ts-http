@@ -1,3 +1,188 @@
+[Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.7...v0.1.8)
+
+### 🚀 Features
+
+- **httx**: per-host circuit breaker + convenience verb methods ([b286332](https://github.com/stacksjs/ts-http/commit/b286332)) _(by Chris <chrisbreuer93@gmail.com>)_
+- add useHead page titles across all devtools pages ([ee1e2c9](https://github.com/stacksjs/ts-http/commit/ee1e2c9)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- use file-based dynamic routes for detail pages ([b5da09c](https://github.com/stacksjs/ts-http/commit/b5da09c)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add StxLink, WebSocket broadcasting, real-time updates ([128ad97](https://github.com/stacksjs/ts-http/commit/128ad97)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add CLI, WebSocket broadcasting, and fix routing ([94043da](https://github.com/stacksjs/ts-http/commit/94043da)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add trackRequests() global fetch patch and ingest API endpoint ([5c32c90](https://github.com/stacksjs/ts-http/commit/5c32c90)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add DynamoDB storage layer and onRequestComplete hook ([ef8b8c9](https://github.com/stacksjs/ts-http/commit/ef8b8c9)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+
+### 🐛 Bug Fixes
+
+- resolve lint errors ([00f3360](https://github.com/stacksjs/ts-http/commit/00f3360)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- make store exports callable (Pinia composable pattern) ([88778df](https://github.com/stacksjs/ts-http/commit/88778df)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- scan partials and components in crosswind config ([fbf2d49](https://github.com/stacksjs/ts-http/commit/fbf2d49)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- convert all server-side directives to client-side for reactive data ([4601470](https://github.com/stacksjs/ts-http/commit/4601470)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- restructure devtools to root-level dirs and fix monitoring page ([bb274c3](https://github.com/stacksjs/ts-http/commit/bb274c3)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- resolve typecheck errors ([56f9c0d](https://github.com/stacksjs/ts-http/commit/56f9c0d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- resolve typecheck errors ([a2a07df](https://github.com/stacksjs/ts-http/commit/a2a07df)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- use useRef for canvas/D3 elements, fix SPA nav highlighting ([1783d77](https://github.com/stacksjs/ts-http/commit/1783d77)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+
+### ♻️ Code Refactoring
+
+- replace inline useQuery with shared stores ([fb104b8](https://github.com/stacksjs/ts-http/commit/fb104b8)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- use typed defineProps in EmptyState component ([17872ca](https://github.com/stacksjs/ts-http/commit/17872ca)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove unnecessary <script server> from EmptyState component ([6c38ebf](https://github.com/stacksjs/ts-http/commit/6c38ebf)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- extract shared logic into functions/ and stores/ ([c62892d](https://github.com/stacksjs/ts-http/commit/c62892d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove hand-rolled stx rendering — use serve() from stx ([cecc3fd](https://github.com/stacksjs/ts-http/commit/cecc3fd)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- replace all manual data-stx-link with StxLink :to ([4a20c28](https://github.com/stacksjs/ts-http/commit/4a20c28)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- replace data-stx-link with StxLink component ([a5e0b64](https://github.com/stacksjs/ts-http/commit/a5e0b64)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- move router config to stx.config.ts ([b2a7b8e](https://github.com/stacksjs/ts-http/commit/b2a7b8e)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove HTML boilerplate from layouts — use auto-shell ([754cefc](https://github.com/stacksjs/ts-http/commit/754cefc)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- extract shared UI helpers into utils.ts ([bc0d0e8](https://github.com/stacksjs/ts-http/commit/bc0d0e8)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- clean up devtools index.ts and update STX page templates ([e86e585](https://github.com/stacksjs/ts-http/commit/e86e585)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- swap DynamoDB for SQLite, add null guards ([67cd06c](https://github.com/stacksjs/ts-http/commit/67cd06c)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+
+### 🧹 Chores
+
+- release v0.1.8 ([134855c](https://github.com/stacksjs/ts-http/commit/134855c)) _(by Chris <chrisbreuer93@gmail.com>)_
+- refresh bun.lock and apply pickier --fix ([0f086ee](https://github.com/stacksjs/ts-http/commit/0f086ee)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- refresh bun.lock ([496f6f8](https://github.com/stacksjs/ts-http/commit/496f6f8)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- lint:fix ([2cf60da](https://github.com/stacksjs/ts-http/commit/2cf60da)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- refresh bun.lock to pick up latest pickier ([ad921b2](https://github.com/stacksjs/ts-http/commit/ad921b2)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fresh install to pick up dtsx 0.9.14 and bunfig 0.15.9 ([59a0e32](https://github.com/stacksjs/ts-http/commit/59a0e32)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fix lint errors ([c7bfb87](https://github.com/stacksjs/ts-http/commit/c7bfb87)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fresh install to pick up pickier 0.1.21 ([b34c8a5](https://github.com/stacksjs/ts-http/commit/b34c8a5)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fix lint errors ([0274628](https://github.com/stacksjs/ts-http/commit/0274628)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- auto-fix lint errors ([d1bc201](https://github.com/stacksjs/ts-http/commit/d1bc201)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- gitignore .stx directory ([16424cc](https://github.com/stacksjs/ts-http/commit/16424cc)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- include md in pickier lint extensions ([ff73e56](https://github.com/stacksjs/ts-http/commit/ff73e56)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- minor updates ([865a6ee](https://github.com/stacksjs/ts-http/commit/865a6ee)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add css config path to stx.config.ts ([b7ddbef](https://github.com/stacksjs/ts-http/commit/b7ddbef)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add stx runtime type declarations ([3c1d451](https://github.com/stacksjs/ts-http/commit/3c1d451)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove stale stx-router-inline partial ([5687b32](https://github.com/stacksjs/ts-http/commit/5687b32)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- minor updates ([e0eefc5](https://github.com/stacksjs/ts-http/commit/e0eefc5)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update vscode config ([b834110](https://github.com/stacksjs/ts-http/commit/b834110)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update dependencies ([8047c28](https://github.com/stacksjs/ts-http/commit/8047c28)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([e0beb49](https://github.com/stacksjs/ts-http/commit/e0beb49)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fix lint errors ([2136188](https://github.com/stacksjs/ts-http/commit/2136188)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- repo cleanup and modernization ([3b499ba](https://github.com/stacksjs/ts-http/commit/3b499ba)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove @stacksjs/docs ([58e5a4a](https://github.com/stacksjs/ts-http/commit/58e5a4a)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove .zed and .cursor folders ([fca8d61](https://github.com/stacksjs/ts-http/commit/fca8d61)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove redundant docs/.vitepress ([59dbdfc](https://github.com/stacksjs/ts-http/commit/59dbdfc)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update better-dx to ^0.2.7 ([0e4fd10](https://github.com/stacksjs/ts-http/commit/0e4fd10)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update CLAUDE.md with project context and crosswind details ([2700078](https://github.com/stacksjs/ts-http/commit/2700078)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add proper claude code guidelines ([e9a677f](https://github.com/stacksjs/ts-http/commit/e9a677f)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- use pantry monorepo action instead of pantry-setup ([94fbe23](https://github.com/stacksjs/ts-http/commit/94fbe23)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([aa7394b](https://github.com/stacksjs/ts-http/commit/aa7394b)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update CI action versions and fix bun.lock hash ([40c582d](https://github.com/stacksjs/ts-http/commit/40c582d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([b1a0f09](https://github.com/stacksjs/ts-http/commit/b1a0f09)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([32c7e2d](https://github.com/stacksjs/ts-http/commit/32c7e2d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([dd4d92c](https://github.com/stacksjs/ts-http/commit/dd4d92c)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([0db030e](https://github.com/stacksjs/ts-http/commit/0db030e)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([9f4e797](https://github.com/stacksjs/ts-http/commit/9f4e797)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([79e220d](https://github.com/stacksjs/ts-http/commit/79e220d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([dd1870d](https://github.com/stacksjs/ts-http/commit/dd1870d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([365809d](https://github.com/stacksjs/ts-http/commit/365809d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([bd74c54](https://github.com/stacksjs/ts-http/commit/bd74c54)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([f86d398](https://github.com/stacksjs/ts-http/commit/f86d398)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([26d400a](https://github.com/stacksjs/ts-http/commit/26d400a)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([c880cc7](https://github.com/stacksjs/ts-http/commit/c880cc7)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([7a90546](https://github.com/stacksjs/ts-http/commit/7a90546)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([f8fb487](https://github.com/stacksjs/ts-http/commit/f8fb487)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([92cfcc4](https://github.com/stacksjs/ts-http/commit/92cfcc4)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- **deps**: update dependency actions/checkout to v6.0.2 (#1755) ([c8923b7](https://github.com/stacksjs/ts-http/commit/c8923b7)) _(by Chris <chrisbreuer93@gmail.com>)_ ([#1755](https://github.com/stacksjs/ts-http/issues/1755), [#1755](https://github.com/stacksjs/ts-http/issues/1755))
+
+### Contributors
+
+- _Chris <chrisbreuer93@gmail.com>_
+- _glennmichael123 <gtorregosa@gmail.com>_
+
+[Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.7...HEAD)
+
+### 🚀 Features
+
+- **httx**: per-host circuit breaker + convenience verb methods ([b286332](https://github.com/stacksjs/ts-http/commit/b286332)) _(by Chris <chrisbreuer93@gmail.com>)_
+- add useHead page titles across all devtools pages ([ee1e2c9](https://github.com/stacksjs/ts-http/commit/ee1e2c9)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- use file-based dynamic routes for detail pages ([b5da09c](https://github.com/stacksjs/ts-http/commit/b5da09c)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add StxLink, WebSocket broadcasting, real-time updates ([128ad97](https://github.com/stacksjs/ts-http/commit/128ad97)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add CLI, WebSocket broadcasting, and fix routing ([94043da](https://github.com/stacksjs/ts-http/commit/94043da)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add trackRequests() global fetch patch and ingest API endpoint ([5c32c90](https://github.com/stacksjs/ts-http/commit/5c32c90)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add DynamoDB storage layer and onRequestComplete hook ([ef8b8c9](https://github.com/stacksjs/ts-http/commit/ef8b8c9)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+
+### 🐛 Bug Fixes
+
+- resolve lint errors ([00f3360](https://github.com/stacksjs/ts-http/commit/00f3360)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- make store exports callable (Pinia composable pattern) ([88778df](https://github.com/stacksjs/ts-http/commit/88778df)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- scan partials and components in crosswind config ([fbf2d49](https://github.com/stacksjs/ts-http/commit/fbf2d49)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- convert all server-side directives to client-side for reactive data ([4601470](https://github.com/stacksjs/ts-http/commit/4601470)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- restructure devtools to root-level dirs and fix monitoring page ([bb274c3](https://github.com/stacksjs/ts-http/commit/bb274c3)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- resolve typecheck errors ([56f9c0d](https://github.com/stacksjs/ts-http/commit/56f9c0d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- resolve typecheck errors ([a2a07df](https://github.com/stacksjs/ts-http/commit/a2a07df)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- use useRef for canvas/D3 elements, fix SPA nav highlighting ([1783d77](https://github.com/stacksjs/ts-http/commit/1783d77)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+
+### ♻️ Code Refactoring
+
+- replace inline useQuery with shared stores ([fb104b8](https://github.com/stacksjs/ts-http/commit/fb104b8)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- use typed defineProps in EmptyState component ([17872ca](https://github.com/stacksjs/ts-http/commit/17872ca)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove unnecessary <script server> from EmptyState component ([6c38ebf](https://github.com/stacksjs/ts-http/commit/6c38ebf)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- extract shared logic into functions/ and stores/ ([c62892d](https://github.com/stacksjs/ts-http/commit/c62892d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove hand-rolled stx rendering — use serve() from stx ([cecc3fd](https://github.com/stacksjs/ts-http/commit/cecc3fd)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- replace all manual data-stx-link with StxLink :to ([4a20c28](https://github.com/stacksjs/ts-http/commit/4a20c28)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- replace data-stx-link with StxLink component ([a5e0b64](https://github.com/stacksjs/ts-http/commit/a5e0b64)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- move router config to stx.config.ts ([b2a7b8e](https://github.com/stacksjs/ts-http/commit/b2a7b8e)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove HTML boilerplate from layouts — use auto-shell ([754cefc](https://github.com/stacksjs/ts-http/commit/754cefc)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- extract shared UI helpers into utils.ts ([bc0d0e8](https://github.com/stacksjs/ts-http/commit/bc0d0e8)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- clean up devtools index.ts and update STX page templates ([e86e585](https://github.com/stacksjs/ts-http/commit/e86e585)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- swap DynamoDB for SQLite, add null guards ([67cd06c](https://github.com/stacksjs/ts-http/commit/67cd06c)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+
+### 🧹 Chores
+
+- refresh bun.lock and apply pickier --fix ([0f086ee](https://github.com/stacksjs/ts-http/commit/0f086ee)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- refresh bun.lock ([496f6f8](https://github.com/stacksjs/ts-http/commit/496f6f8)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- lint:fix ([2cf60da](https://github.com/stacksjs/ts-http/commit/2cf60da)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- refresh bun.lock to pick up latest pickier ([ad921b2](https://github.com/stacksjs/ts-http/commit/ad921b2)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fresh install to pick up dtsx 0.9.14 and bunfig 0.15.9 ([59a0e32](https://github.com/stacksjs/ts-http/commit/59a0e32)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fix lint errors ([c7bfb87](https://github.com/stacksjs/ts-http/commit/c7bfb87)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fresh install to pick up pickier 0.1.21 ([b34c8a5](https://github.com/stacksjs/ts-http/commit/b34c8a5)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fix lint errors ([0274628](https://github.com/stacksjs/ts-http/commit/0274628)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- auto-fix lint errors ([d1bc201](https://github.com/stacksjs/ts-http/commit/d1bc201)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- gitignore .stx directory ([16424cc](https://github.com/stacksjs/ts-http/commit/16424cc)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- include md in pickier lint extensions ([ff73e56](https://github.com/stacksjs/ts-http/commit/ff73e56)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- minor updates ([865a6ee](https://github.com/stacksjs/ts-http/commit/865a6ee)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add css config path to stx.config.ts ([b7ddbef](https://github.com/stacksjs/ts-http/commit/b7ddbef)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add stx runtime type declarations ([3c1d451](https://github.com/stacksjs/ts-http/commit/3c1d451)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove stale stx-router-inline partial ([5687b32](https://github.com/stacksjs/ts-http/commit/5687b32)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- minor updates ([e0eefc5](https://github.com/stacksjs/ts-http/commit/e0eefc5)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update vscode config ([b834110](https://github.com/stacksjs/ts-http/commit/b834110)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update dependencies ([8047c28](https://github.com/stacksjs/ts-http/commit/8047c28)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([e0beb49](https://github.com/stacksjs/ts-http/commit/e0beb49)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- fix lint errors ([2136188](https://github.com/stacksjs/ts-http/commit/2136188)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- repo cleanup and modernization ([3b499ba](https://github.com/stacksjs/ts-http/commit/3b499ba)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove @stacksjs/docs ([58e5a4a](https://github.com/stacksjs/ts-http/commit/58e5a4a)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove .zed and .cursor folders ([fca8d61](https://github.com/stacksjs/ts-http/commit/fca8d61)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- remove redundant docs/.vitepress ([59dbdfc](https://github.com/stacksjs/ts-http/commit/59dbdfc)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update better-dx to ^0.2.7 ([0e4fd10](https://github.com/stacksjs/ts-http/commit/0e4fd10)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update CLAUDE.md with project context and crosswind details ([2700078](https://github.com/stacksjs/ts-http/commit/2700078)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- add proper claude code guidelines ([e9a677f](https://github.com/stacksjs/ts-http/commit/e9a677f)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- use pantry monorepo action instead of pantry-setup ([94fbe23](https://github.com/stacksjs/ts-http/commit/94fbe23)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([aa7394b](https://github.com/stacksjs/ts-http/commit/aa7394b)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- update CI action versions and fix bun.lock hash ([40c582d](https://github.com/stacksjs/ts-http/commit/40c582d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([b1a0f09](https://github.com/stacksjs/ts-http/commit/b1a0f09)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([32c7e2d](https://github.com/stacksjs/ts-http/commit/32c7e2d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([dd4d92c](https://github.com/stacksjs/ts-http/commit/dd4d92c)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([0db030e](https://github.com/stacksjs/ts-http/commit/0db030e)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([9f4e797](https://github.com/stacksjs/ts-http/commit/9f4e797)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([79e220d](https://github.com/stacksjs/ts-http/commit/79e220d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([dd1870d](https://github.com/stacksjs/ts-http/commit/dd1870d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([365809d](https://github.com/stacksjs/ts-http/commit/365809d)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([bd74c54](https://github.com/stacksjs/ts-http/commit/bd74c54)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([f86d398](https://github.com/stacksjs/ts-http/commit/f86d398)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([26d400a](https://github.com/stacksjs/ts-http/commit/26d400a)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([c880cc7](https://github.com/stacksjs/ts-http/commit/c880cc7)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([7a90546](https://github.com/stacksjs/ts-http/commit/7a90546)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([f8fb487](https://github.com/stacksjs/ts-http/commit/f8fb487)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- wip ([92cfcc4](https://github.com/stacksjs/ts-http/commit/92cfcc4)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- **deps**: update dependency actions/checkout to v6.0.2 (#1755) ([c8923b7](https://github.com/stacksjs/ts-http/commit/c8923b7)) _(by Chris <chrisbreuer93@gmail.com>)_ ([#1755](https://github.com/stacksjs/ts-http/issues/1755), [#1755](https://github.com/stacksjs/ts-http/issues/1755))
+
+### Contributors
+
+- _Chris <chrisbreuer93@gmail.com>_
+- _glennmichael123 <gtorregosa@gmail.com>_
+
 [Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.6...v0.1.7)
 
 ### 🧹 Chores
