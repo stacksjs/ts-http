@@ -1,8 +1,10 @@
 import type { Result } from 'ts-error-handling'
+import type { FakeRequest } from './fake'
 import type { HttxConfig, HttxResponse, RequestCompleteRecord, RequestOptions, RetryOptions } from './types'
 import { err, ok } from 'ts-error-handling'
 import { CircuitBreaker, CircuitOpenError } from './circuit-breaker'
 import { HttxNetworkError, HttxRequestError, HttxResponseError, HttxTimeoutError } from './errors'
+import { buildFakeResponse, HttxFakeUnmatchedError, isFaking, resolveFake } from './fake'
 import { debugLog, sleep } from './utils'
 
 export class HttxClient {
@@ -207,10 +209,17 @@ export class HttxClient {
         body,
       }
 
-      const response = await fetch(finalUrl, {
-        ...requestInit,
-        verbose: options.verbose || this.config.verbose !== false,
-      })
+      // Faking intercept (stacksjs/ts-http#1760): when fakes are
+      // installed, resolve a stub instead of hitting the network. The
+      // recorder captures every request (matched or not) so
+      // `assertSent` can inspect it. A real `Response` is synthesized
+      // so the parse path below is identical to a live request.
+      const response = isFaking()
+        ? await this.fetchFaked(finalUrl, headers, body, options)
+        : await fetch(finalUrl, {
+            ...requestInit,
+            verbose: options.verbose || this.config.verbose !== false,
+          })
 
       // Handle streaming response
       if (options.stream && response.body) {
@@ -276,6 +285,58 @@ export class HttxClient {
 
       return err(new Error(String(error)))
     }
+  }
+
+  /**
+   * Resolve a faked response (stacksjs/ts-http#1760). Records the
+   * request, then either returns a synthesized `Response` from the
+   * matched stub, falls through to the real network (passthrough), or
+   * throws `HttxFakeUnmatchedError` (strict default).
+   */
+  private async fetchFaked(
+    finalUrl: string,
+    headers: Headers,
+    body: BodyInit | undefined,
+    options: RequestOptions,
+  ): Promise<Response> {
+    // Record headers with the caller's original casing (HTTP header
+    // names are case-insensitive, but assertions read a plain object,
+    // so `req.headers.Authorization` should match what the caller
+    // wrote). Mirror buildHeaders' content-type/accept derivation.
+    const headerObj: Record<string, string> = { ...this.config.defaultHeaders }
+    if (options.headers && !(options.headers instanceof Headers) && !Array.isArray(options.headers)) {
+      Object.assign(headerObj, options.headers as Record<string, string>)
+    }
+    else if (options.headers) {
+      new Headers(options.headers).forEach((value, key) => { headerObj[key] = value })
+    }
+    if (options.json) headerObj['Content-Type'] = 'application/json'
+    else if (options.form) headerObj['Content-Type'] = 'application/x-www-form-urlencoded'
+    else if (options.multipart) delete headerObj['Content-Type']
+    if (options.acceptHeader) headerObj.Accept = options.acceptHeader
+    else if (options.json && !('Accept' in headerObj)) headerObj.Accept = 'application/json'
+
+    const fakeReq: FakeRequest = {
+      method: options.method,
+      url: finalUrl,
+      headers: headerObj,
+      body: typeof body === 'string' ? body : undefined,
+    }
+
+    const resolution = resolveFake(fakeReq)
+    if (resolution.matched && resolution.spec) {
+      return buildFakeResponse(resolution.spec)
+    }
+    if (resolution.passthrough) {
+      return fetch(finalUrl, {
+        method: options.method,
+        headers,
+        signal: options.signal,
+        body,
+        verbose: options.verbose || this.config.verbose !== false,
+      })
+    }
+    throw new HttxFakeUnmatchedError(options.method, finalUrl)
   }
 
   private fireRequestComplete<T>(
