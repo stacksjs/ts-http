@@ -145,7 +145,7 @@ export class HttxClient {
       lastError = result.error
 
       // Check if we should retry
-      if (!lastError || !this.shouldRetry(lastError, attempt, retryOptions)) {
+      if (!lastError || !this.shouldRetry(lastError, attempt, retryOptions, options.method)) {
         break
       }
 
@@ -214,11 +214,19 @@ export class HttxClient {
       // recorder captures every request (matched or not) so
       // `assertSent` can inspect it. A real `Response` is synthesized
       // so the parse path below is identical to a live request.
+      //
+      // Bun's fetch-level `verbose` dumps the full request/response wire —
+      // including Authorization/Cookie headers and bodies — to stdout, so
+      // only enable it when verbosity is explicitly switched fully on
+      // (boolean `true`). An array of debug categories or the default
+      // `false` must NOT force this on, otherwise scoped debug logging
+      // would leak secrets. The library's own `debugLog` handles the
+      // granular cases.
       const response = isFaking()
         ? await this.fetchFaked(finalUrl, headers, body, options)
         : await fetch(finalUrl, {
             ...requestInit,
-            verbose: options.verbose || this.config.verbose !== false,
+            verbose: options.verbose === true || this.config.verbose === true,
           })
 
       // Handle streaming response
@@ -504,13 +512,20 @@ export class HttxClient {
     return response.blob() as unknown as T
   }
 
+  /**
+   * Stable identity for the default retry predicate so we can detect
+   * whether a caller supplied their own (which opts non-idempotent
+   * methods back into automatic retries).
+   */
+  private readonly defaultShouldRetry: (error: Error, attempt: number) => boolean = () => true
+
   private mergeRetryOptions(optionsRetry?: RetryOptions): Required<RetryOptions> {
     const configRetry = this.config.retry || {}
     return {
       retries: optionsRetry?.retries ?? configRetry.retries ?? 0,
       retryDelay: optionsRetry?.retryDelay ?? configRetry.retryDelay ?? 1000,
       retryOn: optionsRetry?.retryOn ?? configRetry.retryOn ?? [408, 429, 500, 502, 503, 504],
-      shouldRetry: optionsRetry?.shouldRetry ?? configRetry.shouldRetry ?? (() => true),
+      shouldRetry: optionsRetry?.shouldRetry ?? configRetry.shouldRetry ?? this.defaultShouldRetry,
     }
   }
 
@@ -521,13 +536,23 @@ export class HttxClient {
     return Math.min(exponentialDelay + jitter, 30000) // Max 30s
   }
 
-  private shouldRetry(error: Error, attempt: number, options: Required<RetryOptions>): boolean {
+  private shouldRetry(error: Error, attempt: number, options: Required<RetryOptions>, method?: string): boolean {
     if (attempt >= (options.retries || 0)) {
       return false
     }
 
     // Don't retry timeout errors by default
     if (error instanceof HttxTimeoutError) {
+      return false
+    }
+
+    // Safety: never auto-retry non-idempotent methods (POST, PATCH).
+    // Retrying these can duplicate side effects (double charge, double
+    // order) because the original request may have reached the server
+    // before the failure was observed. Callers who know a given endpoint
+    // is safe to retry (e.g. it accepts an Idempotency-Key) can opt in
+    // explicitly by supplying their own `shouldRetry`.
+    if (!this.isIdempotent(method) && !this.hasExplicitShouldRetry(options)) {
       return false
     }
 
@@ -545,6 +570,25 @@ export class HttxClient {
     }
 
     return false
+  }
+
+  /**
+   * Idempotent methods are safe to retry per RFC 7231 §4.2.2 — repeating
+   * them has the same effect as a single call. POST and PATCH are not
+   * idempotent and are excluded from automatic retries.
+   */
+  private isIdempotent(method?: string): boolean {
+    if (!method) return false
+    return ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'].includes(method.toUpperCase())
+  }
+
+  /**
+   * Whether the caller supplied an explicit `shouldRetry` predicate
+   * (as opposed to the internal always-true default). Used to let
+   * callers opt non-idempotent methods back into retrying.
+   */
+  private hasExplicitShouldRetry(options: Required<RetryOptions>): boolean {
+    return options.shouldRetry !== this.defaultShouldRetry
   }
 
   private serializeData(data: unknown): string {

@@ -267,6 +267,106 @@ describe('HttxClient', () => {
       expect(attempts).toBe(1)
       expect(result.isErr).toBe(true)
     })
+
+    it('should NOT auto-retry non-idempotent POST on network error', async () => {
+      let attempts = 0
+      const originalFetch = globalThis.fetch
+
+      globalThis.fetch = mock(async () => {
+        attempts++
+        throw new TypeError('fetch failed')
+      }) as unknown as typeof fetch
+
+      const result = await client.request('https://dummyjson.com/products/add', {
+        method: 'POST',
+        json: true,
+        body: { title: 'x' },
+        retry: { retries: 3, retryDelay: 10 },
+      })
+
+      globalThis.fetch = originalFetch
+
+      // A POST is not idempotent: a single attempt only, no retries.
+      expect(attempts).toBe(1)
+      expect(result.isErr).toBe(true)
+    })
+
+    it('should NOT auto-retry non-idempotent POST on 503', async () => {
+      let attempts = 0
+      const originalFetch = globalThis.fetch
+
+      globalThis.fetch = mock(async () => {
+        attempts++
+        return new Response('Service Unavailable', { status: 503 })
+      }) as unknown as typeof fetch
+
+      const result = await client.request('https://dummyjson.com/products/add', {
+        method: 'POST',
+        json: true,
+        body: { title: 'x' },
+        retry: { retries: 3, retryDelay: 10, retryOn: [503] },
+      })
+
+      globalThis.fetch = originalFetch
+
+      expect(attempts).toBe(1)
+      expect(result.isErr).toBe(true)
+    })
+
+    it('should auto-retry idempotent PUT on 503', async () => {
+      let attempts = 0
+      const originalFetch = globalThis.fetch
+
+      globalThis.fetch = mock(async () => {
+        attempts++
+        if (attempts < 3)
+          return new Response('Service Unavailable', { status: 503 })
+        return new Response('{"ok":true}', { status: 200, headers: { 'content-type': 'application/json' } })
+      }) as unknown as typeof fetch
+
+      const result = await client.request('https://dummyjson.com/posts/1', {
+        method: 'PUT',
+        json: true,
+        body: { title: 'x' },
+        retry: { retries: 3, retryDelay: 10, retryOn: [503] },
+      })
+
+      globalThis.fetch = originalFetch
+
+      expect(attempts).toBe(3)
+      expect(result.isOk).toBe(true)
+    })
+
+    it('should retry POST when caller opts in via explicit shouldRetry', async () => {
+      let attempts = 0
+      const originalFetch = globalThis.fetch
+
+      globalThis.fetch = mock(async () => {
+        attempts++
+        if (attempts < 3)
+          return new Response('Service Unavailable', { status: 503 })
+        return new Response('{"ok":true}', { status: 200, headers: { 'content-type': 'application/json' } })
+      }) as unknown as typeof fetch
+
+      const result = await client.request('https://dummyjson.com/products/add', {
+        method: 'POST',
+        json: true,
+        body: { title: 'x' },
+        retry: {
+          retries: 3,
+          retryDelay: 10,
+          retryOn: [503],
+          // Caller knows this endpoint accepts an Idempotency-Key and
+          // explicitly opts the POST back into retrying.
+          shouldRetry: () => true,
+        },
+      })
+
+      globalThis.fetch = originalFetch
+
+      expect(attempts).toBe(3)
+      expect(result.isOk).toBe(true)
+    })
   })
 
   describe('Response parsing', () => {

@@ -70,6 +70,34 @@ Example delays for `retryDelay: 1000`:
 | Network errors | Retry |
 | 4xx errors | No retry |
 | 5xx errors | Retry if in `retryOn` |
+| Non-idempotent methods (POST, PATCH) | No retry unless `shouldRetry` is supplied |
+
+### Idempotency-safe retries
+
+By default httx will **not** automatically retry non-idempotent methods
+(`POST`, `PATCH`), even on network or 5xx failures. The original request
+may have already reached the server before the failure was observed, so a
+blind retry can duplicate side effects (double charge, double order).
+
+Idempotent methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`, `TRACE`) are
+retried normally. If you know a `POST`/`PATCH` endpoint is safe to retry
+(for example it accepts an `Idempotency-Key`), opt back in by supplying your
+own `shouldRetry` predicate:
+
+```typescript
+await client.request('/api/charge', {
+  method: 'POST',
+  json: true,
+  body: payload,
+  headers: { 'Idempotency-Key': key },
+  retry: {
+    retries: 3,
+    retryOn: [500, 502, 503, 504],
+    // Explicit opt-in re-enables retries for this non-idempotent request.
+    shouldRetry: () => true,
+  },
+})
+```
 
 ## Status Codes
 
