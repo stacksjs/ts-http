@@ -66,14 +66,14 @@
     "zip:darwin-arm64": "zip -j bin/httx-darwin-arm64.zip bin/httx-darwin-arm64"
   },
   "dependencies": {
-    "@stacksjs/stx": "0.2.10",
-    "stx-router": "0.2.10",
+    "@stacksjs/stx": "0.2.73",
+    "stx-router": "0.2.73",
     "ts-broadcasting": "^0.0.5",
-    "ts-error-handling": "^0.1.0"
+    "ts-error-handling": "^0.1.1"
   },
   "devDependencies": {
     "better-dx": "^0.2.15",
-    "bunfig": "^0.15.6"
+    "bunfig": "^0.15.14"
   },
   "git-hooks": {
     "pre-commit": {
