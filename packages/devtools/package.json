@@ -60,7 +60,7 @@
     "ts-broadcasting": "^0.0.5"
   },
   "devDependencies": {
-    "@stacksjs/stx": "^0.2.5",
-    "bun-plugin-stx": "^0.2.5"
+    "@stacksjs/stx": "^0.2.82",
+    "bun-plugin-stx": "^0.2.82"
   }
 }

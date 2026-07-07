@@ -66,8 +66,8 @@
     "zip:darwin-arm64": "zip -j bin/httx-darwin-arm64.zip bin/httx-darwin-arm64"
   },
   "dependencies": {
-    "@stacksjs/stx": "0.2.10",
-    "stx-router": "0.2.10",
+    "@stacksjs/stx": "^0.2.82",
+    "stx-router": "^0.2.82",
     "ts-broadcasting": "^0.0.5",
     "ts-error-handling": "^0.1.0"
   },
