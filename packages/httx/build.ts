@@ -1,5 +1,7 @@
 import { dts } from 'bun-plugin-dtsx'
 
+process.chdir(import.meta.dir)
+
 await Bun.build({
   entrypoints: ['./src/index.ts', './bin/cli.ts'],
   outdir: './dist',
