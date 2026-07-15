@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Buffer } from 'node:buffer'
 import process from 'node:process'
 import { CLI } from '@stacksjs/clapp'

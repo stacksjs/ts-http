@@ -1,6 +1,7 @@
 {
   "name": "@stacksjs/httx",
   "type": "module",
+  "sideEffects": false,
   "version": "0.1.10",
   "description": "A modern command-line & library HTTP client, for the API era.",
   "author": "Chris Breuer <chris@stacksjs.org>",
@@ -8,7 +9,7 @@
   "homepage": "https://github.com/stacksjs/ts-http",
   "repository": {
     "type": "git",
-    "url": "https://github.com/stacksjs/ts-http"
+    "url": "git+https://github.com/stacksjs/ts-http.git"
   },
   "bugs": {
     "url": "https://github.com/stacksjs/ts-http/issues"
