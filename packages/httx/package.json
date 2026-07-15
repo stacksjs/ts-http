@@ -2,7 +2,7 @@
   "name": "@stacksjs/httx",
   "type": "module",
   "sideEffects": false,
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "A modern command-line & library HTTP client, for the API era.",
   "author": "Chris Breuer <chris@stacksjs.org>",
   "license": "MIT",

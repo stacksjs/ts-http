@@ -1,3 +1,39 @@
+[Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.10...v0.1.11)
+
+## 🚀 Features
+
+- fluent request builder + test faking/mocking (#1761) ([7cac61d](https://github.com/stacksjs/ts-http/commit/7cac61d)) _(by Glenn Michael Torregosa <gtorregosa@gmail.com>)_ ([#1761](https://github.com/stacksjs/ts-http/issues/1761), [#1761](https://github.com/stacksjs/ts-http/issues/1761))
+
+## 🐛 Bug Fixes
+
+- **httx**: don't retry non-idempotent methods, stop forcing wire verbose ([16350e6](https://github.com/stacksjs/ts-http/commit/16350e6)) _(by Chris <chrisbreuer93@gmail.com>)_
+- **scripts**: stop double-generating CHANGELOG on release ([e850fad](https://github.com/stacksjs/ts-http/commit/e850fad)) _(by Glenn Michael Torregosa <gtorregosa@gmail.com>)_
+
+## 🧹 Chores
+
+- release v0.1.11 ([40acf7c](https://github.com/stacksjs/ts-http/commit/40acf7c)) _(by Chris <chrisbreuer93@gmail.com>)_
+- **pkg**: publint clean — bin shebang, sideEffects, git+ repo URL ([43cb0ca](https://github.com/stacksjs/ts-http/commit/43cb0ca)) _(by Chris <chrisbreuer93@gmail.com>)_
+- upgrade to TypeScript 7 ([122e4bf](https://github.com/stacksjs/ts-http/commit/122e4bf)) _(by Chris <chrisbreuer93@gmail.com>)_
+- **deps**: refresh bun.lock to pick up pickier 0.1.37 ([28d40e7](https://github.com/stacksjs/ts-http/commit/28d40e7)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- **deps**: bump stx and ts-cloud packages to latest ([abd9730](https://github.com/stacksjs/ts-http/commit/abd9730)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- **deps**: upgrade @cwcss/crosswind to 0.2.6 ([6ecf6bd](https://github.com/stacksjs/ts-http/commit/6ecf6bd)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- **deps**: refresh bun.lock to pick up pickier 0.1.35 ([70b410c](https://github.com/stacksjs/ts-http/commit/70b410c)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- **deps**: refresh bun.lock to pick up pickier 0.1.33 ([fdb525e](https://github.com/stacksjs/ts-http/commit/fdb525e)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- **deps**: refresh bun.lock to pick up @stacksjs/logsmith 0.2.3 ([5ab4188](https://github.com/stacksjs/ts-http/commit/5ab4188)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- **deps**: refresh bun.lock to pick up buddy-bot 0.9.20 ([19a5962](https://github.com/stacksjs/ts-http/commit/19a5962)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- **deps**: bump better-dx to ^0.2.15 ([36ae7e4](https://github.com/stacksjs/ts-http/commit/36ae7e4)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+- refresh bun.lock to pick up bun-plugin-dtsx@0.9.18 ([ca73ded](https://github.com/stacksjs/ts-http/commit/ca73ded)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+
+## ⏪ Reverts
+
+- keep staged-lint kebab + bunx gitlint shorthand ([893de01](https://github.com/stacksjs/ts-http/commit/893de01)) _(by glennmichael123 <gtorregosa@gmail.com>)_
+
+## Contributors
+
+- _Chris <chrisbreuer93@gmail.com>_
+- _Glenn Michael Torregosa <gtorregosa@gmail.com>_
+- _glennmichael123 <gtorregosa@gmail.com>_
+
 [Compare changes](https://github.com/stacksjs/ts-http/compare/v0.1.9...v0.1.10)
 
 ### 🐛 Bug Fixes

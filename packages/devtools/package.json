@@ -2,7 +2,7 @@
   "name": "@stacksjs/httx-dashboard",
   "type": "module",
   "sideEffects": false,
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "A real-time monitoring dashboard for httx HTTP client, built with stx.",
   "author": "Chris Breuer <chris@stacksjs.org>",
   "license": "MIT",
