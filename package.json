@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "better-dx": "^0.2.15",
-    "bunfig": "^0.15.6"
+    "bunfig": "^0.15.17"
   },
   "git-hooks": {
     "pre-commit": {
